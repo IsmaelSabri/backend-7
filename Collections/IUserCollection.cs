@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApi.Dto;
 using WebApi.Models;
 
 namespace WebApi.Repositories
@@ -13,6 +14,6 @@ namespace WebApi.Repositories
         Task DeleteUser(string id);
         Task<List<User>> GetAllUsers();
         Task<User> GetUserById(string id);
-
+        Task<User> GetUserByEmail(string email);
     }
 }

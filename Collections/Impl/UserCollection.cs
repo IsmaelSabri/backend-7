@@ -10,22 +10,28 @@ namespace WebApi.Repositories
 {
     public class UserCollection : IUserCollection
     {
-        internal UserRepository userRepository=new();
+        internal UserRepository userRepository = new();
         private IMongoCollection<User> Collection;
 
-        public UserCollection(){
-            Collection=userRepository.mongoDatabase.GetCollection<User>("Users");
+        public UserCollection()
+        {
+            Collection = userRepository.mongoDatabase.GetCollection<User>("Users");
         }
 
         public async Task DeleteUser(string id)
         {
-            var filter=Builders<User>.Filter.Eq(s => s.Id, new ObjectId(id));
+            var filter = Builders<User>.Filter.Eq(s => s.Id, new ObjectId(id));
             await Collection.DeleteOneAsync(filter);
         }
 
         public async Task<User> GetUserById(string id)
         {
-            return await Collection.FindAsync(new BsonDocument{{"_id", new ObjectId(id)}}).Result.FirstAsync();
+            return await Collection.FindAsync(new BsonDocument { { "_id", new ObjectId(id) } }).Result.FirstAsync();
+        }
+
+        public async Task<User> GetUserByEmail(string email)
+        {
+            return await Collection.FindAsync(s => s.Email == email).Result.FirstAsync();
         }
 
         public async Task<List<User>> GetAllUsers()
@@ -40,7 +46,7 @@ namespace WebApi.Repositories
 
         public async Task UpdateUser(User user)
         {
-            var filter=Builders<User>.Filter.Eq(s=> s.Id, user.Id);
+            var filter = Builders<User>.Filter.Eq(s => s.Id, user.Id);
             await Collection.ReplaceOneAsync(filter, user);
         }
     }
