@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Dto;
 using WebApi.Jwt;
 using WebApi.Models;
 using WebApi.Repositories;
+using WebApi.Enums;
 
 namespace WebApi.Controllers
 {
@@ -17,6 +19,7 @@ namespace WebApi.Controllers
         private readonly IUserCollection db = new UserCollection();
         private readonly JwtResource jwtResource = new();
 
+        //[Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -47,7 +50,8 @@ namespace WebApi.Controllers
                     Username = user.Username,
                     Email = user.Email,
                     Password = BCrypt.Net.BCrypt.HashPassword(user.Password),
-                    DateRegistry = DateTime.UtcNow
+                    DateRegistry = DateTime.UtcNow,
+                    Role = nameof(Role.USER)
                 };
                 await db.NewUser(newUser);
             }
@@ -70,47 +74,39 @@ namespace WebApi.Controllers
             {
                 return BadRequest(new { message = "Incorrect password. Please try again." });
             }
-            var jwt = jwtResource.Generate(user.Id);
-            Response.Cookies.Append("jwt", jwt, new CookieOptions
+            user.Token = jwtResource.Generate(user);
+            user.RefreshToken = jwtResource.CreateRefreshToken();
+            user.RefreshTokenDateExpires = DateTime.Now.AddDays(7);
+            await db.UpdateUser(user);
+            /*Response.Cookies.Append("token", jwt, new CookieOptions
             {
-                HttpOnly = true
+                HttpOnly = tru¡,
+                IsEssential = true,
+                Secure = false,
+                SameSite = SameSiteMode.Strict,
+                Domain = "localhost", 
+                Expires = DateTime.UtcNow.AddDays(14)
             });
-
-            return Ok(new
-            {
-                message = "success"
-            });
+            Response.Headers.Add("token", jwt);*/
+            return Ok(user);
         }
 
-         [HttpGet("user")]
-        public IActionResult Auth()
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] TokenDto tokenDto)
         {
-            try
-            {
-                var jwt = Request.Cookies["jwt"];
-
-                var token = jwtResource.Verify(jwt!);
-
-                var user = db.GetUserById(token.Issuer);
-
-                return Ok(user);
-            }
-            catch (Exception)
-            {
-                return Unauthorized();
-            }
-        }
-
-
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            Response.Cookies.Delete("jwt");
-
-            return Ok(new
-            {
-                message = "success"
-            });
+            if (tokenDto is null)
+                return BadRequest("Invalid Client Request");
+            string accessToken = tokenDto.AccessToken;
+            string refreshToken = tokenDto.RefreshToken;
+            var principal = jwtResource.GetPrincipleFromExpiredToken(accessToken);
+            var username = principal.Identity.Name;//?.FindFirst(x => x.Type.Equals("Username"))?.Value;
+            var user = await db.GetUserByUsername(username!);
+            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenDateExpires <= DateTime.Now)
+                return BadRequest("Invalid Request");
+            user.RefreshToken = jwtResource.CreateRefreshToken();
+            user.Token = jwtResource.Generate(user);
+            await db.UpdateUser(user);
+            return Ok(user);
         }
 
         [HttpPut("{id}")]

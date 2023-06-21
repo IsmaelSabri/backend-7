@@ -34,6 +34,21 @@ namespace WebApi.Repositories
             return await Collection.FindAsync(s => s.Email == email).Result.FirstAsync();
         }
 
+        public async Task<User> GetUserByUsername(string username)
+        {
+            return await Collection.FindAsync(s => s.Username == username).Result.FirstAsync();
+        }
+
+        public async Task<User> GetUserByRefreshToken(string refreshToken)
+        {
+            return await Collection.FindAsync(s => s.RefreshToken == refreshToken).Result.FirstAsync();
+        }
+
+        public async Task<User> GetUserByToken(string token)
+        {
+            return await Collection.FindAsync(s => s.Token == token).Result.FirstAsync();
+        }
+
         public async Task<List<User>> GetAllUsers()
         {
             return await Collection.FindAsync(new BsonDocument()).Result.ToListAsync();

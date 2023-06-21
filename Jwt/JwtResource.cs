@@ -5,38 +5,73 @@ using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using WebApi.Models;
+using System.Security.Cryptography;
+using WebApi.Repositories;
 
 namespace WebApi.Jwt
 {
     public class JwtResource
     {
-        private string secureKey = "gcuq@Q3rnc38BH7ARAv5tqZruUUuvFerCf+kzZ48^6s(AF9PyUNy^s";
+        private readonly string secureKey = "gcuq@Q3rnc38BH7ARAv5tqZruUUuvFerCf+kzZ48^6s(AF9PyUNy^s";
+        private readonly IUserCollection db = new UserCollection();
 
-        public string Generate(MongoDB.Bson.ObjectId id)
+        public string Generate(User user)
         {
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secureKey));
-            var credentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
-            var header = new JwtHeader(credentials);
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(secureKey);
+            var identity = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.Name,$"{user.Username}")
+            });
 
-            var payload = new JwtPayload(id.ToString(), null, null, null, DateTime.Today.AddDays(30));
-            var securityToken = new JwtSecurityToken(header, payload);
+            var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
 
-            return new JwtSecurityTokenHandler().WriteToken(securityToken);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = identity,
+                Expires = DateTime.Now.AddSeconds(10),
+                SigningCredentials = credentials
+            };
+            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
+            return jwtTokenHandler.WriteToken(token);
         }
 
-        public JwtSecurityToken Verify(string jwt)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(secureKey);
-            tokenHandler.ValidateToken(jwt, new TokenValidationParameters
-            {
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuerSigningKey = true,
-                ValidateIssuer = false,
-                ValidateAudience = false
-            }, out SecurityToken validatedToken);
 
-            return (JwtSecurityToken) validatedToken;
+        public string CreateRefreshToken()
+        {
+            var tokenBytes = RandomNumberGenerator.GetBytes(64);
+            var refreshToken = Convert.ToBase64String(tokenBytes);
+
+            /*var tokenInUser = db.GetUserByRefreshToken(refreshToken);
+
+            if (tokenInUser!=null)
+            {
+                return CreateRefreshToken();
+            }*/
+            return refreshToken;
+        }
+
+
+        public ClaimsPrincipal GetPrincipleFromExpiredToken(string token)
+        {
+            var key = Encoding.ASCII.GetBytes("gcuq@Q3rnc38BH7ARAv5tqZruUUuvFerCf+kzZ48^6s(AF9PyUNy^s");
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateLifetime = false
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid Token = Invalid session");
+            return principal;
         }
     }
 }
