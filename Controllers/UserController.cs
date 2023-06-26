@@ -51,7 +51,12 @@ namespace WebApi.Controllers
                     Email = user.Email,
                     Password = BCrypt.Net.BCrypt.HashPassword(user.Password),
                     DateRegistry = DateTime.UtcNow,
-                    Role = nameof(Role.USER)
+                    Role = nameof(Role.USER),
+                    Firstname = "",
+                    Lastname = "",
+                    Isactive = true,
+                    IsnotLocked = true,
+                    LastaccessDate = DateTime.UtcNow
                 };
                 await db.NewUser(newUser);
             }
@@ -101,8 +106,12 @@ namespace WebApi.Controllers
             var principal = jwtResource.GetPrincipleFromExpiredToken(accessToken);
             var username = principal.Identity.Name;//?.FindFirst(x => x.Type.Equals("Username"))?.Value;
             var user = await db.GetUserByUsername(username!);
-            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenDateExpires <= DateTime.Now)
-                return BadRequest("Invalid Request");
+            if (user is null)
+                return BadRequest("Invalid Request. Cannot find user.");
+            if (user.RefreshToken != refreshToken)
+                return BadRequest("Invalid Request. Invalid token.");
+            if (user.RefreshTokenDateExpires <= DateTime.Now)
+                return BadRequest("Invalid Request. Token expired.");
             user.RefreshToken = jwtResource.CreateRefreshToken();
             user.Token = jwtResource.Generate(user);
             await db.UpdateUser(user);

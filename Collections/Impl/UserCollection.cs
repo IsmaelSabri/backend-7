@@ -11,7 +11,7 @@ namespace WebApi.Repositories
     public class UserCollection : IUserCollection
     {
         internal UserRepository userRepository = new();
-        private IMongoCollection<User> Collection;
+        private readonly IMongoCollection<User> Collection;
 
         public UserCollection()
         {
