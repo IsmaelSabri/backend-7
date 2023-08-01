@@ -12,7 +12,7 @@ namespace Users.Repositories
         public IMongoDatabase mongoDatabase;
         public UserRepository()
         {
-            var mongoUrl = MongoUrl.Create("mongodb://yo:admin@localhost:27017");
+            var mongoUrl = MongoUrl.Create("mongodb://yo:admin@host.docker.internal:27017");
             mongoClient = new MongoClient(mongoUrl);
             mongoDatabase = mongoClient.GetDatabase("users");
             //mongoClient=new MongoClient("mongodb://yo:admin@localhost:27017");

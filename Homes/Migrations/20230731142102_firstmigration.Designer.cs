@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Homes.Migrations
 {
     [DbContext(typeof(HouseDb))]
-    [Migration("20230720152443_FirstMigration")]
-    partial class FirstMigration
+    [Migration("20230731142102_firstmigration")]
+    partial class firstmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -102,11 +102,11 @@ namespace Homes.Migrations
                     b.Property<int?>("EstanciaMinima")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime?>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<DateTime>("FechaUltimaModificacion")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime?>("FechaUltimaModificacion")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("Fianza")
                         .HasColumnType("integer");

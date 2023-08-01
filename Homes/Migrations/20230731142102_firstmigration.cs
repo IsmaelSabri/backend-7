@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Homes.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstMigration : Migration
+    public partial class firstmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -55,8 +55,8 @@ namespace Homes.Migrations
                     InstalacionesDiscapacitados = table.Column<bool>(type: "boolean", nullable: true),
                     NuevoProyecto = table.Column<string>(type: "text", nullable: true),
                     Creador = table.Column<string>(type: "text", nullable: true),
-                    FechaCreacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    FechaUltimaModificacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    FechaCreacion = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    FechaUltimaModificacion = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     NumeroVisitas = table.Column<string>(type: "text", nullable: true),
                     ImageUrl = table.Column<string>(type: "text", nullable: true),
                     ImageName = table.Column<string>(type: "text", nullable: true),

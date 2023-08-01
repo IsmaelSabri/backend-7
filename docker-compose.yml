@@ -1,0 +1,182 @@
+services:
+
+  homes:
+    image: homeimage
+    depends_on:
+      - postgres
+    container_name: homecontainer
+    ports:
+      - "3000:80"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ConnectionStrings__PostgreSQLConnection=Server=host.docker.internal;Port=5433;Database=housesdb;User Id=yo;Password=admin;
+      - ASPNETCORE_URLS=http://+:80
+
+  users:
+    image: userimage
+    depends_on:
+      - mongo
+    container_name: usercontainer
+    ports:
+      -"3001:80"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+
+  
+
+  postgres:
+    container_name: postgres-sql
+    image: postgres
+    hostname: myfancyhost
+    environment:
+      POSTGRES_USER: yo
+      POSTGRES_PASSWORD: admin
+      PGDATA: /data/postgres
+      POSTGRES_DB: housesdb
+      #DATABASE_HOST: 127.0.0.1
+    volumes:
+      - ~/Documentos/docker-vol/postgres-volume/data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:7.1
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - ~/Documentos/docker-vol/pgadmin-volume/data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    user: root
+    networks:
+      - postgres
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  mongo:
+    image: mongo:4.4.18
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: yo
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - ~/Documentos/docker-vol/mongo-volume/data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "27018:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: yo
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+      ME_CONFIG_OPTIONS_EDITORTHEME: ambiance
+      ME_CONFIG_MONGODB_PORT: "27017"
+      ME_CONFIG_MONGODB_SERVER: mongo
+    depends_on:
+      - mongo
+
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'users'
+      MYSQL_USER: 'yo'
+      MYSQL_PASSWORD: 'admin'
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      - '3307:3306'
+    expose:
+      - '3306'
+    volumes:
+      - ~/Documentos/docker-vol/mysql-volume/data:/data/db
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8065:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+    depends_on:
+      - mysql
+
+
+#  rabbitmq:
+#    container_name: rabbitmq
+#    image: rabbitmq:3-management
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#
+#  zookeeper-1:
+#    image: confluentinc/cp-zookeeper:latest
+#    environment:
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#      ZOOKEEPER_TICK_TIME: 2000
+#    ports:
+#      - 22181:2181
+#
+#  zookeeper-2:
+#    image: confluentinc/cp-zookeeper:latest
+#    environment:
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#      ZOOKEEPER_TICK_TIME: 2000
+#    ports:
+#      - 32181:2181
+#
+#  kafka-1:
+#    image: confluentinc/cp-kafka:latest
+#    depends_on:
+#      - zookeeper-1
+#      - zookeeper-2
+#
+#    ports:
+#      - 29092:29092
+#    environment:
+#      KAFKA_BROKER_ID: 1
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092,PLAINTEXT_HOST://localhost:29092
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+#      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#  kafka-2:
+#    image: confluentinc/cp-kafka:latest
+#    depends_on:
+#      - zookeeper-1
+#      - zookeeper-2
+#    ports:
+#      - 39092:39092
+#    environment:
+#      KAFKA_BROKER_ID: 2
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9092,PLAINTEXT_HOST://localhost:39092
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+#      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:
+  pgadmin:

@@ -99,11 +99,11 @@ namespace Homes.Migrations
                     b.Property<int?>("EstanciaMinima")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime?>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<DateTime>("FechaUltimaModificacion")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime?>("FechaUltimaModificacion")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("Fianza")
                         .HasColumnType("integer");

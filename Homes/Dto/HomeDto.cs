@@ -49,7 +49,7 @@ namespace Homes.Dto
         public string? Mascotas { get; set; }
         public string? Fianza { get; set; }
         public string? Disponibilidad { get; set; }
-        public string? EstanciaMinima { get; set; } // meses
+        public string? EstanciaMinima { get; set; } 
         public string? SepuedeFumar { get; set; }
         public string? SeadmitenParejas { get; set; }
         public string? SeadmitenMenoresdeedad { get; set; }

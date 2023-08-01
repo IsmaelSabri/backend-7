@@ -55,13 +55,10 @@ namespace Homes.Models
         public string? ImageName { get; set; }
         public string? ImageId { get; set; }
         public string? Video { get; set; }
-        // url
-        // alquiler
         public bool? Mascotas { get; set; }
         public int? Fianza { get; set; }
         public string? Disponibilidad { get; set; }
-        public int? EstanciaMinima { get; set; } // meses
-        // compartir
+        public int? EstanciaMinima { get; set; } 
         public bool? SepuedeFumar { get; set; }
         public bool? SeadmitenParejas { get; set; }
         public bool? SeadmitenMenoresdeedad { get; set; }
