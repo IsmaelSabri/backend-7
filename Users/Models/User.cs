@@ -16,6 +16,8 @@ namespace Users.Models
         public string? Firstname { get; set; }
         public string? Lastname { get; set; }
         public string? Username { get; set; }
+        public string? Phone { get; set; }
+        public string? Domains { get; set; }
         [JsonIgnore]
         public string? Password { get; set; }
         public string? Email { get; set; }

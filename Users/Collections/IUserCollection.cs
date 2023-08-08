@@ -16,6 +16,7 @@ namespace Users.Repositories
         Task<User> GetUserById(string id);
         Task<User> GetUserByEmail(string email);
         Task<User> GetUserByToken(string token);
+        Task<User> GetUserByUserId(string userId);
         Task<User> GetUserByUsername(string username);
         Task<User> GetUserByRefreshToken(string refreshToken);
         string GenerateRandomAlphanumericString();

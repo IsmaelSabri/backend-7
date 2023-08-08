@@ -34,6 +34,11 @@ namespace Users.Repositories
             return await Collection.FindAsync(s => s.Email == email).Result.FirstAsync();
         }
 
+        public async Task<User> GetUserByUserId(string userId)
+        {
+            return await Collection.FindAsync(s => s.UserId == userId).Result.FirstAsync();
+        }
+
         public async Task<User> GetUserByUsername(string username)
         {
             return await Collection.FindAsync(s => s.Username == username).Result.FirstAsync();

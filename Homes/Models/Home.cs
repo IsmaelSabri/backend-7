@@ -58,7 +58,7 @@ namespace Homes.Models
         public bool? Mascotas { get; set; }
         public int? Fianza { get; set; }
         public string? Disponibilidad { get; set; }
-        public int? EstanciaMinima { get; set; } 
+        public int? EstanciaMinima { get; set; }
         public bool? SepuedeFumar { get; set; }
         public bool? SeadmitenParejas { get; set; }
         public bool? SeadmitenMenoresdeedad { get; set; }
@@ -71,5 +71,8 @@ namespace Homes.Models
         public int? Numero { get; set; }
         public string? Comentario { get; set; }
         public string? Calle { get; set; }
+        public int? Visitas { get; set; }
+        public int? Valoraciones { get; set; }
+        public Double? StarRatingAverage { get; set; }
     }
 }

@@ -49,7 +49,7 @@ namespace Homes.Collections
         {
             const string chars = "1234567890";
             var random = new Random();
-            return new string(Enumerable.Repeat(chars, 12)
+            return new string(Enumerable.Repeat(chars, 18)
                                                     .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }

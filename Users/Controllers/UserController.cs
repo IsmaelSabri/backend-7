@@ -139,9 +139,9 @@ namespace Users.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
+            var user= db.GetUserByUserId(id);
             await db.DeleteUser(id);
             return Ok("Deleted successfully"); // success
         }
-
     }
 }

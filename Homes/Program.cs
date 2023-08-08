@@ -35,7 +35,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
+app.UseRouting(); //
 app.MapControllers();
-
+app.UseCors(options => options
+                .WithOrigins(new[] { "http://localhost:3000", "http://localhost:8080", "http://localhost:4200" })// React, Vue, Angular
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+            );
 app.Run();
