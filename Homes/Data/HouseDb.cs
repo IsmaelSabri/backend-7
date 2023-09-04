@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Homes.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,5 +10,22 @@ namespace Homes.Data
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
         public DbSet<Home> Homes { get; set; }//=> Set<Home>();
+        public DbSet<Flat> Flats { get; set; }
+        public DbSet<House> Houses { get; set; }
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<HolidayRent> HolidayRents { get; set; }
+        public DbSet<NewProject> NewProjects { get; set; }
+        public DbSet<Home4rent> Home4Rents { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Flat>().ToTable("Flat");
+            modelBuilder.Entity<House>().ToTable("House");
+            modelBuilder.Entity<Room>().ToTable("Room");
+            modelBuilder.Entity<HolidayRent>().ToTable("HolidayRent");
+            modelBuilder.Entity<NewProject>().ToTable("NewProject");
+            modelBuilder.Entity<Home4rent>().ToTable("Home4rent");
+        }
+
     }
 }

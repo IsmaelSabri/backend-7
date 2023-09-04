@@ -12,7 +12,13 @@ namespace Homes.Profiles
     {
         public HomeProfile()
         {
-            CreateMap<HomeDto,Home>();
+            CreateMap<HomeDto, Home>();
+            CreateMap<HomeDto, Flat>();
+            CreateMap<HomeDto, House>();
+            CreateMap<HomeDto, Room>();
+            CreateMap<HomeDto, HolidayRent>();
+            CreateMap<HomeDto, NewProject>();
+            CreateMap<HomeDto, Home4rent>();
         }
     }
 }

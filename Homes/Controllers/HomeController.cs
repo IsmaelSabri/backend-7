@@ -23,6 +23,7 @@ namespace Homes.Controllers
         private readonly IHomeCollection db;
         private readonly IMapper mapper;
         private readonly Cloudinary cloudinary;
+        private Home home;
         public HomeController(IMapper mapper1, IOptions<CloudinarySettings> config, HouseDb hdb)
         {
             mapper = mapper1;
@@ -56,7 +57,29 @@ namespace Homes.Controllers
             }
             else
             {
-                Home home = mapper.Map<Home>(homeDto);
+                switch (homeDto.Model)
+                {
+                    case "Flat":
+                            home = mapper.Map<Flat>(homeDto);
+                    break;
+                    case "House":
+                            home = mapper.Map<House>(homeDto);
+                    break;
+                    case "Room":
+                            home = mapper.Map<Room>(homeDto);
+                    break;
+                    case "HolidayRent":
+                            home = mapper.Map<HolidayRent>(homeDto);
+                    break;
+                    case "NewProject":
+                            home = mapper.Map<NewProject>(homeDto);
+                    break;
+                    case "Home4rent":
+                            home = mapper.Map<Home4rent>(homeDto);
+                    break;
+                    default:
+                    break;
+                }
                 NumberFormatInfo provider = new()
                 {
                     NumberDecimalSeparator = "."

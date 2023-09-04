@@ -20,14 +20,23 @@ services:
       - mongo
     container_name: usercontainer
     ports:
-      -"3001:80"
+      - "3001:80"
     build:
       context: .
       dockerfile: Dockerfile
     environment:
       - ASPNETCORE_URLS=http://+:80
 
-  
+  gateway:
+    image: gatewayimage
+    container_name: gatewaycontainer
+    ports:
+      - "3030:80"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://+:80
 
   postgres:
     container_name: postgres-sql

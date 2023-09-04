@@ -1,7 +1,9 @@
 using AutoMapper;
 using Homes.Collections;
 using Homes.Data;
+using Homes.Dto;
 using Homes.Infrastructure;
+using Homes.Models;
 using Homes.Profiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
