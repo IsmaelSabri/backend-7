@@ -11,13 +11,15 @@ namespace Users.Models
     public class User
     {
         [BsonId]
-        public ObjectId Id { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? Id { get; set; }
         public string? UserId { get; set; }
         public string? Firstname { get; set; }
         public string? Lastname { get; set; }
         public string? Username { get; set; }
         public string? Phone { get; set; }
         public string? Domains { get; set; }
+        public string? fotoPerfilUrl { get; set; }
         [JsonIgnore]
         public string? Password { get; set; }
         public string? Email { get; set; }

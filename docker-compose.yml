@@ -38,6 +38,17 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:80
 
+  email:
+    image: emailimage
+    container_name: emailcontainer
+    ports:
+      - "3002:80"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+
   postgres:
     container_name: postgres-sql
     image: postgres
@@ -58,7 +69,7 @@ services:
 
   pgadmin:
     container_name: pgadmin
-    image: dpage/pgadmin4:7.1
+    image: dpage/pgadmin4:7.7
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}

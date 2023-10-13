@@ -15,6 +15,7 @@ namespace Users.Repositories
             var mongoUrl = MongoUrl.Create("mongodb://yo:admin@host.docker.internal:27017");
             mongoClient = new MongoClient(mongoUrl);
             mongoDatabase = mongoClient.GetDatabase("users");
+            //          host.docker.internal  ---   localhost
             //mongoClient=new MongoClient("mongodb://yo:admin@localhost:27017");
             //mongoDatabase=mongoClient.GetDatabase("users"); // crear la base de datos si no existiera
         }

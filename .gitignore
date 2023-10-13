@@ -11,6 +11,7 @@
 *.sln.docstates
 # Api Keys
 Homes/appsettings.json
+Email/appsettings.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

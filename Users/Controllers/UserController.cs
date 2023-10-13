@@ -9,6 +9,11 @@ using Users.Jwt;
 using Users.Models;
 using Users.Repositories;
 using Users.Enums;
+using Email.Dto;
+using MongoDB.Bson.IO;
+using System.Text.Json;
+using RestSharp;
+using MongoDB.Bson;
 
 namespace Users.Controllers
 {
@@ -18,6 +23,7 @@ namespace Users.Controllers
     {
         private readonly IUserCollection db = new UserCollection();
         private readonly JwtResource jwtResource = new();
+        private readonly HttpClient Client = new();
 
         //[Authorize]
         [HttpGet("all")]
@@ -32,36 +38,74 @@ namespace Users.Controllers
             return Ok(await db.GetUserById(id));
         }
 
+        [HttpGet("check/{id}")]
+        public async Task<IActionResult> CheckUserBeforeRegister(string id)
+        {
+            return Ok(await db.GetUserByUserId(id));
+        }
+
         [HttpPost("new")]
         public async Task<IActionResult> CreateUser([FromBody] UserDto user)
+        {
+            if (user.Email == null)
+            {
+                return BadRequest();
+            }
+            try{
+            var userExists = await db.GetUserByEmail(user.Email);
+            Console.WriteLine(userExists);
+            if (userExists != null)
+            {
+                return BadRequest("Ya existe una cuenta para " + user.Email + "\n\nPuede iniciar sesión si recupera su contraseña.\n\n"
+                +"Se ha enviado un correo a " + user.Email + " con mas información.");
+
+            }
+            }catch(Exception){
+                
+             }
+                var newUser = new User
+                {
+                    Firstname = user.Firstname,
+                    Lastname = user.Lastname,
+                    Email = user.Email,
+                    UserId = db.GenerateRandomAlphanumericString(),
+                    Username = "",
+                    DateRegistry = DateTime.UtcNow.ToLocalTime(),
+                    Role = nameof(Role.USER),
+                    Isactive = false,
+                    IsnotLocked = false,
+                };
+                await db.NewUser(newUser);
+                db.SendWelcomeEmail(newUser);
+                return Created("Created", true);
+        }
+
+        [HttpPut("fullregistry")]
+        public async Task<IActionResult> CompleteRegistry(User user)
         {
             if (user == null)
             {
                 return BadRequest();
             }
-            if (user.Username == null)
+            var newUser = new User
             {
-                ModelState.AddModelError("Username", "Nombre de usuario no encontrado");
-            }
-            else
-            {
-                var newUser = new User
-                {
-                    Username = user.Username,
-                    Email = user.Email,
-                    UserId = db.GenerateRandomAlphanumericString(),
-                    Password = BCrypt.Net.BCrypt.HashPassword(user.Password),
-                    DateRegistry = DateTime.UtcNow.ToLocalTime(),
-                    Role = nameof(Role.USER),
-                    Firstname = "",
-                    Lastname = "",
-                    Isactive = true,
-                    IsnotLocked = true,
-                    LastaccessDate = DateTime.UtcNow.ToLocalTime()
-                };
-                await db.NewUser(newUser);
-            }
-            return Created("Created", true);
+                Id = user.Id,
+                Firstname = user.Firstname,
+                Lastname = user.Lastname,
+                Username = user.Firstname + " " + user.Lastname,
+                Password = BCrypt.Net.BCrypt.HashPassword(user.Password),
+                Email = user.Email,
+                UserId = user.UserId,
+                DateRegistry = user.DateRegistry,
+                LastaccessDate = DateTime.UtcNow.ToLocalTime(),
+                Role = user.Role,
+                Isactive = true,
+                IsnotLocked = true,
+                fotoPerfilUrl = "https://robohash.org/" + user.Firstname
+                + user.Lastname + db.GenerateRandomAlphanumericString().Substring(3, 8),
+            };
+            await db.UpdateUser(newUser);
+            return Created("Modified", true);
         }
 
         [HttpPost("login")]
@@ -106,7 +150,7 @@ namespace Users.Controllers
             string accessToken = tokenDto.AccessToken;
             string refreshToken = tokenDto.RefreshToken;
             var principal = jwtResource.GetPrincipleFromExpiredToken(accessToken);
-            var username = principal.Identity.Name;//?.FindFirst(x => x.Type.Equals("Username"))?.Value;
+            var username = principal.Identity?.Name;//?.FindFirst(x => x.Type.Equals("Username"))?.Value;
             var user = await db.GetUserByUsername(username!);
             if (user is null)
                 return BadRequest("Invalid Request. Cannot find user.");
@@ -131,7 +175,6 @@ namespace Users.Controllers
             {
                 ModelState.AddModelError("Username", "Nombre de usuario no encontrado");
             }
-            user.Id = new MongoDB.Bson.ObjectId(id);
             await db.UpdateUser(user);
             return Created("Modified", true);
         }
@@ -139,7 +182,7 @@ namespace Users.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            var user= db.GetUserByUserId(id);
+            var user = db.GetUserByUserId(id);
             await db.DeleteUser(id);
             return Ok("Deleted successfully"); // success
         }

@@ -24,11 +24,14 @@ namespace Homes.Migrations
 
             modelBuilder.Entity("Homes.Models.Home", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Amueblado")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Antiguedad")
                         .HasColumnType("text");
@@ -36,7 +39,7 @@ namespace Homes.Migrations
                     b.Property<string>("ArmariosEmpotrados")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("AseoEnsuite")
+                    b.Property<bool>("AseoEnsuite")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Aseos")
@@ -54,7 +57,7 @@ namespace Homes.Migrations
                     b.Property<string>("Condicion")
                         .HasColumnType("text");
 
-                    b.Property<int?>("Cp")
+                    b.Property<int>("Cp")
                         .HasColumnType("integer");
 
                     b.Property<string>("Creador")
@@ -69,6 +72,9 @@ namespace Homes.Migrations
                     b.Property<string>("Destacar")
                         .HasColumnType("text");
 
+                    b.Property<bool>("DireccionAproximada")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("DistanciaAlMar")
                         .HasColumnType("text");
 
@@ -78,10 +84,10 @@ namespace Homes.Migrations
                     b.Property<string>("Estado")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("FechaCreacion")
+                    b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<DateTime?>("FechaUltimaModificacion")
+                    b.Property<DateTime>("FechaUltimaModificacion")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Garage")
@@ -99,22 +105,25 @@ namespace Homes.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
 
-                    b.Property<double?>("Lat")
+                    b.Property<double>("Lat")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("Lng")
+                    b.Property<double>("Lng")
                         .HasColumnType("double precision");
 
-                    b.Property<int?>("Numero")
+                    b.Property<string>("Model")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Numero")
                         .HasColumnType("integer");
 
                     b.Property<string>("NumeroVisitas")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("Parquet")
+                    b.Property<bool>("Parquet")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("PiscinaPrivada")
+                    b.Property<bool>("PiscinaPrivada")
                         .HasColumnType("boolean");
 
                     b.Property<string>("PrecioFinal")
@@ -124,6 +133,9 @@ namespace Homes.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PrecioM2")
+                        .HasColumnType("text");
+
+                    b.Property<string>("StreetView")
                         .HasColumnType("text");
 
                     b.Property<string>("Superficie")
@@ -152,31 +164,31 @@ namespace Homes.Migrations
                 {
                     b.HasBaseType("Homes.Models.Home");
 
-                    b.Property<bool?>("Barbacoa")
+                    b.Property<bool>("Barbacoa")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Cafetera")
+                    b.Property<bool>("Cafetera")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Camas")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("Chimenea")
+                    b.Property<bool>("Chimenea")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Cuna")
+                    b.Property<bool>("Cuna")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Lavadora")
+                    b.Property<bool>("Lavadora")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Lavavajillas")
+                    b.Property<bool>("Lavavajillas")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Microondas")
+                    b.Property<bool>("Microondas")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("MueblesJardin")
+                    b.Property<bool>("MueblesJardin")
                         .HasColumnType("boolean");
 
                     b.Property<string>("NumeroRegistro")
@@ -185,40 +197,40 @@ namespace Homes.Migrations
                     b.Property<string>("Personas")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("Plancha")
+                    b.Property<bool>("Plancha")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("PrimeraLineaPlaya")
+                    b.Property<bool>("PrimeraLineaPlaya")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Sabanas")
+                    b.Property<bool>("Sabanas")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("SecadorDePelo")
+                    b.Property<bool>("SecadorDePelo")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Secadora")
+                    b.Property<bool>("Secadora")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("StarRatingAverage")
+                    b.Property<int>("StarRatingAverage")
                         .HasColumnType("integer");
 
-                    b.Property<bool?>("Toallas")
+                    b.Property<bool>("Toallas")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Tv")
+                    b.Property<bool>("Tv")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("TvCable")
+                    b.Property<bool>("TvCable")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("Valoraciones")
+                    b.Property<int>("Valoraciones")
                         .HasColumnType("integer");
 
                     b.Property<string>("ValoracionesUsuarios")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("Wifi")
+                    b.Property<bool>("Wifi")
                         .HasColumnType("boolean");
 
                     b.ToTable("HolidayRent", (string)null);
@@ -228,61 +240,52 @@ namespace Homes.Migrations
                 {
                     b.HasBaseType("Homes.Models.Home");
 
-                    b.Property<bool?>("AireAcondicionado")
+                    b.Property<bool>("AireAcondicionado")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Alarma")
+                    b.Property<bool>("Alarma")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("AlarmaIncendios")
+                    b.Property<bool>("AlarmaIncendios")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("AltaEficienciaEnergetica")
+                    b.Property<string>("Bus")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Calefaccion")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Calefaccion")
+                    b.Property<string>("Colegios")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Consumo")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("EficienciaEnergetica")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("DistanciaBus")
+                    b.Property<string>("Emisiones")
                         .HasColumnType("text");
 
-                    b.Property<string>("DistanciaColegios")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DistanciaMetro")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EnseñanzaColegios")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("Extintores")
+                    b.Property<bool>("Extintores")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("InstitucionColegios")
+                    b.Property<string>("Metro")
                         .HasColumnType("text");
 
-                    b.Property<string>("LineaBus")
-                        .HasColumnType("text");
-
-                    b.Property<string>("LineaMetro")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NombreColegios")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("PanelesSolares")
+                    b.Property<bool>("PanelesSolares")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("ParadaBus")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ParadaMetro")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("Recepcion24_7")
+                    b.Property<bool>("Recepcion24_7")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("VideoVigilancia")
+                    b.Property<string>("Supermercados")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Universidades")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("VideoVigilancia")
                         .HasColumnType("boolean");
 
                     b.ToTable("House", (string)null);
@@ -304,25 +307,25 @@ namespace Homes.Migrations
                     b.Property<string>("PerfilCompartir")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("PropietarioviveEnlacasa")
+                    b.Property<bool>("PropietarioviveEnlacasa")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("SeadmiteLGTBI")
+                    b.Property<bool>("SeadmiteLGTBI")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("SeadmitenJubilados")
+                    b.Property<bool>("SeadmitenJubilados")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("SeadmitenMenoresdeedad")
+                    b.Property<bool>("SeadmitenMenoresdeedad")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("SeadmitenMochileros")
+                    b.Property<bool>("SeadmitenMochileros")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("SeadmitenParejas")
+                    b.Property<bool>("SeadmitenParejas")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("SepuedeFumar")
+                    b.Property<bool>("SepuedeFumar")
                         .HasColumnType("boolean");
 
                     b.ToTable("Room", (string)null);
@@ -332,7 +335,7 @@ namespace Homes.Migrations
                 {
                     b.HasBaseType("Homes.Models.House");
 
-                    b.Property<bool?>("Ascensor")
+                    b.Property<bool>("Ascensor")
                         .HasColumnType("boolean");
 
                     b.Property<string>("BajoOplantabaja")
@@ -341,28 +344,28 @@ namespace Homes.Migrations
                     b.Property<string>("Balcon")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("Columpios")
+                    b.Property<bool>("Columpios")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Golf")
+                    b.Property<bool>("Golf")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Gym")
+                    b.Property<bool>("Gym")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("InstalacionesDiscapacitados")
+                    b.Property<bool>("InstalacionesDiscapacitados")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Jacuzzi")
+                    b.Property<bool>("Jacuzzi")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Jardin")
+                    b.Property<bool>("Jardin")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Padel")
+                    b.Property<bool>("Padel")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("PiscinaComp")
+                    b.Property<bool>("PiscinaComp")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Piso")
@@ -371,13 +374,16 @@ namespace Homes.Migrations
                     b.Property<string>("Puerta")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("Sauna")
+                    b.Property<bool>("Sauna")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Tenis")
+                    b.Property<bool>("Tenis")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("Trastero")
+                    b.Property<bool>("Trastero")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("VideoPortero")
                         .HasColumnType("boolean");
 
                     b.Property<string>("VistasDespejadas")
@@ -412,13 +418,13 @@ namespace Homes.Migrations
                     b.Property<string>("Disponibilidad")
                         .HasColumnType("text");
 
-                    b.Property<int?>("EstanciaMinima")
+                    b.Property<int>("EstanciaMinima")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Fianza")
+                    b.Property<int>("Fianza")
                         .HasColumnType("integer");
 
-                    b.Property<bool?>("Mascotas")
+                    b.Property<bool>("Mascotas")
                         .HasColumnType("boolean");
 
                     b.ToTable("Home4rent", (string)null);

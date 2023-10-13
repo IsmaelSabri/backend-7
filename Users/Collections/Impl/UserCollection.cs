@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using RestSharp;
 using Users.Models;
 
 namespace Users.Repositories
 {
-    public class UserCollection : IUserCollection
+    public class UserCollection : ValidationAttribute, IUserCollection
     {
         internal UserRepository userRepository = new();
         private readonly IMongoCollection<User> Collection;
@@ -20,8 +23,7 @@ namespace Users.Repositories
 
         public async Task DeleteUser(string id)
         {
-            var filter = Builders<User>.Filter.Eq(s => s.Id, new ObjectId(id));
-            await Collection.DeleteOneAsync(filter);
+            await Collection.DeleteOneAsync(x => x.Id == id);
         }
 
         public async Task<User> GetUserById(string id)
@@ -72,10 +74,79 @@ namespace Users.Repositories
 
         public string GenerateRandomAlphanumericString()
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            const string chars = "1234567890";
             var random = new Random();
             return new string(Enumerable.Repeat(chars, 17)
-                                                    .Select(s => s[random.Next(s.Length)]).ToArray());
+            .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+
+        public void SendWelcomeEmail(User user)
+        {
+            try
+            {
+                var client = new RestClient("http://host.docker.internal:3030/api/email/setpassword");
+                var request = new RestRequest
+                {
+                    Method = Method.Get
+                };
+                request.AddHeader("Content-Type", "application/json");
+                request.AddJsonBody(new
+                {
+                    Name = user.Firstname,
+                    ToEmail = user.Email,
+                    Subject = "Activar cuenta",
+                    Message = user.UserId,
+                });
+                var response = client.Execute(request);
+                Console.WriteLine($"Content response: {response.Content}");
+                Console.WriteLine($"Status: {response.StatusCode}");
+                if (response.Headers != null)
+                {
+                    foreach (var header in response.Headers)
+                    {
+                        Console.WriteLine(header);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public void SendResetEmail(User user)
+        {
+            try
+            {
+                var client = new RestClient("http://host.docker.internal:3030/api/email/resendpassword");
+                var request = new RestRequest
+                {
+                    Method = Method.Get
+                };
+                request.AddHeader("Content-Type", "application/json");
+                request.AddJsonBody(new
+                {
+                    Name = user.Firstname,
+                    ToEmail = user.Email,
+                    Subject = "Cambiar contraseña",
+                    Message = user.UserId,
+                });
+                var response = client.Execute(request);
+                Console.WriteLine($"Content response: {response.Content}");
+                Console.WriteLine($"Status: {response.StatusCode}");
+                if (response.Headers != null)
+                {
+                    foreach (var header in response.Headers)
+                    {
+                        Console.WriteLine(header);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

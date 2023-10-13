@@ -20,5 +20,8 @@ namespace Users.Repositories
         Task<User> GetUserByUsername(string username);
         Task<User> GetUserByRefreshToken(string refreshToken);
         string GenerateRandomAlphanumericString();
+        void SendWelcomeEmail(User user);
+        void SendResetEmail(User user);
+
     }
 }

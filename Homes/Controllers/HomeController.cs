@@ -34,6 +34,7 @@ namespace Homes.Controllers
             );
             cloudinary = new Cloudinary(account);
             db = new HomeCollection(hdb);
+            home=new();
         }
 
         [HttpGet("All")]

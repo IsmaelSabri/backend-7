@@ -71,16 +71,11 @@ namespace Homes.Dto
         public string? Calefaccion { get; set; }
         public string? PanelesSolares { get; set; }
         public string? AltaEficienciaEnergetica { get; set; }
-        public string? NombreColegios { get; set; }
-        public string? EnseñanzaColegios { get; set; }
-        public string? InstitucionColegios { get; set; }
-        public string? DistanciaColegios { get; set; }
-        public string? LineaMetro { get; set; }
-        public string? ParadaMetro { get; set; }
-        public string? DistanciaMetro { get; set; }
-        public string? LineaBus { get; set; }
-        public string? ParadaBus { get; set; }
-        public string? DistanciaBus { get; set; }
+        public string? Colegios { get; set; }
+        public string? Universidades { get; set; }
+        public string? Supermercados { get; set; }
+        public string? Metro { get; set; }
+        public string? Bus { get; set; }
         public string? SepuedeFumar { get; set; }
         public string? SeadmitenParejas { get; set; }
         public string? SeadmitenMenoresdeedad { get; set; }
