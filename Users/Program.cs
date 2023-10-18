@@ -6,6 +6,11 @@ using Users.Jwt;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Users.Profiles;
+using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Users.Services;
+using Users.Services.impl;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +20,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddScoped<IPasswordHasher,PasswordHasher>();
+var mapperConfig = new MapperConfiguration(m => m.AddProfile(new UserProfile()));
+IMapper mapper = mapperConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", builder => builder.WithOrigins("http://localhost:4200", "https://localhost:4200")

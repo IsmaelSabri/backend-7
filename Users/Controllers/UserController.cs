@@ -1,19 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Users.Dto;
 using Users.Jwt;
 using Users.Models;
 using Users.Repositories;
 using Users.Enums;
-using Email.Dto;
-using MongoDB.Bson.IO;
-using System.Text.Json;
-using RestSharp;
-using MongoDB.Bson;
+using Users.Services;
+using AutoMapper;
 
 namespace Users.Controllers
 {
@@ -23,7 +15,14 @@ namespace Users.Controllers
     {
         private readonly IUserCollection db = new UserCollection();
         private readonly JwtResource jwtResource = new();
-        private readonly HttpClient Client = new();
+        private readonly IPasswordHasher passwordHasher;
+        private readonly IMapper mapper;
+        private User user1;
+        public UserController(IMapper mapper1, IPasswordHasher passwordHasher1)
+        {
+            mapper = mapper1;
+            passwordHasher = passwordHasher1;
+        }
 
         //[Authorize]
         [HttpGet("all")]
@@ -44,68 +43,76 @@ namespace Users.Controllers
             return Ok(await db.GetUserByUserId(id));
         }
 
-        [HttpPost("new")]
-        public async Task<IActionResult> CreateUser([FromBody] UserDto user)
+        [HttpGet("checkemail")]
+        public async Task<IActionResult> CheckUserByEmail(string email)
         {
-            if (user.Email == null)
-            {
-                return BadRequest();
-            }
-            try{
-            var userExists = await db.GetUserByEmail(user.Email);
-            Console.WriteLine(userExists);
-            if (userExists != null)
-            {
-                return BadRequest("Ya existe una cuenta para " + user.Email + "\n\nPuede iniciar sesión si recupera su contraseña.\n\n"
-                +"Se ha enviado un correo a " + user.Email + " con mas información.");
-
-            }
-            }catch(Exception){
-                
-             }
-                var newUser = new User
-                {
-                    Firstname = user.Firstname,
-                    Lastname = user.Lastname,
-                    Email = user.Email,
-                    UserId = db.GenerateRandomAlphanumericString(),
-                    Username = "",
-                    DateRegistry = DateTime.UtcNow.ToLocalTime(),
-                    Role = nameof(Role.USER),
-                    Isactive = false,
-                    IsnotLocked = false,
-                };
-                await db.NewUser(newUser);
-                db.SendWelcomeEmail(newUser);
-                return Created("Created", true);
+            return Ok(await db.GetUserByEmail(email));
         }
 
-        [HttpPut("fullregistry")]
-        public async Task<IActionResult> CompleteRegistry(User user)
+        [HttpPost("new")]
+        public async Task<IActionResult> CreateUser([FromBody] UserDto user)
         {
             if (user == null)
             {
                 return BadRequest();
             }
-            var newUser = new User
+            if (user.Email == null)
             {
-                Id = user.Id,
-                Firstname = user.Firstname,
-                Lastname = user.Lastname,
-                Username = user.Firstname + " " + user.Lastname,
-                Password = BCrypt.Net.BCrypt.HashPassword(user.Password),
-                Email = user.Email,
-                UserId = user.UserId,
-                DateRegistry = user.DateRegistry,
-                LastaccessDate = DateTime.UtcNow.ToLocalTime(),
-                Role = user.Role,
-                Isactive = true,
-                IsnotLocked = true,
-                fotoPerfilUrl = "https://robohash.org/" + user.Firstname
-                + user.Lastname + db.GenerateRandomAlphanumericString().Substring(3, 8),
-            };
-            await db.UpdateUser(newUser);
-            return Created("Modified", true);
+                ModelState.AddModelError("Email", "Debe incluir una dirección de correo válida.");
+            }
+            try
+            {
+                var userExists = await db.GetUserByEmail(user.Email);
+                Console.WriteLine(userExists);
+                if (userExists != null)
+                {
+                    return BadRequest("Ya existe una cuenta para " + user.Email + "\n\nPuede iniciar sesión si recupera su contraseña.\n\n"
+                    + "Se ha enviado un correo a " + user.Email + " con mas información.");
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            if (ModelState.IsValid)
+            {
+                user1 = mapper.Map<User>(user);
+                user1.UserId = db.GenerateRandomAlphanumericString();
+                user1.Username = user.Firstname + " " + user.Lastname;
+                user1.DateRegistry = DateTime.UtcNow.ToLocalTime();
+                user1.Role = nameof(Role.USER);
+                user1.Isactive = false;
+                user1.IsnotLocked = false;
+                await db.NewUser(user1);
+                db.SendWelcomeEmail(user1);
+            }
+            return Created("Created", true);
+        }
+
+        [HttpPut("fullregistry/{id}")]
+        public async Task<IActionResult> CompleteRegistry([FromBody] UserReadyDto user, string id)
+        {
+            if (user == null)
+            {
+                return BadRequest();
+            }
+            if (user.Password == null)
+            {
+                ModelState.AddModelError("Password", "La contraseña no puede estar vacía.");
+            }
+            if (ModelState.IsValid)
+            {
+                user1 = mapper.Map<User>(user);
+                user1.Password = passwordHasher.Hash(user.Password);
+                user1.Isactive = true;
+                user1.IsnotLocked = true;
+                user1.FotoPerfilUrl = "https://robohash.org/" + user.Firstname
+                    + user.Lastname + db.GenerateRandomAlphanumericString().Substring(3, 8);
+                var dump = ObjectDumper.Dump(user1);
+                Console.WriteLine(dump);
+                await db.UpdateUser(user1, id);
+            }
+            return Created("Ahora inicia sesión", true);
         }
 
         [HttpPost("login")]
@@ -120,7 +127,7 @@ namespace Users.Controllers
             {
                 return BadRequest(new { message = "Email not found. Join us in least than 1 minute" });
             }
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+            if (user.Password != null && !passwordHasher.Verify(user.Password, dto.Password))   // (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
             {
                 return BadRequest(new { message = "Incorrect password. Please try again." });
             }
@@ -128,7 +135,7 @@ namespace Users.Controllers
             user.RefreshToken = jwtResource.CreateRefreshToken();
             user.RefreshTokenDateExpires = DateTime.Now.ToLocalTime().AddDays(7);
             user.LastaccessDate = DateTime.UtcNow.ToLocalTime();
-            await db.UpdateUser(user);
+            await db.UpdateUser(user, user.Id);
             /*Response.Cookies.Append("token", jwt, new CookieOptions
             {
                 HttpOnly = tru¡,
@@ -160,7 +167,7 @@ namespace Users.Controllers
                 return BadRequest("Invalid Request. Token expired.");
             user.RefreshToken = jwtResource.CreateRefreshToken();
             user.Token = jwtResource.Generate(user);
-            await db.UpdateUser(user);
+            await db.UpdateUser(user, user.Id);
             return Ok(user);
         }
 
@@ -175,16 +182,17 @@ namespace Users.Controllers
             {
                 ModelState.AddModelError("Username", "Nombre de usuario no encontrado");
             }
-            await db.UpdateUser(user);
+            user.Id = id;
+            await db.UpdateUser(user, id);
             return Created("Modified", true);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            var user = db.GetUserByUserId(id);
+            var user = db.GetUserById(id);
             await db.DeleteUser(id);
-            return Ok("Deleted successfully"); // success
+            return Ok("Deleted successfully");
         }
     }
 }

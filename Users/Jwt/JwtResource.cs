@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -21,15 +17,11 @@ namespace Users.Jwt
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secureKey);
-            var identity = new ClaimsIdentity(new Claim[]
-            {
-                new Claim(ClaimTypes.Role, user.Role),
-                new Claim(ClaimTypes.Name,$"{user.Username}")
-            });
-
-            var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            ClaimsIdentity identity = new ClaimsIdentity();
+            identity.AddClaim(new Claim(ClaimTypes.Role, user.Role));
+            identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+            SigningCredentials credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = identity,
                 Expires = DateTime.Now.AddSeconds(10),
@@ -44,16 +36,13 @@ namespace Users.Jwt
         {
             var tokenBytes = RandomNumberGenerator.GetBytes(64);
             var refreshToken = Convert.ToBase64String(tokenBytes);
-
             /*var tokenInUser = db.GetUserByRefreshToken(refreshToken);
-
             if (tokenInUser!=null)
             {
                 return CreateRefreshToken();
             }*/
             return refreshToken;
         }
-
 
         public ClaimsPrincipal GetPrincipleFromExpiredToken(string token)
         {

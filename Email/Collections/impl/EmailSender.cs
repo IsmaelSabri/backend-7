@@ -52,7 +52,7 @@ namespace Email.Service.impl
             await smtp.SendAsync(email);
             smtp.Disconnect(true);
         }
-
+        
         public string WelcomeHTML(string name, string message)
         {
             var html = File.ReadAllText(@"./Assets/Welcome.html");

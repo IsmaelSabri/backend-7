@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -19,7 +15,7 @@ namespace Users.Models
         public string? Username { get; set; }
         public string? Phone { get; set; }
         public string? Domains { get; set; }
-        public string? fotoPerfilUrl { get; set; }
+        public string? FotoPerfilUrl { get; set; }
         [JsonIgnore]
         public string? Password { get; set; }
         public string? Email { get; set; }

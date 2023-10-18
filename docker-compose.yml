@@ -86,10 +86,11 @@ services:
       - postgres
 
   mongo:
-    image: mongo:4.4.18
+    image: mongo:4.4.19-focal
     container_name: mongodb
     ports:
       - "27017:27017"
+    command: ["mongod", "--port", "27017"]
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: yo
@@ -98,7 +99,7 @@ services:
       - ~/Documentos/docker-vol/mongo-volume/data:/data/db
 
   mongo-express:
-    image: mongo-express
+    image: mongo-express:latest
     container_name: mongo-express
     restart: always
     ports:

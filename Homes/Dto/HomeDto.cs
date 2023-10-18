@@ -70,7 +70,7 @@ namespace Homes.Dto
         public string? AireAcondicionado { get; set; }
         public string? Calefaccion { get; set; }
         public string? PanelesSolares { get; set; }
-        public string? AltaEficienciaEnergetica { get; set; }
+        public string? EficienciaEnergetica { get; set; }
         public string? Colegios { get; set; }
         public string? Universidades { get; set; }
         public string? Supermercados { get; set; }
@@ -115,9 +115,15 @@ namespace Homes.Dto
         public string? InicioConstruccion { get; set; }
         public string? Mudandose { get; set; }
         public string? Mascotas { get; set; }
-        public int? Fianza { get; set; }
+        public string? Fianza { get; set; }
         public string? Disponibilidad { get; set; }
-        public int? EstanciaMinima { get; set; }
+        public string? EstanciaMinima { get; set; }
         public string? Model { get; set; }
+        public string? Amueblado { get; set; }
+        public string? StreetView { get; set; }
+        public string? DireccionAproximada { get; set; }
+        public string? Consumo { get; set; }
+        public string? Emisiones { get; set; }
+        public string? VideoPortero { get; set; }
     }
 }

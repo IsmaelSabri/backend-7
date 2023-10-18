@@ -10,7 +10,7 @@ namespace Users.Repositories
     public interface IUserCollection
     {
         Task NewUser(User user);
-        Task UpdateUser(User user);
+        Task UpdateUser(User user, string id);
         Task DeleteUser(string id);
         Task<List<User>> GetAllUsers();
         Task<User> GetUserById(string id);
@@ -22,6 +22,5 @@ namespace Users.Repositories
         string GenerateRandomAlphanumericString();
         void SendWelcomeEmail(User user);
         void SendResetEmail(User user);
-
     }
 }
