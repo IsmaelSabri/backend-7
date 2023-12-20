@@ -6,9 +6,11 @@ using Homes.Dto;
 using Homes.Models;
 using Microsoft.AspNetCore.Mvc;
 using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Options;
 using Homes.Infrastructure;
+using Sieve.Services;
+using Sieve.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Homes.Controllers
 {
@@ -20,7 +22,9 @@ namespace Homes.Controllers
         private readonly IMapper mapper;
         private readonly Cloudinary cloudinary;
         private Home home;
-        public HomeController(IMapper mapper1, IOptions<CloudinarySettings> config, HouseDb hdb)
+        private readonly SieveProcessor sieveProcessor;
+
+        public HomeController(IMapper mapper1, IOptions<CloudinarySettings> config, HouseDb hdb, SieveProcessor _sieveProcessor)
         {
             mapper = mapper1;
             var account = new Account(
@@ -30,7 +34,8 @@ namespace Homes.Controllers
             );
             cloudinary = new Cloudinary(account);
             db = new HomeCollection(hdb);
-            home=new();
+            home = new();
+            sieveProcessor = _sieveProcessor;
         }
 
         [HttpGet("All")]
@@ -39,10 +44,41 @@ namespace Homes.Controllers
             return Ok(await db.GetAllHomes());
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetHomeDetails(string id)
+        [HttpPost("{id}")]
+        public async Task<IActionResult> GetHomeDetails(string id, [FromBody] HomeDto homeDto)
         {
-            return Ok(await db.GetHomeById(Convert.ToInt32(id)));
+            if (homeDto == null)
+            {
+                return BadRequest();
+            }
+            else if (homeDto.Model == "Flat")
+            {
+                return Ok(await db.GetFlatById(Convert.ToInt32(id)));
+            }
+            else if (homeDto.Model == "House")
+            {
+                return Ok(await db.GetHouseById(Convert.ToInt32(id)));
+            }
+            else if (homeDto.Model == "Room")
+            {
+                return Ok(await db.GetRoomById(Convert.ToInt32(id)));
+            }
+            else if (homeDto.Model == "HolidayRent")
+            {
+                return Ok(await db.GetHolidayRentById(Convert.ToInt32(id)));
+            }
+            else if (homeDto.Model == "NewProject")
+            {
+                return Ok(await db.GetNewProjectById(Convert.ToInt32(id)));
+            }
+            else if (homeDto.Model == "Home4rent")
+            {
+                return Ok(await db.GetHome4rentById(Convert.ToInt32(id)));
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         [HttpPost("new")]
@@ -57,25 +93,23 @@ namespace Homes.Controllers
                 switch (homeDto.Model)
                 {
                     case "Flat":
-                            home = mapper.Map<Flat>(homeDto);
-                    break;
+                        home = mapper.Map<Flat>(homeDto);
+                        break;
                     case "House":
-                            home = mapper.Map<House>(homeDto);
-                    break;
+                        home = mapper.Map<House>(homeDto);
+                        break;
                     case "Room":
-                            home = mapper.Map<Room>(homeDto);
-                    break;
+                        home = mapper.Map<Room>(homeDto);
+                        break;
                     case "HolidayRent":
-                            home = mapper.Map<HolidayRent>(homeDto);
-                    break;
+                        home = mapper.Map<HolidayRent>(homeDto);
+                        break;
                     case "NewProject":
-                            home = mapper.Map<NewProject>(homeDto);
-                    break;
+                        home = mapper.Map<NewProject>(homeDto);
+                        break;
                     case "Home4rent":
-                            home = mapper.Map<Home4rent>(homeDto);
-                    break;
-                    default:
-                    break;
+                        home = mapper.Map<Home4rent>(homeDto);
+                        break;
                 }
                 NumberFormatInfo provider = new()
                 {
@@ -86,26 +120,8 @@ namespace Homes.Controllers
                 home.FechaCreacion = DateTime.UtcNow.ToLocalTime();
                 home.FechaUltimaModificacion = DateTime.UtcNow.ToLocalTime();
                 home.ViviendaId = db.GenerateRandomAlphanumericString();
-                /*cloudinary*/
-                if (homeDto.Foto != null)
-                {
-                    await using var stream = homeDto.Foto.OpenReadStream();
-                    var uploadParams = new ImageUploadParams
-                    {
-                        File = new FileDescription(homeDto.Foto.FileName, stream),
-                        Transformation = new Transformation().Crop("fill")
-                    };
-                    var Result = await cloudinary.UploadAsync(uploadParams);
-                    if (Result.Error != null)
-                    {
-                        throw new Exception(Result.Error.Message);
-                    }
-                    home.ImageName = Result.OriginalFilename;
-                    home.ImageUrl = Result.Url.ToString();
-                    home.ImageId = Result.PublicId;
-                }
-                //var dump= ObjectDumper.Dump(home);
-                //Console.WriteLine(dump);
+                var dump = ObjectDumper.Dump(home);
+                Console.WriteLine(dump);
                 await db.NewHome(home);
             }
             return Created("Created", true);
@@ -117,6 +133,15 @@ namespace Homes.Controllers
             var home = await db.GetHomeById(id);
             await db.DeleteHome(home);
             return Ok("Deleted");
+        }
+
+        [HttpGet("query")]
+        public IActionResult GetQuery([FromQuery] SieveModel model)
+        {
+            var homeResult = sieveProcessor.Apply(model, db.GetPaged().AsNoTracking());
+            //Response.Headers.Add("X-Total-Count", homeResult.TotalCount.ToString());
+            //Response.Headers.Add("X-Total-Pages", homeResult.TotalPages.ToString());
+            return Ok(homeResult);
         }
     }
 }

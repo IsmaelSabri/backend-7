@@ -23,7 +23,6 @@ namespace Homes.Dto
         public string? PrecioInicial { get; set; }
         public string? Descuento { get; set; }
         public string? PrecioFinal { get; set; }
-        public string? PrecioM2 { get; set; }
         public string? Duracion { get; set; }
         public string? Descripcion { get; set; }
         public string? ArmariosEmpotrados { get; set; }
@@ -35,15 +34,13 @@ namespace Homes.Dto
         public string? Estado { get; set; }
         public string? DistanciaAlMar { get; set; }
         public string? Creador { get; set; }
+        public string? NombreCreador { get; set; }
         public string? FechaCreacion { get; set; }
         public string? FechaUltimaModificacion { get; set; }
         public string? NumeroVisitas { get; set; }
         public string? Comentario { get; set; }
         public string? Destacar { get; set; }
-        public IFormFile? Foto { get; set; } // crear
-        public string? ImageUrl { get; set; } // editar
-        public string? ImageName { get; set; }
-        public string? ImageId { get; set; }
+        public string? ImagesAsString { get; set; }
         public string? Video { get; set; }
         public string? Ascensor { get; set; }
         public string? Trastero { get; set; }
@@ -125,5 +122,15 @@ namespace Homes.Dto
         public string? Consumo { get; set; }
         public string? Emisiones { get; set; }
         public string? VideoPortero { get; set; }
+        public string? GasNatural { get; set; }
+        public string? PlantaMasAlta { get; set; }
+        public string? ZonaDeOcio { get; set; }
+        public string? GeneradorEmergencia { get; set; }
+        public string? Aeropuerto { get; set; }
+        public string? TipoDeVia { get; set; }
+        public string? Distrito { get; set; }
+        public string? Orientacion { get; set; }
+        public string? PrecioAlquiler { get; set; }
+
     }
 }

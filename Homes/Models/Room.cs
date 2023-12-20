@@ -9,6 +9,7 @@ namespace Homes.Models
     [Table("Room")]
     public class Room : Home
     {
+        public Room(){}
         public bool SepuedeFumar { get; set; }
         public bool SeadmitenParejas { get; set; }
         public bool SeadmitenMenoresdeedad { get; set; }

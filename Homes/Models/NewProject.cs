@@ -9,6 +9,7 @@ namespace Homes.Models
     [Table("NewProject")]
     public class NewProject : House
     {
+        public NewProject(){}
         public string? Planificacion { get; set; }
         public string? InicioDeVentas { get; set; }
         public string? InicioConstruccion { get; set; }

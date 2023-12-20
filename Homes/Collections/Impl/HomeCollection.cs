@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Homes.Data;
 using Homes.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace Homes.Collections
 {
@@ -22,9 +19,69 @@ namespace Homes.Collections
             return await dbc.Homes.ToListAsync();
         }
 
+        public async Task<List<Flat>> GetAllFlats()
+        {
+            return await dbc.Flats.ToListAsync();
+        }
+
+        public async Task<List<House>> GetAllHouses()
+        {
+            return await dbc.Houses.ToListAsync();
+        }
+
+        public async Task<List<Home4rent>> GetAllHome4rent()
+        {
+            return await dbc.Home4Rents.ToListAsync();
+        }
+
+        public async Task<List<NewProject>> GetAllNewProjects()
+        {
+            return await dbc.NewProjects.ToListAsync();
+        }
+
+        public async Task<List<Room>> GetAllRooms()
+        {
+            return await dbc.Rooms.ToListAsync();
+        }
+
+        public async Task<List<HolidayRent>> GetAllHolidayRent()
+        {
+            return await dbc.HolidayRents.ToListAsync();
+        }
+
         public async Task<Home?> GetHomeById(int id)
         {
             return await dbc.Homes.FindAsync(id);
+        }
+
+        public async Task<Flat?> GetFlatById(int id)
+        {
+            return await dbc.Flats.FindAsync(id);
+        }
+
+        public async Task<House?> GetHouseById(int id)
+        {
+            return await dbc.Houses.FindAsync(id);
+        }
+
+        public async Task<HolidayRent?> GetHolidayRentById(int id)
+        {
+            return await dbc.HolidayRents.FindAsync(id);
+        }
+
+        public async Task<NewProject?> GetNewProjectById(int id)
+        {
+            return await dbc.NewProjects.FindAsync(id);
+        }
+
+        public async Task<Room?> GetRoomById(int id)
+        {
+            return await dbc.Rooms.FindAsync(id);
+        }
+
+        public async Task<Home4rent?> GetHome4rentById(int id)
+        {
+            return await dbc.Home4Rents.FindAsync(id);
         }
 
         public async Task NewHome(Home home)
@@ -51,6 +108,11 @@ namespace Homes.Collections
             var random = new Random();
             return new string(Enumerable.Repeat(chars, 18)
                                                     .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        public IQueryable<Home> GetPaged()
+        {
+            return dbc.Homes.AsQueryable();
         }
     }
 }

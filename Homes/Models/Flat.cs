@@ -22,11 +22,8 @@ namespace Homes.Models
         public bool Jacuzzi { get; set; }
         public bool Golf { get; set; }
         public string? VistasDespejadas { get; set; }
-        public string? BajoOplantabaja { get; set; }
+        public bool BajoOplantabaja { get; set; }
         public string? Puerta { get; set; }
         public string? Piso { get; set; }
-        public string? Balcon { get; set; }
-        public bool VideoPortero { get; set; }
-
     }
 }

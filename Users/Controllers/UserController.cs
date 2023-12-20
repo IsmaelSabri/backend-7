@@ -6,6 +6,7 @@ using Users.Repositories;
 using Users.Enums;
 using Users.Services;
 using AutoMapper;
+using System;
 
 namespace Users.Controllers
 {
@@ -43,7 +44,7 @@ namespace Users.Controllers
             return Ok(await db.GetUserByUserId(id));
         }
 
-        [HttpGet("checkemail")]
+        [HttpGet("checkemail/{email}")]
         public async Task<IActionResult> CheckUserByEmail(string email)
         {
             return Ok(await db.GetUserByEmail(email));
@@ -59,6 +60,7 @@ namespace Users.Controllers
             if (user.Email == null)
             {
                 ModelState.AddModelError("Email", "Debe incluir una dirección de correo válida.");
+                return BadRequest("Email not found");
             }
             try
             {
@@ -99,6 +101,7 @@ namespace Users.Controllers
             if (user.Password == null)
             {
                 ModelState.AddModelError("Password", "La contraseña no puede estar vacía.");
+                return BadRequest("Missing password");
             }
             if (ModelState.IsValid)
             {
@@ -106,8 +109,6 @@ namespace Users.Controllers
                 user1.Password = passwordHasher.Hash(user.Password);
                 user1.Isactive = true;
                 user1.IsnotLocked = true;
-                user1.FotoPerfilUrl = "https://robohash.org/" + user.Firstname
-                    + user.Lastname + db.GenerateRandomAlphanumericString().Substring(3, 8);
                 var dump = ObjectDumper.Dump(user1);
                 Console.WriteLine(dump);
                 await db.UpdateUser(user1, id);
@@ -178,13 +179,13 @@ namespace Users.Controllers
             {
                 return BadRequest();
             }
-            if (user.Username == string.Empty)
+            if (user.Username?.Length == 0)
             {
                 ModelState.AddModelError("Username", "Nombre de usuario no encontrado");
             }
             user.Id = id;
             await db.UpdateUser(user, id);
-            return Created("Modified", true);
+            return Created("Modified", user);
         }
 
         [HttpDelete("{id}")]

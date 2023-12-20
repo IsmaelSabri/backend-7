@@ -15,7 +15,9 @@ namespace Users.Models
         public string? Username { get; set; }
         public string? Phone { get; set; }
         public string? Domains { get; set; }
-        public string? FotoPerfilUrl { get; set; }
+        public string? ProfileImageAsString { get; set; }
+        public string? BrandImageAsString { get; set; }
+        public string? Color { get; set; }
         [JsonIgnore]
         public string? Password { get; set; }
         public string? Email { get; set; }
@@ -27,5 +29,6 @@ namespace Users.Models
         public DateTime LastaccessDate { get; set; }
         public DateTime DateRegistry { get; set; }
         public DateTime RefreshTokenDateExpires { get; set; }
+        public string? LikePreferencesAsString { get; set; }
     }
 }

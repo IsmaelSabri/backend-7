@@ -27,17 +27,17 @@ namespace Homes.Migrations
                     Cp = table.Column<int>(type: "integer", nullable: false),
                     Habitaciones = table.Column<string>(type: "text", nullable: true),
                     Aseos = table.Column<string>(type: "text", nullable: true),
-                    AseoEnsuite = table.Column<bool>(type: "boolean", nullable: false),
+                    AseoEnsuite = table.Column<string>(type: "text", nullable: true),
                     Superficie = table.Column<string>(type: "text", nullable: true),
                     Condicion = table.Column<string>(type: "text", nullable: true),
                     Tipo = table.Column<string>(type: "text", nullable: true),
                     PrecioInicial = table.Column<string>(type: "text", nullable: true),
                     Descuento = table.Column<string>(type: "text", nullable: true),
                     PrecioFinal = table.Column<string>(type: "text", nullable: true),
-                    PrecioM2 = table.Column<string>(type: "text", nullable: true),
+                    PrecioAlquiler = table.Column<string>(type: "text", nullable: true),
                     Duracion = table.Column<string>(type: "text", nullable: true),
                     Descripcion = table.Column<string>(type: "text", nullable: true),
-                    ArmariosEmpotrados = table.Column<string>(type: "text", nullable: true),
+                    ArmariosEmpotrados = table.Column<bool>(type: "boolean", nullable: false),
                     Terraza = table.Column<string>(type: "text", nullable: true),
                     PiscinaPrivada = table.Column<bool>(type: "boolean", nullable: false),
                     Parquet = table.Column<bool>(type: "boolean", nullable: false),
@@ -46,19 +46,30 @@ namespace Homes.Migrations
                     Estado = table.Column<string>(type: "text", nullable: true),
                     DistanciaAlMar = table.Column<string>(type: "text", nullable: true),
                     Creador = table.Column<string>(type: "text", nullable: true),
+                    NombreCreador = table.Column<string>(type: "text", nullable: true),
                     FechaCreacion = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     FechaUltimaModificacion = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     NumeroVisitas = table.Column<string>(type: "text", nullable: true),
                     Comentario = table.Column<string>(type: "text", nullable: true),
                     Destacar = table.Column<string>(type: "text", nullable: true),
                     Model = table.Column<string>(type: "text", nullable: true),
-                    ImageUrl = table.Column<string>(type: "text", nullable: true),
-                    ImageName = table.Column<string>(type: "text", nullable: true),
-                    ImageId = table.Column<string>(type: "text", nullable: true),
+                    ImagesAsString = table.Column<string>(type: "text", nullable: true),
                     Video = table.Column<string>(type: "text", nullable: true),
                     Amueblado = table.Column<bool>(type: "boolean", nullable: false),
                     StreetView = table.Column<string>(type: "text", nullable: true),
-                    DireccionAproximada = table.Column<bool>(type: "boolean", nullable: false)
+                    DireccionAproximada = table.Column<bool>(type: "boolean", nullable: false),
+                    GasNatural = table.Column<bool>(type: "boolean", nullable: false),
+                    Universidades = table.Column<string>(type: "text", nullable: true),
+                    Metro = table.Column<string>(type: "text", nullable: true),
+                    Bus = table.Column<string>(type: "text", nullable: true),
+                    TipoDeVia = table.Column<string>(type: "text", nullable: true),
+                    Distrito = table.Column<string>(type: "text", nullable: true),
+                    Orientacion = table.Column<string>(type: "text", nullable: true),
+                    VideoPortero = table.Column<string>(type: "text", nullable: true),
+                    PlantaMasAlta = table.Column<string>(type: "text", nullable: true),
+                    ZonaDeOcio = table.Column<string>(type: "text", nullable: true),
+                    AireAcondicionado = table.Column<bool>(type: "boolean", nullable: false),
+                    Balcon = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -115,17 +126,15 @@ namespace Homes.Migrations
                     VideoVigilancia = table.Column<bool>(type: "boolean", nullable: false),
                     AlarmaIncendios = table.Column<bool>(type: "boolean", nullable: false),
                     Extintores = table.Column<bool>(type: "boolean", nullable: false),
-                    AireAcondicionado = table.Column<bool>(type: "boolean", nullable: false),
                     Calefaccion = table.Column<bool>(type: "boolean", nullable: false),
                     PanelesSolares = table.Column<bool>(type: "boolean", nullable: false),
                     EficienciaEnergetica = table.Column<bool>(type: "boolean", nullable: false),
                     Colegios = table.Column<string>(type: "text", nullable: true),
-                    Universidades = table.Column<string>(type: "text", nullable: true),
                     Supermercados = table.Column<string>(type: "text", nullable: true),
-                    Metro = table.Column<string>(type: "text", nullable: true),
-                    Bus = table.Column<string>(type: "text", nullable: true),
+                    Aeropuerto = table.Column<string>(type: "text", nullable: true),
                     Consumo = table.Column<string>(type: "text", nullable: true),
-                    Emisiones = table.Column<string>(type: "text", nullable: true)
+                    Emisiones = table.Column<string>(type: "text", nullable: true),
+                    GeneradorEmergencia = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -184,11 +193,9 @@ namespace Homes.Migrations
                     Jacuzzi = table.Column<bool>(type: "boolean", nullable: false),
                     Golf = table.Column<bool>(type: "boolean", nullable: false),
                     VistasDespejadas = table.Column<string>(type: "text", nullable: true),
-                    BajoOplantabaja = table.Column<string>(type: "text", nullable: true),
+                    BajoOplantabaja = table.Column<bool>(type: "boolean", nullable: false),
                     Puerta = table.Column<string>(type: "text", nullable: true),
-                    Piso = table.Column<string>(type: "text", nullable: true),
-                    Balcon = table.Column<string>(type: "text", nullable: true),
-                    VideoPortero = table.Column<bool>(type: "boolean", nullable: false)
+                    Piso = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -227,7 +234,7 @@ namespace Homes.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
-                    Mascotas = table.Column<bool>(type: "boolean", nullable: false),
+                    Mascotas = table.Column<string>(type: "text", nullable: true),
                     Fianza = table.Column<int>(type: "integer", nullable: false),
                     Disponibilidad = table.Column<string>(type: "text", nullable: true),
                     EstanciaMinima = table.Column<int>(type: "integer", nullable: false)

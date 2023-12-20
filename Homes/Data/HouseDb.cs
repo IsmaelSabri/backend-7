@@ -5,6 +5,7 @@ namespace Homes.Data
 {
     public class HouseDb : DbContext
     {
+        // TPT model
         public HouseDb(DbContextOptions<HouseDb> options) : base(options)
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -25,7 +26,7 @@ namespace Homes.Data
             modelBuilder.Entity<HolidayRent>().ToTable("HolidayRent");
             modelBuilder.Entity<NewProject>().ToTable("NewProject");
             modelBuilder.Entity<Home4rent>().ToTable("Home4rent");
+            //modelBuilder.Entity<Home>().UseTphMappingStrategy().Property(e=>e.Id).HasDefaultValue;
         }
-
     }
 }

@@ -10,6 +10,7 @@ namespace Homes.Models
     [Table("HolidayRent")]
     public class HolidayRent : Home
     {
+        public HolidayRent(){}
         public string? NumeroRegistro { get; set; }
         public string? Personas { get; set; }
         public string? Camas { get; set; }
