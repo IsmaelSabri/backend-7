@@ -19,36 +19,6 @@ namespace Homes.Collections
             return await dbc.Homes.ToListAsync();
         }
 
-        public async Task<List<Flat>> GetAllFlats()
-        {
-            return await dbc.Flats.ToListAsync();
-        }
-
-        public async Task<List<House>> GetAllHouses()
-        {
-            return await dbc.Houses.ToListAsync();
-        }
-
-        public async Task<List<Home4rent>> GetAllHome4rent()
-        {
-            return await dbc.Home4Rents.ToListAsync();
-        }
-
-        public async Task<List<NewProject>> GetAllNewProjects()
-        {
-            return await dbc.NewProjects.ToListAsync();
-        }
-
-        public async Task<List<Room>> GetAllRooms()
-        {
-            return await dbc.Rooms.ToListAsync();
-        }
-
-        public async Task<List<HolidayRent>> GetAllHolidayRent()
-        {
-            return await dbc.HolidayRents.ToListAsync();
-        }
-
         public async Task<Home?> GetHomeById(int id)
         {
             return await dbc.Homes.FindAsync(id);
@@ -110,9 +80,39 @@ namespace Homes.Collections
                                                     .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        public IQueryable<Home> GetPaged()
+        public IQueryable<Home> GetPagedHomes()
         {
             return dbc.Homes.AsQueryable();
+        }
+
+        public IQueryable<Flat> GetPagedFlats()
+        {
+            return dbc.Flats.AsQueryable();
+        }
+
+        public IQueryable<House> GetPagedHouses()
+        {
+            return dbc.Houses.AsQueryable();
+        }
+
+        public IQueryable<Home4rent> GetPagedHome4rent()
+        {
+            return dbc.Home4Rents.AsQueryable();
+        }
+
+        public IQueryable<HolidayRent> GetPagedHolidayRent()
+        {
+            return dbc.HolidayRents.AsQueryable();
+        }
+
+        public IQueryable<Room> GetPagedRooms()
+        {
+            return dbc.Rooms.AsQueryable();
+        }
+
+        public IQueryable<NewProject> GetPagedNewProjects()
+        {
+            return dbc.NewProjects.AsQueryable();
         }
     }
 }

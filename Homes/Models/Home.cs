@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 using Sieve.Attributes;
 
 namespace Homes.Models
@@ -17,36 +12,37 @@ namespace Homes.Models
         public double Lng { get; set; }
         public string? Calle { get; set; }
         public int Numero { get; set; }
-        [Sieve(CanFilter = true, CanSort = true)]
+        [Sieve(CanFilter = true)]
         public string? Ciudad { get; set; }
         public int Cp { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? Habitaciones { get; set; }
+        public int Habitaciones { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? Aseos { get; set; }
-        public string? AseoEnsuite { get; set; }
+        public int Aseos { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? Superficie { get; set; }
+        public int AseoEnsuite { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public int Superficie { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Condicion { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Tipo { get; set; }
-        public string? PrecioInicial { get; set; }
-        public string? Descuento { get; set; }
+        public int PrecioInicial { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? PrecioFinal { get; set; }
+        public int PrecioFinal { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? PrecioAlquiler { get; set; }
+        public int PrecioAlquiler { get; set; }
         public string? Duracion { get; set; }
         public string? Descripcion { get; set; }
         public bool ArmariosEmpotrados { get; set; }
         public string? Terraza { get; set; }
+        [Sieve(CanFilter = true)]
         public bool PiscinaPrivada { get; set; }
         public bool Parquet { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? Antiguedad { get; set; }
+        public int Antiguedad { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? Garage { get; set; }
+        public int Garage { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Estado { get; set; }
         public string? DistanciaAlMar { get; set; }
@@ -57,11 +53,11 @@ namespace Homes.Models
         public string? NumeroVisitas { get; set; }
         public string? Comentario { get; set; }
         public string? Destacar { get; set; }
-        [Sieve(CanFilter = true, CanSort = true)]
+        [Sieve(CanFilter = true)]
         public string? Model { get; set; }
         public string? ImagesAsString { get; set; }
         public string? Video { get; set; }
-        [Sieve(CanFilter = true, CanSort = true)]
+        [Sieve(CanFilter = true)]
         public bool Amueblado { get; set; }
         public string? StreetView { get; set; }
         public bool DireccionAproximada { get; set; }
@@ -73,12 +69,16 @@ namespace Homes.Models
         public string? Distrito { get; set; }
         public string? Orientacion { get; set; }
         public string? VideoPortero { get; set; }
-        [Sieve(CanFilter = true, CanSort = true)]
+        [Sieve(CanFilter = true)]
         public string? PlantaMasAlta { get; set; }
         public string? ZonaDeOcio { get; set; }
-        [Sieve(CanFilter = true, CanSort = true)]
+        [Sieve(CanFilter = true)]
         public bool AireAcondicionado { get; set; }
-        [Sieve(CanFilter = true, CanSort = true)]
+        [Sieve(CanFilter = true)]
         public bool Balcon { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool Vendido { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool Calefaccion { get; set; }
     }
 }

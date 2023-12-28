@@ -1,20 +1,22 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+using Sieve.Attributes;
 
 namespace Homes.Models
 {
     [Table("Room")]
     public class Room : Home
     {
-        public Room(){}
+        [Sieve(CanFilter = true)]
         public bool SepuedeFumar { get; set; }
+        [Sieve(CanFilter = true)]
         public bool SeadmitenParejas { get; set; }
+        [Sieve(CanFilter = true)]
         public bool SeadmitenMenoresdeedad { get; set; }
+        [Sieve(CanFilter = true)]
         public bool SeadmitenMochileros { get; set; }
+        [Sieve(CanFilter = true)]
         public bool SeadmitenJubilados { get; set; }
+        [Sieve(CanFilter = true)]
         public bool SeadmiteLGTBI { get; set; }
         public bool PropietarioviveEnlacasa { get; set; }
         public string? PerfilCompartir { get; set; }

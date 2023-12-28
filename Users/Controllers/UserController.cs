@@ -23,6 +23,7 @@ namespace Users.Controllers
         {
             mapper = mapper1;
             passwordHasher = passwordHasher1;
+            user1 = new();
         }
 
         //[Authorize]
@@ -72,9 +73,9 @@ namespace Users.Controllers
                     + "Se ha enviado un correo a " + user.Email + " con mas información.");
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                e.GetBaseException();
             }
             if (ModelState.IsValid)
             {

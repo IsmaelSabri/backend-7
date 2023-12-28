@@ -21,7 +21,6 @@ namespace Homes.Dto
         public string? Condicion { get; set; }
         public string? Tipo { get; set; }
         public string? PrecioInicial { get; set; }
-        public string? Descuento { get; set; }
         public string? PrecioFinal { get; set; }
         public string? Duracion { get; set; }
         public string? Descripcion { get; set; }
@@ -56,7 +55,6 @@ namespace Homes.Dto
         public string? Golf { get; set; }
         public string? VistasDespejadas { get; set; }
         public string? BajoOplantabaja { get; set; }
-        public string? Puerta { get; set; }
         public string? Piso { get; set; }
         public string? Balcon { get; set; }
         public string? Alarma { get; set; }

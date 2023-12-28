@@ -1,22 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+using Sieve.Attributes;
 
 namespace Homes.Models
 {
     [Table("House")]
     public class House : Home
     {
-        public House(){}
         public bool Alarma { get; set; }
         public bool Recepcion24_7 { get; set; }
         public bool VideoVigilancia { get; set; }
         public bool AlarmaIncendios { get; set; }
         public bool Extintores { get; set; }
-        public bool Calefaccion { get; set; }
+        [Sieve(CanFilter = true)]
         public bool PanelesSolares { get; set; }
         public bool EficienciaEnergetica { get; set; } // ver etiquetas
         public string? Colegios { get; set; }
@@ -24,6 +19,12 @@ namespace Homes.Models
         public string? Aeropuerto { get; set; }
         public string? Consumo { get; set; }
         public string? Emisiones { get; set; }
-        public bool GeneradorEmergencia { get; set; }    
+        public bool GeneradorEmergencia { get; set; }
+        [Sieve(CanFilter = true)]
+        public string? VistasDespejadas { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool InstalacionesDiscapacitados { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool Jacuzzi { get; set; }
     }
 }

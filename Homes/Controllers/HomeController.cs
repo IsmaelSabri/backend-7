@@ -11,6 +11,7 @@ using Homes.Infrastructure;
 using Sieve.Services;
 using Sieve.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Homes.Controllers
 {
@@ -115,8 +116,24 @@ namespace Homes.Controllers
                 {
                     NumberDecimalSeparator = "."
                 };
+                NumberFormatInfo priceProvider = new()
+                {
+                    NumberDecimalSeparator = ","
+                };
                 home.Lat = Convert.ToDouble(homeDto.Lat, provider);
                 home.Lng = Convert.ToDouble(homeDto.Lng, provider);
+                if (!string.IsNullOrWhiteSpace(homeDto.PrecioInicial))
+                {
+                    home.PrecioInicial = Convert.ToInt32(homeDto.PrecioInicial, priceProvider);
+                }
+                if (!string.IsNullOrWhiteSpace(homeDto.PrecioFinal))
+                {
+                    home.PrecioFinal = Convert.ToInt32(homeDto.PrecioFinal, priceProvider);
+                }
+                if (!string.IsNullOrWhiteSpace(homeDto.PrecioAlquiler))
+                {
+                    home.PrecioAlquiler = Convert.ToInt32(homeDto.PrecioAlquiler, priceProvider);
+                }
                 home.FechaCreacion = DateTime.UtcNow.ToLocalTime();
                 home.FechaUltimaModificacion = DateTime.UtcNow.ToLocalTime();
                 home.ViviendaId = db.GenerateRandomAlphanumericString();
@@ -138,9 +155,42 @@ namespace Homes.Controllers
         [HttpGet("query")]
         public IActionResult GetQuery([FromQuery] SieveModel model)
         {
-            var homeResult = sieveProcessor.Apply(model, db.GetPaged().AsNoTracking());
-            //Response.Headers.Add("X-Total-Count", homeResult.TotalCount.ToString());
-            //Response.Headers.Add("X-Total-Pages", homeResult.TotalPages.ToString());
+            var homeResult = sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking());
+            if (model.Filters.Contains(','))
+            {
+                string? s = model.Filters;
+                string[] subs = s.Split(',');
+                string? listTerm = null;
+                foreach (var sub in subs)
+                {
+                    if (sub.Contains("model@="))
+                    {
+                        listTerm = sub[7..];
+                        break;
+                    }
+                }
+                switch (listTerm)
+                {
+                    case "Flat":
+                        homeResult = sieveProcessor.Apply(model, db.GetPagedFlats().AsNoTracking());
+                        break;
+                    case "House":
+                        homeResult = sieveProcessor.Apply(model, db.GetPagedHouses().AsNoTracking());
+                        break;
+                    case "Room":
+                        homeResult = sieveProcessor.Apply(model, db.GetPagedRooms().AsNoTracking());
+                        break;
+                    case "HolidayRent":
+                        homeResult = sieveProcessor.Apply(model, db.GetPagedHolidayRent().AsNoTracking());
+                        break;
+                    case "NewProject":
+                        homeResult = sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking());
+                        break;
+                    case "Home4rent":
+                        homeResult = sieveProcessor.Apply(model, db.GetPagedHome4rent().AsNoTracking());
+                        break;
+                }
+            }
             return Ok(homeResult);
         }
     }

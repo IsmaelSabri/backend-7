@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Homes.Models
 {
     [Table("HolidayRent")]
     public class HolidayRent : Home
     {
-        public HolidayRent(){}
         public string? NumeroRegistro { get; set; }
         public string? Personas { get; set; }
         public string? Camas { get; set; }

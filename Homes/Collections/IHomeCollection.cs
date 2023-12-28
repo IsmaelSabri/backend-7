@@ -20,12 +20,12 @@ namespace Homes.Collections
         public Task DeleteHome(Home home);
         public string GenerateRandomAlphanumericString();
         public Task<List<Home>> GetAllHomes();
-        public Task<List<Flat>> GetAllFlats();
-        public Task<List<House>> GetAllHouses();
-        public Task<List<Home4rent>> GetAllHome4rent();
-        public Task<List<NewProject>> GetAllNewProjects();
-        public Task<List<Room>> GetAllRooms();
-        public Task<List<HolidayRent>> GetAllHolidayRent();
-        public IQueryable<Home> GetPaged();
+        public IQueryable<Home> GetPagedHomes();
+        public IQueryable<Flat> GetPagedFlats();
+        public IQueryable<House> GetPagedHouses();
+        public IQueryable<Home4rent> GetPagedHome4rent();
+        public IQueryable<HolidayRent> GetPagedHolidayRent();
+        public IQueryable<Room> GetPagedRooms();
+        public IQueryable<NewProject> GetPagedNewProjects();
     }
 }
