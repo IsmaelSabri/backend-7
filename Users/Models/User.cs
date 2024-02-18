@@ -30,5 +30,7 @@ namespace Users.Models
         public DateTime DateRegistry { get; set; }
         public DateTime RefreshTokenDateExpires { get; set; }
         public string? LikePreferencesAsString { get; set; }
+        public string? Company { get; set; }
+        public string? ReviewsAsString { get; set; }
     }
 }

@@ -33,6 +33,7 @@ namespace Homes.Models
         [Sieve(CanFilter = true, CanSort = true)]
         public int PrecioAlquiler { get; set; }
         public string? Duracion { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Descripcion { get; set; }
         public bool ArmariosEmpotrados { get; set; }
         public string? Terraza { get; set; }
