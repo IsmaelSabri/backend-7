@@ -11,6 +11,9 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Users.Services;
 using Users.Services.impl;
+using Users.Collections;
+using Users.Collections.Impl;
+using Users.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +36,8 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddScoped<IUserCollection, UserCollection>();
 builder.Services.AddScoped<JwtResource>();
-
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IChatCollection, ChatCollection>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -48,7 +52,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseRouting(); //
+app.UseRouting();
+app.MapHub<ChatHub>("/hubs/chat");
 app.MapControllers();
 app.UseCors(options => options
                 .WithOrigins(new[] { "http://localhost:3000", "http://localhost:8080", "http://localhost:4200" })// React, Vue, Angular

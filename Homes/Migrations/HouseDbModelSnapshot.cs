@@ -54,6 +54,9 @@ namespace Homes.Migrations
                     b.Property<string>("Bus")
                         .HasColumnType("text");
 
+                    b.Property<bool>("CabinaHidromasaje")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("Calefaccion")
                         .HasColumnType("boolean");
 
@@ -68,6 +71,12 @@ namespace Homes.Migrations
 
                     b.Property<string>("Condicion")
                         .HasColumnType("text");
+
+                    b.Property<int>("ContadorLikes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ContadorVisitas")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Cp")
                         .HasColumnType("integer");
@@ -111,6 +120,9 @@ namespace Homes.Migrations
                     b.Property<int>("Habitaciones")
                         .HasColumnType("integer");
 
+                    b.Property<string>("IdCreador")
+                        .HasColumnType("text");
+
                     b.Property<string>("ImagesAsString")
                         .HasColumnType("text");
 
@@ -146,6 +158,9 @@ namespace Homes.Migrations
 
                     b.Property<string>("PlantaMasAlta")
                         .HasColumnType("text");
+
+                    b.Property<bool>("PoliticaPrivacidad")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("PrecioAlquiler")
                         .HasColumnType("integer");

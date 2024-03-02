@@ -129,6 +129,10 @@ namespace Homes.Dto
         public string? Distrito { get; set; }
         public string? Orientacion { get; set; }
         public string? PrecioAlquiler { get; set; }
-
+        public string? PoliticaPrivacidad { get; set; }
+        public string? ContadorLikes { get; set; }
+        public string? ContadorVisitas { get; set; }
+        public string? IdCreador { get; set; }
+        public string? CabinaHidromasaje { get; set; }
     }
 }

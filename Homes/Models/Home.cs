@@ -81,5 +81,13 @@ namespace Homes.Models
         public bool Vendido { get; set; }
         [Sieve(CanFilter = true)]
         public bool Calefaccion { get; set; }
+        public bool PoliticaPrivacidad { get; set; }
+        [Sieve(CanFilter = true)]
+        public int ContadorLikes { get; set; }
+        [Sieve(CanFilter = true)]
+        public int ContadorVisitas { get; set; }
+        public string? IdCreador { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool CabinaHidromasaje { get; set; }
     }
 }

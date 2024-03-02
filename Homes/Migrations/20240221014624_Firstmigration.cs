@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Homes.Migrations
 {
     /// <inheritdoc />
-    public partial class firstmigration : Migration
+    public partial class Firstmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -70,7 +70,12 @@ namespace Homes.Migrations
                     AireAcondicionado = table.Column<bool>(type: "boolean", nullable: false),
                     Balcon = table.Column<bool>(type: "boolean", nullable: false),
                     Vendido = table.Column<bool>(type: "boolean", nullable: false),
-                    Calefaccion = table.Column<bool>(type: "boolean", nullable: false)
+                    Calefaccion = table.Column<bool>(type: "boolean", nullable: false),
+                    PoliticaPrivacidad = table.Column<bool>(type: "boolean", nullable: false),
+                    ContadorLikes = table.Column<int>(type: "integer", nullable: false),
+                    ContadorVisitas = table.Column<int>(type: "integer", nullable: false),
+                    IdCreador = table.Column<string>(type: "text", nullable: true),
+                    CabinaHidromasaje = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {

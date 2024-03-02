@@ -92,7 +92,7 @@ namespace Users.Controllers
             return Created("Created", true);
         }
 
-        [HttpPut("fullregistry/{id}")]
+        [HttpPut("full/{id}")]
         public async Task<IActionResult> CompleteRegistry([FromBody] UserReadyDto user, string id)
         {
             if (user == null)
@@ -110,11 +110,12 @@ namespace Users.Controllers
                 user1.Password = passwordHasher.Hash(user.Password);
                 user1.Isactive = true;
                 user1.IsnotLocked = true;
+                user1.ProfileImageAsString = "{\"imageId\":\"abcde\",\"imageName\":\"kjhjg-jpg\",\"imageUrl\":\"../../assets/img/blank_image.jpg\",\"imageDeleteUrl\":\"https://ibb.co/3kKyhNN/cec17dd74c1a240e64d9fb772bf23fc7\"}";
                 var dump = ObjectDumper.Dump(user1);
                 Console.WriteLine(dump);
                 await db.UpdateUser(user1, id);
             }
-            return Created("Ahora inicia sesión", true);
+            return Created("Ahora inicia sesion", true);
         }
 
         [HttpPost("login")]
