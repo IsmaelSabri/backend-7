@@ -49,11 +49,6 @@ namespace Homes.Collections
             return await dbc.Rooms.FindAsync(id);
         }
 
-        public async Task<Home4rent?> GetHome4rentById(int id)
-        {
-            return await dbc.Home4Rents.FindAsync(id);
-        }
-
         public async Task NewHome(Home home)
         {
             dbc.Homes.Add(home);
@@ -93,11 +88,6 @@ namespace Homes.Collections
         public IQueryable<House> GetPagedHouses()
         {
             return dbc.Houses.AsQueryable();
-        }
-
-        public IQueryable<Home4rent> GetPagedHome4rent()
-        {
-            return dbc.Home4Rents.AsQueryable();
         }
 
         public IQueryable<HolidayRent> GetPagedHolidayRent()

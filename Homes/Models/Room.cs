@@ -4,7 +4,7 @@ using Sieve.Attributes;
 namespace Homes.Models
 {
     [Table("Room")]
-    public class Room : Home
+    public class Room : House
     {
         [Sieve(CanFilter = true)]
         public bool SepuedeFumar { get; set; }

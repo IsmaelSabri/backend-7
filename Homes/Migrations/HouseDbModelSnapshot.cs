@@ -42,6 +42,9 @@ namespace Homes.Migrations
                     b.Property<bool>("ArmariosEmpotrados")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("Ascensor")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("AseoEnsuite")
                         .HasColumnType("integer");
 
@@ -93,6 +96,9 @@ namespace Homes.Migrations
                     b.Property<bool>("DireccionAproximada")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Disponibilidad")
+                        .HasColumnType("text");
+
                     b.Property<string>("DistanciaAlMar")
                         .HasColumnType("text");
 
@@ -105,11 +111,17 @@ namespace Homes.Migrations
                     b.Property<string>("Estado")
                         .HasColumnType("text");
 
+                    b.Property<string>("EstanciaMinima")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("FechaUltimaModificacion")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Fianza")
+                        .HasColumnType("text");
 
                     b.Property<int>("Garage")
                         .HasColumnType("integer");
@@ -131,6 +143,9 @@ namespace Homes.Migrations
 
                     b.Property<double>("Lng")
                         .HasColumnType("double precision");
+
+                    b.Property<string>("Mascotas")
+                        .HasColumnType("text");
 
                     b.Property<string>("Metro")
                         .HasColumnType("text");
@@ -156,7 +171,7 @@ namespace Homes.Migrations
                     b.Property<bool>("PiscinaPrivada")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("PlantaMasAlta")
+                    b.Property<string>("Piso")
                         .HasColumnType("text");
 
                     b.Property<bool>("PoliticaPrivacidad")
@@ -171,7 +186,10 @@ namespace Homes.Migrations
                     b.Property<int>("PrecioInicial")
                         .HasColumnType("integer");
 
-                    b.Property<string>("StreetView")
+                    b.Property<string>("ProColor")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProImage")
                         .HasColumnType("text");
 
                     b.Property<int>("Superficie")
@@ -342,9 +360,65 @@ namespace Homes.Migrations
                     b.ToTable("House", (string)null);
                 });
 
+            modelBuilder.Entity("Homes.Models.Flat", b =>
+                {
+                    b.HasBaseType("Homes.Models.House");
+
+                    b.Property<bool>("BajoOplantabaja")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Columpios")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Golf")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Gym")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Jardin")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Padel")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PiscinaComp")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Sauna")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Tenis")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Trastero")
+                        .HasColumnType("boolean");
+
+                    b.ToTable("Flat", (string)null);
+                });
+
+            modelBuilder.Entity("Homes.Models.NewProject", b =>
+                {
+                    b.HasBaseType("Homes.Models.House");
+
+                    b.Property<string>("InicioConstruccion")
+                        .HasColumnType("text");
+
+                    b.Property<string>("InicioDeVentas")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Mudandose")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Planificacion")
+                        .HasColumnType("text");
+
+                    b.ToTable("NewProject", (string)null);
+                });
+
             modelBuilder.Entity("Homes.Models.Room", b =>
                 {
-                    b.HasBaseType("Homes.Models.Home");
+                    b.HasBaseType("Homes.Models.House");
 
                     b.Property<string>("Ambiente")
                         .HasColumnType("text");
@@ -382,87 +456,6 @@ namespace Homes.Migrations
                     b.ToTable("Room", (string)null);
                 });
 
-            modelBuilder.Entity("Homes.Models.Flat", b =>
-                {
-                    b.HasBaseType("Homes.Models.House");
-
-                    b.Property<bool>("Ascensor")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("BajoOplantabaja")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Columpios")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Golf")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Gym")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Jardin")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Padel")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("PiscinaComp")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Piso")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("Sauna")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Tenis")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Trastero")
-                        .HasColumnType("boolean");
-
-                    b.ToTable("Flat", (string)null);
-                });
-
-            modelBuilder.Entity("Homes.Models.NewProject", b =>
-                {
-                    b.HasBaseType("Homes.Models.House");
-
-                    b.Property<string>("InicioConstruccion")
-                        .HasColumnType("text");
-
-                    b.Property<string>("InicioDeVentas")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Mudandose")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Planificacion")
-                        .HasColumnType("text");
-
-                    b.ToTable("NewProject", (string)null);
-                });
-
-            modelBuilder.Entity("Homes.Models.Home4rent", b =>
-                {
-                    b.HasBaseType("Homes.Models.Flat");
-
-                    b.Property<string>("Disponibilidad")
-                        .HasColumnType("text");
-
-                    b.Property<int>("EstanciaMinima")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Fianza")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Mascotas")
-                        .HasColumnType("text");
-
-                    b.ToTable("Home4rent", (string)null);
-                });
-
             modelBuilder.Entity("Homes.Models.HolidayRent", b =>
                 {
                     b.HasOne("Homes.Models.Home", null)
@@ -477,15 +470,6 @@ namespace Homes.Migrations
                     b.HasOne("Homes.Models.Home", null)
                         .WithOne()
                         .HasForeignKey("Homes.Models.House", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Homes.Models.Room", b =>
-                {
-                    b.HasOne("Homes.Models.Home", null)
-                        .WithOne()
-                        .HasForeignKey("Homes.Models.Room", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -508,11 +492,11 @@ namespace Homes.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Homes.Models.Home4rent", b =>
+            modelBuilder.Entity("Homes.Models.Room", b =>
                 {
-                    b.HasOne("Homes.Models.Flat", null)
+                    b.HasOne("Homes.Models.House", null)
                         .WithOne()
-                        .HasForeignKey("Homes.Models.Home4rent", "Id")
+                        .HasForeignKey("Homes.Models.Room", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

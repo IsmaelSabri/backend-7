@@ -32,5 +32,6 @@ namespace Users.Models
         public string? LikePreferencesAsString { get; set; }
         public string? Company { get; set; }
         public string? ReviewsAsString { get; set; }
+        public bool IsPro { get; set; }
     }
 }

@@ -48,6 +48,7 @@ namespace Homes.Models
         public string? Estado { get; set; }
         public string? DistanciaAlMar { get; set; }
         public string? Creador { get; set; }
+        [Sieve(CanFilter = true)]
         public string? NombreCreador { get; set; }
         public DateTime FechaCreacion { get; set; }
         public DateTime FechaUltimaModificacion { get; set; }
@@ -60,7 +61,6 @@ namespace Homes.Models
         public string? Video { get; set; }
         [Sieve(CanFilter = true)]
         public bool Amueblado { get; set; }
-        public string? StreetView { get; set; }
         public bool DireccionAproximada { get; set; }
         public bool GasNatural { get; set; }
         public string? Universidades { get; set; }
@@ -71,7 +71,6 @@ namespace Homes.Models
         public string? Orientacion { get; set; }
         public string? VideoPortero { get; set; }
         [Sieve(CanFilter = true)]
-        public string? PlantaMasAlta { get; set; }
         public string? ZonaDeOcio { get; set; }
         [Sieve(CanFilter = true)]
         public bool AireAcondicionado { get; set; }
@@ -89,5 +88,15 @@ namespace Homes.Models
         public string? IdCreador { get; set; }
         [Sieve(CanFilter = true)]
         public bool CabinaHidromasaje { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool Ascensor { get; set; }
+        public string? Piso { get; set; }
+        public string? ProColor { get; set; }
+        public string? ProImage { get; set; }
+        [Sieve(CanFilter = true)]
+        public string? Mascotas { get; set; }
+        public string? Fianza { get; set; }
+        public string? Disponibilidad { get; set; }
+        public string? EstanciaMinima { get; set; }
     }
 }

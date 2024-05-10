@@ -72,10 +72,6 @@ namespace Homes.Controllers
             {
                 return Ok(await db.GetNewProjectById(Convert.ToInt32(id)));
             }
-            else if (homeDto.Model == "Home4rent")
-            {
-                return Ok(await db.GetHome4rentById(Convert.ToInt32(id)));
-            }
             else
             {
                 return BadRequest();
@@ -107,9 +103,6 @@ namespace Homes.Controllers
                         break;
                     case "NewProject":
                         home = mapper.Map<NewProject>(homeDto);
-                        break;
-                    case "Home4rent":
-                        home = mapper.Map<Home4rent>(homeDto);
                         break;
                 }
                 NumberFormatInfo provider = new()
@@ -185,9 +178,6 @@ namespace Homes.Controllers
                         break;
                     case "NewProject":
                         homeResult = sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking());
-                        break;
-                    case "Home4rent":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedHome4rent().AsNoTracking());
                         break;
                 }
             }

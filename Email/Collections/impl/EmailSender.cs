@@ -45,6 +45,16 @@ namespace Email.Service.impl
                         email.Body = builder.ToMessageBody();
                     }
                     break;
+                case "Contact":
+                    if (emailDto != null)
+                    {
+                        var builder = new BodyBuilder
+                        {
+                            HtmlBody = ContactUser(emailDto)
+                        };
+                        email.Body = builder.ToMessageBody();
+                    }
+                    break;
             }
             using var smtp = new SmtpClient();
             smtp.Connect(emailConfiguration.ServerAddress, emailConfiguration.ServerPort, SecureSocketOptions.StartTls);
@@ -52,7 +62,7 @@ namespace Email.Service.impl
             await smtp.SendAsync(email);
             smtp.Disconnect(true);
         }
-        
+
         public string WelcomeHTML(string name, string message)
         {
             var html = File.ReadAllText(@"./Assets/Welcome.html");
@@ -66,6 +76,17 @@ namespace Email.Service.impl
             var html = File.ReadAllText(@"./Assets/SetPassword.html");
             html = html.Replace("{{name}}", name);
             html = html.Replace("{{message}}", message);
+            return html;
+        }
+
+        public string ContactUser(EmailDto emailDto)
+        {
+            var html = File.ReadAllText(@"./Assets/NewMessage.html");
+            html = html.Replace("{{name}}", emailDto.Name);
+            html = html.Replace("{{message}}", emailDto.Message);
+            html = html.Replace("{{fromName}}", emailDto.FromName);
+            html = html.Replace("{{subject}}", emailDto.Subject);
+            html = html.Replace("{{phone}}", emailDto.Phone);
             return html;
         }
     }

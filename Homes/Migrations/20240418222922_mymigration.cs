@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Homes.Migrations
 {
     /// <inheritdoc />
-    public partial class Firstmigration : Migration
+    public partial class mymigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -55,7 +55,6 @@ namespace Homes.Migrations
                     ImagesAsString = table.Column<string>(type: "text", nullable: true),
                     Video = table.Column<string>(type: "text", nullable: true),
                     Amueblado = table.Column<bool>(type: "boolean", nullable: false),
-                    StreetView = table.Column<string>(type: "text", nullable: true),
                     DireccionAproximada = table.Column<bool>(type: "boolean", nullable: false),
                     GasNatural = table.Column<bool>(type: "boolean", nullable: false),
                     Universidades = table.Column<string>(type: "text", nullable: true),
@@ -65,7 +64,6 @@ namespace Homes.Migrations
                     Distrito = table.Column<string>(type: "text", nullable: true),
                     Orientacion = table.Column<string>(type: "text", nullable: true),
                     VideoPortero = table.Column<string>(type: "text", nullable: true),
-                    PlantaMasAlta = table.Column<string>(type: "text", nullable: true),
                     ZonaDeOcio = table.Column<string>(type: "text", nullable: true),
                     AireAcondicionado = table.Column<bool>(type: "boolean", nullable: false),
                     Balcon = table.Column<bool>(type: "boolean", nullable: false),
@@ -75,7 +73,15 @@ namespace Homes.Migrations
                     ContadorLikes = table.Column<int>(type: "integer", nullable: false),
                     ContadorVisitas = table.Column<int>(type: "integer", nullable: false),
                     IdCreador = table.Column<string>(type: "text", nullable: true),
-                    CabinaHidromasaje = table.Column<bool>(type: "boolean", nullable: false)
+                    CabinaHidromasaje = table.Column<bool>(type: "boolean", nullable: false),
+                    Ascensor = table.Column<bool>(type: "boolean", nullable: false),
+                    Piso = table.Column<string>(type: "text", nullable: true),
+                    ProColor = table.Column<string>(type: "text", nullable: true),
+                    ProImage = table.Column<string>(type: "text", nullable: true),
+                    Mascotas = table.Column<string>(type: "text", nullable: true),
+                    Fianza = table.Column<string>(type: "text", nullable: true),
+                    Disponibilidad = table.Column<string>(type: "text", nullable: true),
+                    EstanciaMinima = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -156,39 +162,10 @@ namespace Homes.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Room",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false),
-                    SepuedeFumar = table.Column<bool>(type: "boolean", nullable: false),
-                    SeadmitenParejas = table.Column<bool>(type: "boolean", nullable: false),
-                    SeadmitenMenoresdeedad = table.Column<bool>(type: "boolean", nullable: false),
-                    SeadmitenMochileros = table.Column<bool>(type: "boolean", nullable: false),
-                    SeadmitenJubilados = table.Column<bool>(type: "boolean", nullable: false),
-                    SeadmiteLGTBI = table.Column<bool>(type: "boolean", nullable: false),
-                    PropietarioviveEnlacasa = table.Column<bool>(type: "boolean", nullable: false),
-                    PerfilCompartir = table.Column<string>(type: "text", nullable: true),
-                    HabitantesActualmente = table.Column<string>(type: "text", nullable: true),
-                    Ambiente = table.Column<string>(type: "text", nullable: true),
-                    Gastos = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Room", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Room_Homes_Id",
-                        column: x => x.Id,
-                        principalTable: "Homes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Flat",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
-                    Ascensor = table.Column<bool>(type: "boolean", nullable: false),
                     Trastero = table.Column<bool>(type: "boolean", nullable: false),
                     Jardin = table.Column<bool>(type: "boolean", nullable: false),
                     PiscinaComp = table.Column<bool>(type: "boolean", nullable: false),
@@ -198,8 +175,7 @@ namespace Homes.Migrations
                     Padel = table.Column<bool>(type: "boolean", nullable: false),
                     Sauna = table.Column<bool>(type: "boolean", nullable: false),
                     Golf = table.Column<bool>(type: "boolean", nullable: false),
-                    BajoOplantabaja = table.Column<bool>(type: "boolean", nullable: false),
-                    Piso = table.Column<string>(type: "text", nullable: true)
+                    BajoOplantabaja = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -234,22 +210,29 @@ namespace Homes.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Home4rent",
+                name: "Room",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
-                    Mascotas = table.Column<string>(type: "text", nullable: true),
-                    Fianza = table.Column<int>(type: "integer", nullable: false),
-                    Disponibilidad = table.Column<string>(type: "text", nullable: true),
-                    EstanciaMinima = table.Column<int>(type: "integer", nullable: false)
+                    SepuedeFumar = table.Column<bool>(type: "boolean", nullable: false),
+                    SeadmitenParejas = table.Column<bool>(type: "boolean", nullable: false),
+                    SeadmitenMenoresdeedad = table.Column<bool>(type: "boolean", nullable: false),
+                    SeadmitenMochileros = table.Column<bool>(type: "boolean", nullable: false),
+                    SeadmitenJubilados = table.Column<bool>(type: "boolean", nullable: false),
+                    SeadmiteLGTBI = table.Column<bool>(type: "boolean", nullable: false),
+                    PropietarioviveEnlacasa = table.Column<bool>(type: "boolean", nullable: false),
+                    PerfilCompartir = table.Column<string>(type: "text", nullable: true),
+                    HabitantesActualmente = table.Column<string>(type: "text", nullable: true),
+                    Ambiente = table.Column<string>(type: "text", nullable: true),
+                    Gastos = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Home4rent", x => x.Id);
+                    table.PrimaryKey("PK_Room", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Home4rent_Flat_Id",
+                        name: "FK_Room_House_Id",
                         column: x => x.Id,
-                        principalTable: "Flat",
+                        principalTable: "House",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -259,19 +242,16 @@ namespace Homes.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "HolidayRent");
+                name: "Flat");
 
             migrationBuilder.DropTable(
-                name: "Home4rent");
+                name: "HolidayRent");
 
             migrationBuilder.DropTable(
                 name: "NewProject");
 
             migrationBuilder.DropTable(
                 name: "Room");
-
-            migrationBuilder.DropTable(
-                name: "Flat");
 
             migrationBuilder.DropTable(
                 name: "House");

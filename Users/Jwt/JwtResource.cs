@@ -11,17 +11,20 @@ namespace Users.Jwt
     public class JwtResource
     {
         private readonly string secureKey = "gcuq@Q3rnc38BH7ARAv5tqZruUUuvFerCf+kzZ48^6s(AF9PyUNy^s";
-        private readonly IUserCollection db = new UserCollection();
+        //private readonly IUserCollection db = new UserCollection();
 
         public string Generate(User user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secureKey);
-            ClaimsIdentity identity = new ClaimsIdentity();
-            identity.AddClaim(new Claim(ClaimTypes.Role, user.Role));
-            identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
-            SigningCredentials credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
-            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            ClaimsIdentity identity = new();
+            if (!string.IsNullOrEmpty(user.Role) && !string.IsNullOrEmpty(user.Email))
+            {
+                identity.AddClaim(new Claim(ClaimTypes.Role, user.Role));
+                identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+            }
+            SigningCredentials credentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+            SecurityTokenDescriptor tokenDescriptor = new()
             {
                 Subject = identity,
                 Expires = DateTime.Now.AddSeconds(10),

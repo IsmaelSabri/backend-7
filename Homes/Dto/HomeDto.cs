@@ -115,13 +115,11 @@ namespace Homes.Dto
         public string? EstanciaMinima { get; set; }
         public string? Model { get; set; }
         public string? Amueblado { get; set; }
-        public string? StreetView { get; set; }
         public string? DireccionAproximada { get; set; }
         public string? Consumo { get; set; }
         public string? Emisiones { get; set; }
         public string? VideoPortero { get; set; }
         public string? GasNatural { get; set; }
-        public string? PlantaMasAlta { get; set; }
         public string? ZonaDeOcio { get; set; }
         public string? GeneradorEmergencia { get; set; }
         public string? Aeropuerto { get; set; }

@@ -7,8 +7,6 @@ namespace Homes.Models
     public class Flat : House
     {
         [Sieve(CanFilter = true)]
-        public bool Ascensor { get; set; }
-        [Sieve(CanFilter = true)]
         public bool Trastero { get; set; }
         public bool Jardin { get; set; }
         [Sieve(CanFilter = true)]
@@ -20,6 +18,5 @@ namespace Homes.Models
         public bool Sauna { get; set; }
         public bool Golf { get; set; }
         public bool BajoOplantabaja { get; set; }
-        public string? Piso { get; set; }
     }
 }

@@ -18,7 +18,6 @@ namespace Homes.Profiles
             CreateMap<HomeDto, Room>();
             CreateMap<HomeDto, HolidayRent>();
             CreateMap<HomeDto, NewProject>();
-            CreateMap<HomeDto, Home4rent>();
         }
     }
 }

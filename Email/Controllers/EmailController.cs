@@ -65,5 +65,26 @@ namespace Email.Controllers
                 throw;
             }
         }
+
+        [HttpGet("email-contact")]
+        public async Task<IActionResult> ContactEmailAsync(EmailDto emailDto)
+        {
+            try
+            {
+                if (emailDto == null)
+                {
+                    return BadRequest();
+                }
+                else
+                {
+                    await emailSender.SendEmailAsync(emailDto, "Contact");
+                    return Ok("Enviado !!");
+                }
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
     }
 }

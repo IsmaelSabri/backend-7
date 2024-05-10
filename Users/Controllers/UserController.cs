@@ -70,7 +70,7 @@ namespace Users.Controllers
                 if (userExists != null)
                 {
                     return BadRequest("Ya existe una cuenta para " + user.Email + "\n\nPuede iniciar sesión si recupera su contraseña.\n\n"
-                    + "Se ha enviado un correo a " + user.Email + " con mas información.");
+                    + "Se ha enviado un correo a " + user.Email + " con más información.");
                 }
             }
             catch (Exception e)
@@ -85,6 +85,7 @@ namespace Users.Controllers
                 user1.DateRegistry = DateTime.UtcNow.ToLocalTime();
                 user1.Role = nameof(Role.USER);
                 user1.Isactive = false;
+                user1.IsPro = false;
                 user1.IsnotLocked = false;
                 await db.NewUser(user1);
                 db.SendWelcomeEmail(user1);
@@ -118,27 +119,81 @@ namespace Users.Controllers
             return Created("Ahora inicia sesion", true);
         }
 
+        [HttpPost("reset-password")]
+        public IActionResult ResetPassword([FromBody] UserReadyDto user)
+        {
+            if (user == null)
+            {
+                return BadRequest("No existe una cuenta para ");
+            }
+            else
+            {
+                user1 = mapper.Map<User>(user);
+                db.SendResetEmail(user1);
+                return Ok();
+            }
+        }
+
+        [HttpPost("save-newpassword")]
+        public async Task<IActionResult> SaveNewPassword([FromBody] UserReadyDto user)
+        {
+            if (user == null)
+            {
+                return BadRequest("User cannot be null !!");
+            }
+            else
+            {
+                user1 = mapper.Map<User>(user);
+                if (!string.IsNullOrEmpty(user.Password))
+                {
+                    user1.Password = passwordHasher.Hash(user.Password);
+                }
+                user1.Isactive = true;
+                user1.IsnotLocked = true;
+                if (!string.IsNullOrEmpty(user1.Id))
+                {
+                    await db.UpdateUser(user1, user1.Id);
+                }
+                return Ok(user1);
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             User user = new();
             try
             {
-                user = await db.GetUserByEmail(dto.Email);
+                if (!string.IsNullOrEmpty(dto.Email))
+                {
+                    user = await db.GetUserByEmail(dto.Email);
+                }
+                if (!string.IsNullOrEmpty(user.Password) && !string.IsNullOrEmpty(dto.Password))
+                {
+                    // Incorrect password
+                    if (!passwordHasher.Verify(user.Password, dto.Password))   // (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+                    {
+                        return BadRequest("Incorrect password. Please try again.");
+                    }
+                    /*
+                    * El usuario ya existe en la bdd y lo ha introducido el password ok (caso ideal)
+                    */
+                    else if (passwordHasher.Verify(user.Password, dto.Password))
+                    {
+                        user.Token = jwtResource.Generate(user);
+                        user.RefreshToken = jwtResource.CreateRefreshToken();
+                        user.RefreshTokenDateExpires = DateTime.Now.ToLocalTime().AddDays(7);
+                        user.LastaccessDate = DateTime.UtcNow.ToLocalTime();
+                        if (!string.IsNullOrEmpty(user.Id))
+                            await db.UpdateUser(user, user.Id);
+                    }
+                }
             }
             catch (Exception)
             {
-                return BadRequest(new { message = "Email not found. Join us in least than 1 minute" });
+                // User does not exist
+                return BadRequest("Email not found. Join us in least than 1 minute");
             }
-            if (user.Password != null && !passwordHasher.Verify(user.Password, dto.Password))   // (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
-            {
-                return BadRequest(new { message = "Incorrect password. Please try again." });
-            }
-            user.Token = jwtResource.Generate(user);
-            user.RefreshToken = jwtResource.CreateRefreshToken();
-            user.RefreshTokenDateExpires = DateTime.Now.ToLocalTime().AddDays(7);
-            user.LastaccessDate = DateTime.UtcNow.ToLocalTime();
-            await db.UpdateUser(user, user.Id);
             /*Response.Cookies.Append("token", jwt, new CookieOptions
             {
                 HttpOnly = tru¡,
@@ -170,7 +225,8 @@ namespace Users.Controllers
                 return BadRequest("Invalid Request. Token expired.");
             user.RefreshToken = jwtResource.CreateRefreshToken();
             user.Token = jwtResource.Generate(user);
-            await db.UpdateUser(user, user.Id);
+            if (!string.IsNullOrEmpty(user.Id))
+                await db.UpdateUser(user, user.Id);
             return Ok(user);
         }
 
