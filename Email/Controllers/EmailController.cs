@@ -66,7 +66,7 @@ namespace Email.Controllers
             }
         }
 
-        [HttpGet("email-contact")]
+        [HttpPost("email-contact")]
         public async Task<IActionResult> ContactEmailAsync(EmailDto emailDto)
         {
             try
