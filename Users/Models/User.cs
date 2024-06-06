@@ -1,14 +1,15 @@
 using System.Text.Json.Serialization;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using Sieve.Attributes;
 
 namespace Users.Models
 {
     public class User
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
+        //[BsonId]
+        //[BsonRepresentation(BsonType.ObjectId)]
+        [Sieve(CanFilter = true)]
         public string? Id { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? UserId { get; set; }
         public string? Firstname { get; set; }
         public string? Lastname { get; set; }
@@ -18,8 +19,9 @@ namespace Users.Models
         public string? ProfileImageAsString { get; set; }
         public string? BrandImageAsString { get; set; }
         public string? Color { get; set; }
-        [JsonIgnore]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Password { get; set; }
+        [Sieve(CanFilter = true)]
         public string? Email { get; set; }
         public string? Role { get; set; }
         public bool Isactive { get; set; }
@@ -30,8 +32,10 @@ namespace Users.Models
         public DateTime DateRegistry { get; set; }
         public DateTime RefreshTokenDateExpires { get; set; }
         public string? LikePreferencesAsString { get; set; }
+        [Sieve(CanFilter = true)]
         public string? Company { get; set; }
         public string? ReviewsAsString { get; set; }
+        [Sieve(CanFilter = true)]
         public bool IsPro { get; set; }
     }
 }

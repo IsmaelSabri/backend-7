@@ -3,7 +3,6 @@ using Sieve.Attributes;
 
 namespace Homes.Models
 {
-    [Table("Room")]
     public class Room : House
     {
         [Sieve(CanFilter = true)]

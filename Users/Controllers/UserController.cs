@@ -2,53 +2,58 @@ using Microsoft.AspNetCore.Mvc;
 using Users.Dto;
 using Users.Jwt;
 using Users.Models;
-using Users.Repositories;
 using Users.Enums;
 using Users.Services;
 using AutoMapper;
-using System;
+using Sieve.Services;
+using Sieve.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Users.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController(IElasticService<User> elasticService, IMapper mapper1, IPasswordHasher passwordHasher1,
+    SieveProcessor _sieveProcessor) : ControllerBase
     {
-        private readonly IUserCollection db = new UserCollection();
         private readonly JwtResource jwtResource = new();
-        private readonly IPasswordHasher passwordHasher;
-        private readonly IMapper mapper;
-        private User user1;
-        public UserController(IMapper mapper1, IPasswordHasher passwordHasher1)
-        {
-            mapper = mapper1;
-            passwordHasher = passwordHasher1;
-            user1 = new();
-        }
+        private readonly IPasswordHasher passwordHasher = passwordHasher1;
+        private readonly IMapper mapper = mapper1;
+        private User user1 = new();
+        private readonly IElasticService<User> _elasticService = elasticService;
+        private readonly SieveProcessor sieveProcessor = _sieveProcessor;
 
         //[Authorize]
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllUsers()
+        public IActionResult GetAllUsers()
         {
-            return Ok(await db.GetAllUsers());
+            return Ok(_elasticService.GetAllPagedDocuments());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserDetails(string id)
         {
-            return Ok(await db.GetUserById(id));
+            var document = await _elasticService.GetDocumentAsync(long.Parse(id));
+            //Console.WriteLine(homeDto);
+            if (document == null)
+            {
+                return NotFound("User not found");
+            }
+            return Ok(document);
         }
 
         [HttpGet("check/{id}")]
         public async Task<IActionResult> CheckUserBeforeRegister(string id)
         {
-            return Ok(await db.GetUserByUserId(id));
+            var document = await _elasticService.GetDocumentByUserIdAsync(id);
+            return Ok(document);
         }
 
         [HttpGet("checkemail/{email}")]
         public async Task<IActionResult> CheckUserByEmail(string email)
         {
-            return Ok(await db.GetUserByEmail(email));
+            var document = await _elasticService.GetDocumentByEmailAsync(email);
+            return Ok(document);
         }
 
         [HttpPost("new")]
@@ -65,7 +70,7 @@ namespace Users.Controllers
             }
             try
             {
-                var userExists = await db.GetUserByEmail(user.Email);
+                var userExists = await _elasticService.GetDocumentByEmailAsync(user.Email);
                 Console.WriteLine(userExists);
                 if (userExists != null)
                 {
@@ -80,17 +85,24 @@ namespace Users.Controllers
             if (ModelState.IsValid)
             {
                 user1 = mapper.Map<User>(user);
-                user1.UserId = db.GenerateRandomAlphanumericString();
+                //Guid myuuid = Guid.NewGuid();
+                //user1.Id = myuuid.ToString().Replace("-","");
+                user1.UserId = _elasticService.GenerateRandomAlphanumericString();
+                user1.Id = _elasticService.GenerateRandomAlphanumericString();
                 user1.Username = user.Firstname + " " + user.Lastname;
                 user1.DateRegistry = DateTime.UtcNow.ToLocalTime();
                 user1.Role = nameof(Role.USER);
                 user1.Isactive = false;
                 user1.IsPro = false;
                 user1.IsnotLocked = false;
-                await db.NewUser(user1);
-                db.SendWelcomeEmail(user1);
+                var result = await _elasticService.AddDocumentAsync(user1);
+                _elasticService.SendWelcomeEmail(user1);
+                return Ok(user1);
             }
-            return Created("Created", true);
+            else
+            {
+                return BadRequest();
+            }
         }
 
         [HttpPut("full/{id}")]
@@ -114,9 +126,13 @@ namespace Users.Controllers
                 user1.ProfileImageAsString = "{\"imageId\":\"abcde\",\"imageName\":\"kjhjg-jpg\",\"imageUrl\":\"../../assets/img/blank_image.jpg\",\"imageDeleteUrl\":\"https://ibb.co/3kKyhNN/cec17dd74c1a240e64d9fb772bf23fc7\"}";
                 var dump = ObjectDumper.Dump(user1);
                 Console.WriteLine(dump);
-                await db.UpdateUser(user1, id);
+                string document = await _elasticService.UpdateDocumentAsync(user1);
+                return Created(document, user1);
             }
-            return Created("Ahora inicia sesion", true);
+            else
+            {
+                return BadRequest("Something wrong updating " + user.Firstname);
+            }
         }
 
         [HttpPost("reset-password")]
@@ -129,7 +145,7 @@ namespace Users.Controllers
             else
             {
                 user1 = mapper.Map<User>(user);
-                db.SendResetEmail(user1);
+                _elasticService.SendResetEmail(user1);
                 return Ok();
             }
         }
@@ -152,9 +168,14 @@ namespace Users.Controllers
                 user1.IsnotLocked = true;
                 if (!string.IsNullOrEmpty(user1.Id))
                 {
-                    await db.UpdateUser(user1, user1.Id);
+                    var result = await _elasticService.UpdateDocumentAsync(user1);
+                    return Ok(user1);
                 }
-                return Ok(user1);
+                else
+                {
+                    return BadRequest("Error saving password");
+                }
+
             }
         }
 
@@ -166,7 +187,7 @@ namespace Users.Controllers
             {
                 if (!string.IsNullOrEmpty(dto.Email))
                 {
-                    user = await db.GetUserByEmail(dto.Email);
+                    user = await _elasticService.GetDocumentByEmailAsync(dto.Email);
                 }
                 if (!string.IsNullOrEmpty(user.Password) && !string.IsNullOrEmpty(dto.Password))
                 {
@@ -180,12 +201,16 @@ namespace Users.Controllers
                     */
                     else if (passwordHasher.Verify(user.Password, dto.Password))
                     {
+                        Console.WriteLine("dentro");
                         user.Token = jwtResource.Generate(user);
                         user.RefreshToken = jwtResource.CreateRefreshToken();
                         user.RefreshTokenDateExpires = DateTime.Now.ToLocalTime().AddDays(7);
                         user.LastaccessDate = DateTime.UtcNow.ToLocalTime();
                         if (!string.IsNullOrEmpty(user.Id))
-                            await db.UpdateUser(user, user.Id);
+                        {
+                            await _elasticService.UpdateDocumentAsync(user);
+                        }
+                        return Ok(user);
                     }
                 }
             }
@@ -204,7 +229,7 @@ namespace Users.Controllers
                 Expires = DateTime.UtcNow.AddDays(14)
             });
             Response.Headers.Add("token", jwt);*/
-            return Ok(user);
+            return BadRequest();
         }
 
         [HttpPost("refresh")]
@@ -216,7 +241,7 @@ namespace Users.Controllers
             string refreshToken = tokenDto.RefreshToken;
             var principal = jwtResource.GetPrincipleFromExpiredToken(accessToken);
             var username = principal.Identity?.Name;//?.FindFirst(x => x.Type.Equals("Username"))?.Value;
-            var user = await db.GetUserByUsername(username!);
+            var user = await _elasticService.GetDocumentByUsernameAsync(username!);
             if (user is null)
                 return BadRequest("Invalid Request. Cannot find user.");
             if (user.RefreshToken != refreshToken)
@@ -226,7 +251,7 @@ namespace Users.Controllers
             user.RefreshToken = jwtResource.CreateRefreshToken();
             user.Token = jwtResource.Generate(user);
             if (!string.IsNullOrEmpty(user.Id))
-                await db.UpdateUser(user, user.Id);
+                await _elasticService.UpdateDocumentAsync(user);
             return Ok(user);
         }
 
@@ -242,16 +267,30 @@ namespace Users.Controllers
                 ModelState.AddModelError("Username", "Nombre de usuario no encontrado");
             }
             user.Id = id;
-            await db.UpdateUser(user, id);
-            return Created("Modified", user);
+            string result = await _elasticService.UpdateDocumentAsync(user);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            var user = db.GetUserById(id);
-            await db.DeleteUser(id);
-            return Ok("Deleted successfully");
+            Console.WriteLine(long.Parse(id));
+            var home = await _elasticService.DeleteDocumentAsync(long.Parse(id));
+            return Ok(home);
+        }
+
+        [HttpGet("query")] // return a collection
+        public IActionResult GetQuery([FromQuery] SieveModel model)
+        {
+            var userResult = sieveProcessor.Apply(model, _elasticService.GetAllPagedDocuments().AsNoTracking());
+            return Ok(userResult);
+        }
+
+        [HttpGet("check-user")] // return single json if exists
+        public IActionResult GetSingleQuery([FromQuery] SieveModel model)
+        {
+            var userResult = sieveProcessor.Apply(model, _elasticService.GetAllPagedDocuments().AsNoTracking()).Single();
+            return Ok(userResult);
         }
     }
 }

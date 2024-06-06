@@ -1,81 +1,36 @@
-using System.Globalization;
-using AutoMapper;
-using Homes.Collections;
-using Homes.Data;
-using Homes.Dto;
-using Homes.Models;
 using Microsoft.AspNetCore.Mvc;
-using CloudinaryDotNet;
-using Microsoft.Extensions.Options;
-using Homes.Infrastructure;
+
+using Homes.Services;
+using Homes.Models;
+using Homes.Dto;
+using AutoMapper;
+using System.Globalization;
 using Sieve.Services;
 using Sieve.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
-
 namespace Homes.Controllers
 {
-    [ApiController]
+
     [Route("api/[controller]")]
+    [ApiController]
     public class HomeController : ControllerBase
     {
-        private readonly IHomeCollection db;
+        private readonly IElasticService<Home> _elasticService;
+
         private readonly IMapper mapper;
-        private readonly Cloudinary cloudinary;
         private Home home;
         private readonly SieveProcessor sieveProcessor;
-
-        public HomeController(IMapper mapper1, IOptions<CloudinarySettings> config, HouseDb hdb, SieveProcessor _sieveProcessor)
+        public HomeController(IMapper mapper1, IElasticService<Home> elasticService, SieveProcessor _sieveProcessor)
         {
             mapper = mapper1;
-            var account = new Account(
-                config.Value.CloudName,
-                config.Value.ApiKey,
-                config.Value.ApiSecret
-            );
-            cloudinary = new Cloudinary(account);
-            db = new HomeCollection(hdb);
-            home = new();
+            _elasticService = elasticService;
             sieveProcessor = _sieveProcessor;
         }
 
         [HttpGet("All")]
-        public async Task<IActionResult> GetAllHomes()
+        public IActionResult GetAllHomes()
         {
-            return Ok(await db.GetAllHomes());
-        }
-
-        [HttpPost("{id}")]
-        public async Task<IActionResult> GetHomeDetails(string id, [FromBody] HomeDto homeDto)
-        {
-            if (homeDto == null)
-            {
-                return BadRequest();
-            }
-            else if (homeDto.Model == "Flat")
-            {
-                return Ok(await db.GetFlatById(Convert.ToInt32(id)));
-            }
-            else if (homeDto.Model == "House")
-            {
-                return Ok(await db.GetHouseById(Convert.ToInt32(id)));
-            }
-            else if (homeDto.Model == "Room")
-            {
-                return Ok(await db.GetRoomById(Convert.ToInt32(id)));
-            }
-            else if (homeDto.Model == "HolidayRent")
-            {
-                return Ok(await db.GetHolidayRentById(Convert.ToInt32(id)));
-            }
-            else if (homeDto.Model == "NewProject")
-            {
-                return Ok(await db.GetNewProjectById(Convert.ToInt32(id)));
-            }
-            else
-            {
-                return BadRequest();
-            }
+            return Ok(_elasticService.GetAllPagedDocuments());
         }
 
         [HttpPost("new")]
@@ -129,26 +84,70 @@ namespace Homes.Controllers
                 }
                 home.FechaCreacion = DateTime.UtcNow.ToLocalTime();
                 home.FechaUltimaModificacion = DateTime.UtcNow.ToLocalTime();
-                home.ViviendaId = db.GenerateRandomAlphanumericString();
+                home.ViviendaId = _elasticService.GenerateRandomAlphanumericString();
+                home.Id = _elasticService.GenerateRandomAlphanumericString();
                 var dump = ObjectDumper.Dump(home);
                 Console.WriteLine(dump);
-                await db.NewHome(home);
+                string res = await _elasticService.AddDocumentAsync(home);
+                return Ok(home);
             }
-            return Created("Created", true);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetHomeDetails(string id)
+        {
+            var document = await _elasticService.GetDocumentAsync(id);
+            //Console.WriteLine(homeDto);
+            if (document == null)
+            {
+                return NotFound("Home not found");
+            }
+            return Ok(document);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateDocument([FromBody] HomeDto homeDto)
+        {
+            if (homeDto == null)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                switch (homeDto.Model)
+                {
+                    case "Flat":
+                        home = mapper.Map<Flat>(homeDto);
+                        break;
+                    case "House":
+                        home = mapper.Map<House>(homeDto);
+                        break;
+                    case "Room":
+                        home = mapper.Map<Room>(homeDto);
+                        break;
+                    case "HolidayRent":
+                        home = mapper.Map<HolidayRent>(homeDto);
+                        break;
+                    case "NewProject":
+                        home = mapper.Map<NewProject>(homeDto);
+                        break;
+                }
+            }
+            string result = await _elasticService.UpdateDocumentAsync(home);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteHome(int id)
+        public async Task<IActionResult> DeleteHome(string id)
         {
-            var home = await db.GetHomeById(id);
-            await db.DeleteHome(home);
-            return Ok("Deleted");
+            string message = await _elasticService.DeleteDocumentAsync(id);
+            return Ok(message);
         }
 
         [HttpGet("query")]
         public IActionResult GetQuery([FromQuery] SieveModel model)
         {
-            var homeResult = sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking());
+            var homeResult = sieveProcessor.Apply(model, _elasticService.GetAllPagedDocuments().AsNoTracking());
             if (model.Filters.Contains(','))
             {
                 string? s = model.Filters;
@@ -165,19 +164,58 @@ namespace Homes.Controllers
                 switch (listTerm)
                 {
                     case "Flat":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedFlats().AsNoTracking());
+                        homeResult = sieveProcessor.Apply(model, _elasticService.SearchFlatDocumentsAsync().AsNoTracking());
                         break;
                     case "House":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedHouses().AsNoTracking());
+                        homeResult = sieveProcessor.Apply(model, _elasticService.SearchHouseDocumentsAsync().AsNoTracking());
                         break;
                     case "Room":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedRooms().AsNoTracking());
+                        homeResult = sieveProcessor.Apply(model, _elasticService.SearchRoomDocumentsAsync().AsNoTracking());
                         break;
                     case "HolidayRent":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedHolidayRent().AsNoTracking());
+                        homeResult = sieveProcessor.Apply(model, _elasticService.SearchHolidayRentDocumentsAsync().AsNoTracking());
                         break;
                     case "NewProject":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking());
+                        homeResult = sieveProcessor.Apply(model, _elasticService.SearchNewProjectDocumentsAsync().AsNoTracking());
+                        break;
+                }
+            }
+            return Ok(homeResult);
+        }
+
+        [HttpGet("check-home")]
+        public IActionResult GetSingleHomeByQuery([FromQuery] SieveModel model)
+        {
+            var homeResult = sieveProcessor.Apply(model, _elasticService.GetAllPagedDocuments().AsNoTracking()).Single();
+            if (model.Filters.Contains(','))
+            {
+                string? s = model.Filters;
+                string[] subs = s.Split(',');
+                string? listTerm = null;
+                foreach (var sub in subs)
+                {
+                    if (sub.Contains("model@="))
+                    {
+                        listTerm = sub[7..];
+                        break;
+                    }
+                }
+                switch (listTerm)
+                {
+                    case "Flat":
+                        homeResult = sieveProcessor.Apply(model, _elasticService.SearchFlatDocumentsAsync().AsNoTracking()).Single();
+                        break;
+                    case "House":
+                        homeResult = sieveProcessor.Apply(model, _elasticService.SearchHouseDocumentsAsync().AsNoTracking()).Single();
+                        break;
+                    case "Room":
+                        homeResult = sieveProcessor.Apply(model, _elasticService.SearchRoomDocumentsAsync().AsNoTracking()).Single();
+                        break;
+                    case "HolidayRent":
+                        homeResult = sieveProcessor.Apply(model, _elasticService.SearchHolidayRentDocumentsAsync().AsNoTracking()).Single();
+                        break;
+                    case "NewProject":
+                        homeResult = sieveProcessor.Apply(model, _elasticService.SearchNewProjectDocumentsAsync().AsNoTracking()).Single();
                         break;
                 }
             }

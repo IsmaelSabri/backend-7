@@ -4,7 +4,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Users.Models;
 using System.Security.Cryptography;
-using Users.Repositories;
 
 namespace Users.Jwt
 {

@@ -1,3 +1,4 @@
+
 using System.ComponentModel.DataAnnotations;
 using Sieve.Attributes;
 
@@ -5,8 +6,9 @@ namespace Homes.Models
 {
     public class Home
     {
-        [Key]
-        public int Id { get; set; }
+        [Sieve(CanFilter = true)]
+        public string? Id { get; set; }
+        [Sieve(CanFilter = true)]
         public string? ViviendaId { get; set; }
         public double Lat { get; set; }
         public double Lng { get; set; }

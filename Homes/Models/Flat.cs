@@ -1,9 +1,7 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using Sieve.Attributes;
 
 namespace Homes.Models
 {
-    [Table("Flat")]
     public class Flat : House
     {
         [Sieve(CanFilter = true)]

@@ -1,9 +1,4 @@
-using System.Resources;
 using System.Security.Cryptography;
-using Amazon.Auth.AccessControlPolicy;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 
 namespace Users.Services.impl
 {

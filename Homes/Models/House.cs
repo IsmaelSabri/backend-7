@@ -3,7 +3,7 @@ using Sieve.Attributes;
 
 namespace Homes.Models
 {
-    [Table("House")]
+    //[Table("House")]
     public class House : Home
     {
         public bool Alarma { get; set; }

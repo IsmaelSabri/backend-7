@@ -1,21 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MongoDB.Driver;
 using Users.Models;
-using Users.Repositories;
+using Users.Services;
 
 namespace Users.Collections.Impl
 {
     public class ChatCollection : IChatCollection
     {
         private static readonly Dictionary<string, string> ChatWindow = new();
-        private readonly IUserCollection db = new UserCollection();
+        private readonly IElasticService<User> _elasticService;
 
         public async Task FillDictionaryMethod()
         {
-            var users = await db.GetAllUsers();
+            var users = await _elasticService.GetAllDocuments();
             foreach (var w in users)
             {
                 if(!string.IsNullOrEmpty(w.UserId)){

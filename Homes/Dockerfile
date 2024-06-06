@@ -14,10 +14,10 @@
 # COPY --from=build /app/out .
 # ENTRYPOINT ["dotnet", "Homes.dll"]
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 EXPOSE 80
-EXPOSE 443
+EXPOSE 40
 
 COPY *.csproj ./
 RUN dotnet restore
@@ -25,7 +25,7 @@ RUN dotnet restore
 COPY . ./
 RUN dotnet publish -c Release -o out
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS final
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/out .
 ENTRYPOINT [ "dotnet", "Homes.dll" ]

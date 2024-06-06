@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Homes.Models
 {
-    [Table("HolidayRent")]
     public class HolidayRent : Home
     {
         public string? NumeroRegistro { get; set; }

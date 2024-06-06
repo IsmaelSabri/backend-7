@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Homes.Models
 {
-    [Table("NewProject")]
+    //[Table("NewProject")]
     public class NewProject : House
     {
         public string? Planificacion { get; set; }
