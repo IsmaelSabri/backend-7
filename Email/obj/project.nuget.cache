@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "dgSpecHash": "50suqalxmwBlIvl1YZwceN13s7E5Gy174xV4tZMl4a8m5npGJ0cP6aMQW+QeT8z75IgzMsdXg3OMa3JG0VEyFg==",
+  "success": true,
+  "projectFilePath": "/home/isma/Projects/backend-7/Email/Email.csproj",
+  "expectedPackageFiles": [
+    "/home/isma/.nuget/packages/bouncycastle.cryptography/2.3.1/bouncycastle.cryptography.2.3.1.nupkg.sha512",
+    "/home/isma/.nuget/packages/mailkit/4.6.0/mailkit.4.6.0.nupkg.sha512",
+    "/home/isma/.nuget/packages/microsoft.aspnetcore.openapi/8.0.6/microsoft.aspnetcore.openapi.8.0.6.nupkg.sha512",
+    "/home/isma/.nuget/packages/microsoft.csharp/4.4.1/microsoft.csharp.4.4.1.nupkg.sha512",
+    "/home/isma/.nuget/packages/microsoft.extensions.apidescription.server/6.0.5/microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
+    "/home/isma/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/2.0.0/microsoft.extensions.dependencyinjection.abstractions.2.0.0.nupkg.sha512",
+    "/home/isma/.nuget/packages/microsoft.extensions.options/2.0.0/microsoft.extensions.options.2.0.0.nupkg.sha512",
+    "/home/isma/.nuget/packages/microsoft.extensions.primitives/2.0.0/microsoft.extensions.primitives.2.0.0.nupkg.sha512",
+    "/home/isma/.nuget/packages/microsoft.openapi/1.6.14/microsoft.openapi.1.6.14.nupkg.sha512",
+    "/home/isma/.nuget/packages/mimekit/4.6.0/mimekit.4.6.0.nupkg.sha512",
+    "/home/isma/.nuget/packages/sieve/2.5.5/sieve.2.5.5.nupkg.sha512",
+    "/home/isma/.nuget/packages/swashbuckle.aspnetcore/6.6.2/swashbuckle.aspnetcore.6.6.2.nupkg.sha512",
+    "/home/isma/.nuget/packages/swashbuckle.aspnetcore.swagger/6.6.2/swashbuckle.aspnetcore.swagger.6.6.2.nupkg.sha512",
+    "/home/isma/.nuget/packages/swashbuckle.aspnetcore.swaggergen/6.6.2/swashbuckle.aspnetcore.swaggergen.6.6.2.nupkg.sha512",
+    "/home/isma/.nuget/packages/swashbuckle.aspnetcore.swaggerui/6.6.2/swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512",
+    "/home/isma/.nuget/packages/system.componentmodel.annotations/4.4.1/system.componentmodel.annotations.4.4.1.nupkg.sha512",
+    "/home/isma/.nuget/packages/system.formats.asn1/8.0.0/system.formats.asn1.8.0.0.nupkg.sha512",
+    "/home/isma/.nuget/packages/system.runtime.compilerservices.unsafe/4.4.0/system.runtime.compilerservices.unsafe.4.4.0.nupkg.sha512",
+    "/home/isma/.nuget/packages/system.security.cryptography.pkcs/8.0.0/system.security.cryptography.pkcs.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
