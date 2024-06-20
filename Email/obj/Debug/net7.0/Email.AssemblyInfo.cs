@@ -10,16 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("Homes")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("Email")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+71608416996d78d0960728b2d51aba05791faa53")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d4bfcb1c118d99badce636647f987569abb5aeb8")]
->>>>>>> 094059416b7bff5ced01bbc0fd54b4f64f11b047
-[assembly: System.Reflection.AssemblyProductAttribute("Homes")]
-[assembly: System.Reflection.AssemblyTitleAttribute("Homes")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9b8a411a1d86928f58988693dbc7197ce5d31a9")]
+[assembly: System.Reflection.AssemblyProductAttribute("Email")]
+[assembly: System.Reflection.AssemblyTitleAttribute("Email")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Generado por la clase WriteCodeFragment de MSBuild.
