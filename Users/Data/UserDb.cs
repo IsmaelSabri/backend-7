@@ -2,7 +2,7 @@ using Users.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Homes.Data
+namespace Users.Data
 {
     public class UserDb : DbContext
     {
@@ -12,10 +12,15 @@ namespace Homes.Data
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
         public DbSet<User> Users { get; set; }//=> Set<Home>();
+        public DbSet<Chat> Chats { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<User>()
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
+
+            builder.Entity<Chat>()
             .Property(e => e.Id)
             .ValueGeneratedOnAdd();
         }

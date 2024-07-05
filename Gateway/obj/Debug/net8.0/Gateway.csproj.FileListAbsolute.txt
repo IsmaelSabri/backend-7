@@ -28,3 +28,8 @@
 /home/isma/Projects/backend-7/Gateway/obj/Debug/net8.0/Gateway.pdb
 /home/isma/Projects/backend-7/Gateway/obj/Debug/net8.0/Gateway.genruntimeconfig.cache
 /home/isma/Projects/backend-7/Gateway/obj/Debug/net8.0/ref/Gateway.dll
+/home/isma/Projects/backend-7/Gateway/bin/Debug/net8.0/Certes.dll
+/home/isma/Projects/backend-7/Gateway/bin/Debug/net8.0/LettuceEncrypt.dll
+/home/isma/Projects/backend-7/Gateway/bin/Debug/net8.0/McMaster.AspNetCore.Kestrel.Certificates.dll
+/home/isma/Projects/backend-7/Gateway/bin/Debug/net8.0/Newtonsoft.Json.dll
+/home/isma/Projects/backend-7/Gateway/bin/Debug/net8.0/BouncyCastle.Crypto.dll

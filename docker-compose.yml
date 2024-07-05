@@ -16,52 +16,55 @@ services:
     environment:
       - ConnectionStrings__PostgreSQLConnection=Server=host.docker.internal;Port=5433;Database=housesdb;User Id=yo;Password=admin;
       - ASPNETCORE_URLS=http://+:80;https://+:443
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=mycatnameistuco
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_HTTPS_PORT=4000
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__AllowInvalid=true
     volumes:
       - ~/.aspnet/https:/https:ro
 
-  # users:
-  #   image: userimage
-  #   depends_on:
-  #     - postgres
-  #   container_name: usercontainer
-  #   ports:
-  #     - "3001:80"
-  #     - "4001:443"
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   extra_hosts:
-  #     - "host.docker.internal:host-gateway"
-  #   environment:
-  #     - ConnectionStrings__PostgreSQLConnection=Server=host.docker.internal;Port=5433;Database=housesdb;User Id=yo;Password=admin;
-  #     - ASPNETCORE_URLS=http://+:80;https://+:443
-  #     - ASPNETCORE_Kestrel__Certificates__Default__Password=mycatnameistuco
-  #     - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-  #     - ASPNETCORE_Kestrel__Certificates__Default__AllowInvalid=true
-  #   volumes:
-  #     - ~/.aspnet/https:/https:ro
+  users:
+    image: userimage
+    depends_on:
+      - postgres
+    container_name: usercontainer
+    ports:
+      - "3001:80"
+      - "4001:443"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - ConnectionStrings__PostgreSQLConnection=Server=host.docker.internal;Port=5433;Database=housesdb;User Id=yo;Password=admin;
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORT=4001
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__AllowInvalid=true
+    volumes:
+      - ~/.aspnet/https:/https:ro
 
-  # gateway:
-  #   image: gatewayimage
-  #   container_name: gatewaycontainer
-  #   ports:
-  #     - "3030:80"
-  #     - "4040:443"
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   extra_hosts:
-  #     - "host.docker.internal:host-gateway"
-  #   environment:
-  #     - ASPNETCORE_URLS=http://+:80;https://+:443
-  #     - ASPNETCORE_Kestrel__Certificates__Default__Password=mycatnameistuco
-  #     - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-  #     - ASPNETCORE_Kestrel__Certificates__Default__AllowInvalid=true
-  #   volumes:
-  #     - ~/.aspnet/https:/https:ro
+  gateway:
+    image: gatewayimage
+    container_name: gatewaycontainer
+    ports:
+      - "3030:80"
+      - "4040:443"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORT=4040
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__AllowInvalid=true
+    volumes:
+      - ~/.aspnet/https:/https:ro
 
   email:
     image: emailimage
@@ -76,8 +79,9 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       - ASPNETCORE_URLS=http://+:80;https://+:443
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=mycatnameistuco
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORT=4002
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__AllowInvalid=true
     volumes:
       - ~/.aspnet/https:/https:ro

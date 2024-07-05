@@ -12,6 +12,21 @@ namespace Users.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Chat",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: true),
+                    ToUserId = table.Column<string>(type: "text", nullable: true),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Chat", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -38,7 +53,9 @@ namespace Users.Migrations
                     LikePreferencesAsString = table.Column<string>(type: "text", nullable: true),
                     Company = table.Column<string>(type: "text", nullable: true),
                     ReviewsAsString = table.Column<string>(type: "text", nullable: true),
-                    IsPro = table.Column<bool>(type: "boolean", nullable: false)
+                    IsPro = table.Column<bool>(type: "boolean", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: true),
+                    ChatsOpenedAsString = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -49,6 +66,9 @@ namespace Users.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Chat");
+
             migrationBuilder.DropTable(
                 name: "Users");
         }

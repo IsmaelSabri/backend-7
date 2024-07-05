@@ -4,10 +4,8 @@ using Users.Profiles;
 using AutoMapper;
 using Users.Services;
 using Users.Services.impl;
-using Users.Collections;
-using Users.Collections.Impl;
 using Users.Hubs;
-using Homes.Data;
+using Users.Data;
 using Microsoft.EntityFrameworkCore;
 using Sieve.Models;
 using Sieve.Services;
@@ -36,7 +34,6 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IUserCollection, UserCollection>();
 builder.Services.AddScoped<JwtResource>();
 builder.Services.AddSignalR();
-builder.Services.AddScoped<IChatCollection, ChatCollection>();
 var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
 builder.Services.AddDbContext<UserDb>(options =>
 options.UseNpgsql(connectionString));
@@ -55,7 +52,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRouting();
-app.MapHub<ChatHub>("/hubs/chat");
+app.MapHub<ChatHub>("/chat-hub");
 app.MapControllers();
 app.UseCors(options => options
                 .WithOrigins(["http://localhost:3000", "http://localhost:8080", "http://localhost:4200", "https://localhost:4200"
