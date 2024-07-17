@@ -44,7 +44,6 @@ namespace Users.Controllers
             string connectionId = ChatHub.Users.First(p => p.Value == chat.ToUserId).Key;
 
             await hubContext.Clients.Client(connectionId).SendAsync("Messages", chat, cancellationToken: cancellationToken);
-
             return Ok(chat);
         }
     }

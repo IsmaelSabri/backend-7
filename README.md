@@ -27,28 +27,6 @@ backend-7 refers to the business layer of a web application to satisfy the purch
 
 ![backend-7](Email/Assets/img/home%20appsettings.json%20.png)
 
-4. In linux, some files may give permissions error, in that case can run
-
-```sh
-chmod 644 metricbeat.yml
-```
-```sh
-chmod 644 filebeat.yml
-```
-```sh
-chmod 644 logstash.yml
-```
-
-5. Next in main folder run
-
-```sh
-docker compose up -d
-```
-
-6. Back again to Homes folder to create the tables in postgres database
-```sh
-dotnet ef database update mymigration
-```
 
 ## Getting Started
 

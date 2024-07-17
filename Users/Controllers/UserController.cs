@@ -142,7 +142,7 @@ namespace Users.Controllers
         }
 
         [HttpPost("save-newpassword")]
-        public async Task<IActionResult> SaveNewPassword([FromBody] UserReadyDto user)
+        public async Task<IActionResult> SaveNewPassword([FromBody] UserDto user)
         {
             if (user == null)
             {

@@ -13,6 +13,16 @@
 Homes/appsettings.json
 Email/appsettings.json
 
+# Weird folders
+Users/obj
+Homes/obj
+Gateway/obj
+Email/obj
+Email/bin/Debug/net8.0
+Gateway/bin/Debug/net8.0
+Homes/bin/Debug/net8.0
+Users/bin/Debug/net8.0
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

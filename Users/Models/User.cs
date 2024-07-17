@@ -19,7 +19,7 @@ namespace Users.Models
         public string? ProfileImageAsString { get; set; }
         public string? BrandImageAsString { get; set; }
         public string? Color { get; set; }
-        [JsonIgnore]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Password { get; set; }
         [Sieve(CanFilter = true)]
         public string? Email { get; set; }
