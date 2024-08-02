@@ -18,10 +18,10 @@ Users/obj
 Homes/obj
 Gateway/obj
 Email/obj
-Email/bin/Debug/net8.0
-Gateway/bin/Debug/net8.0
-Homes/bin/Debug/net8.0
-Users/bin/Debug/net8.0
+Email/bin
+Gateway/bin
+Homes/bin
+Users/bin
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
