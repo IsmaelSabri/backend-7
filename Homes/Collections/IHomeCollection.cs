@@ -16,6 +16,11 @@ namespace Homes.Collections
         public Task<Room?> GetRoomById(int id);
         public Task NewHome(Home home);
         public Task UpdateHome(Home home);
+        public Task UpdateFlat(Flat flat);
+        public Task UpdateHouse(House house);
+        public Task UpdateNewProject(NewProject newProject);
+        public Task UpdateHolidayRent(HolidayRent holidayRent);
+        public Task UpdateRoom(Room room);
         public Task DeleteHome(Home home);
         public string GenerateRandomAlphanumericString();
         public Task<List<Home>> GetAllHomes();

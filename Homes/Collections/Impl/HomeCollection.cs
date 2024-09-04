@@ -57,7 +57,37 @@ namespace Homes.Collections
 
         public async Task UpdateHome(Home home)
         {
-            dbc.Entry(home).State = EntityState.Modified;
+            dbc.Homes.Entry(home).State = EntityState.Modified;
+            await dbc.SaveChangesAsync();
+        }
+
+        public async Task UpdateFlat(Flat flat)
+        {
+            dbc.Flats.Entry(flat).State = EntityState.Modified;
+            await dbc.SaveChangesAsync();
+        }
+
+        public async Task UpdateHouse(House house)
+        {
+            dbc.Houses.Entry(house).State = EntityState.Modified;
+            await dbc.SaveChangesAsync();
+        }
+
+        public async Task UpdateNewProject(NewProject newProject)
+        {
+            dbc.NewProjects.Entry(newProject).State = EntityState.Modified;
+            await dbc.SaveChangesAsync();
+        }
+
+        public async Task UpdateHolidayRent(HolidayRent holidayRent)
+        {
+            dbc.HolidayRents.Entry(holidayRent).State = EntityState.Modified;
+            await dbc.SaveChangesAsync();
+        }
+
+        public async Task UpdateRoom(Room room)
+        {
+            dbc.Rooms.Entry(room).State = EntityState.Modified;
             await dbc.SaveChangesAsync();
         }
 

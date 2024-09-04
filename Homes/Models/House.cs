@@ -19,6 +19,10 @@ namespace Homes.Models
         public string? Aeropuerto { get; set; }
         public string? Consumo { get; set; }
         public string? Emisiones { get; set; }
+        public bool? Aerotermia { get; set; }
+        public bool? VentilacionCruzada { get; set; }
+        public bool? DobleAcristalamiento { get; set; }
+        public string? EnergyCertAsString { get; set; }
         public bool GeneradorEmergencia { get; set; }
         [Sieve(CanFilter = true)]
         public string? VistasDespejadas { get; set; }
@@ -26,5 +30,9 @@ namespace Homes.Models
         public bool InstalacionesDiscapacitados { get; set; }
         [Sieve(CanFilter = true)]
         public bool Jacuzzi { get; set; }
+        public bool Gym { get; set; }
+        public bool Golf { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool Trastero { get; set; }
     }
 }

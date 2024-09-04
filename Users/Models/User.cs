@@ -15,7 +15,6 @@ namespace Users.Models
         [Sieve(CanFilter = true)]
         public string? Username { get; set; }
         public string? Phone { get; set; }
-        public string? Domains { get; set; }
         public string? ProfileImageAsString { get; set; }
         public string? BrandImageAsString { get; set; }
         public string? Color { get; set; }

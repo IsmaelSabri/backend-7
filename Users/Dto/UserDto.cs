@@ -1,4 +1,6 @@
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Users.Dto
 {
     public class UserDto
@@ -9,11 +11,12 @@ namespace Users.Dto
         public string? Lastname { get; set; }
         public string? Username { get; set; }
         public string? Phone { get; set; }
-        public string? Domains { get; set; }
         public string? ProfileImageAsString { get; set; }
         public string? BrandImageAsString { get; set; }
         public string? Color { get; set; }
         public string? Password { get; set; }
+        [Required]
+        [EmailAddress]
         public string? Email { get; set; }
         public string? Role { get; set; }
         public string? Isactive { get; set; }

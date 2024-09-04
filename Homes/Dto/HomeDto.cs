@@ -32,56 +32,24 @@ namespace Homes.Dto
         public string? Garage { get; set; }
         public string? Estado { get; set; }
         public string? DistanciaAlMar { get; set; }
-        public string? Creador { get; set; }
         public string? NombreCreador { get; set; }
         public string? FechaCreacion { get; set; }
         public string? FechaUltimaModificacion { get; set; }
         public string? NumeroVisitas { get; set; }
         public string? Comentario { get; set; }
         public string? Destacar { get; set; }
+        public string? Destacado { get; set; }
         public string? ImagesAsString { get; set; }
         public string? Video { get; set; }
         public string? Ascensor { get; set; }
-        public string? Trastero { get; set; }
-        public string? InstalacionesDiscapacitados { get; set; }
-        public string? Jardin { get; set; }
-        public string? PiscinaComp { get; set; }
-        public string? Columpios { get; set; }
-        public string? Gym { get; set; }
-        public string? Tenis { get; set; }
-        public string? Padel { get; set; }
-        public string? Sauna { get; set; }
-        public string? Jacuzzi { get; set; }
-        public string? Golf { get; set; }
-        public string? VistasDespejadas { get; set; }
-        public string? BajoOplantabaja { get; set; }
         public string? Piso { get; set; }
         public string? Balcon { get; set; }
-        public string? Alarma { get; set; }
-        public string? Recepcion24_7 { get; set; }
-        public string? VideoVigilancia { get; set; }
-        public string? AlarmaIncendios { get; set; }
-        public string? Extintores { get; set; }
         public string? AireAcondicionado { get; set; }
+        public string? ProColor { get; set; }
+        public string? ProImageAsString { get; set; }
         public string? Calefaccion { get; set; }
-        public string? PanelesSolares { get; set; }
-        public string? EficienciaEnergetica { get; set; }
-        public string? Colegios { get; set; }
-        public string? Universidades { get; set; }
-        public string? Supermercados { get; set; }
         public string? Metro { get; set; }
         public string? Bus { get; set; }
-        public string? SepuedeFumar { get; set; }
-        public string? SeadmitenParejas { get; set; }
-        public string? SeadmitenMenoresdeedad { get; set; }
-        public string? SeadmitenMochileros { get; set; }
-        public string? SeadmitenJubilados { get; set; }
-        public string? SeadmiteLGTBI { get; set; }
-        public string? PropietarioviveEnlacasa { get; set; }
-        public string? PerfilCompartir { get; set; }
-        public string? HabitantesActualmente { get; set; }
-        public string? Ambiente { get; set; }
-        public string? Gastos { get; set; }
         public string? NumeroRegistro { get; set; }
         public string? Personas { get; set; }
         public string? Camas { get; set; }
@@ -116,13 +84,7 @@ namespace Homes.Dto
         public string? Model { get; set; }
         public string? Amueblado { get; set; }
         public string? DireccionAproximada { get; set; }
-        public string? Consumo { get; set; }
-        public string? Emisiones { get; set; }
-        public string? VideoPortero { get; set; }
         public string? GasNatural { get; set; }
-        public string? ZonaDeOcio { get; set; }
-        public string? GeneradorEmergencia { get; set; }
-        public string? Aeropuerto { get; set; }
         public string? TipoDeVia { get; set; }
         public string? Distrito { get; set; }
         public string? Orientacion { get; set; }
@@ -132,5 +94,72 @@ namespace Homes.Dto
         public string? ContadorVisitas { get; set; }
         public string? IdCreador { get; set; }
         public string? CabinaHidromasaje { get; set; }
+        public string? ColorDestacar { get; set; }
+
+
+        // house
+        public string? Alarma { get; set; }
+        public string? Recepcion24_7 { get; set; }
+        public string? VideoVigilancia { get; set; }
+        public string? AlarmaIncendios { get; set; }
+        public string? Extintores { get; set; }
+        public string? PanelesSolares { get; set; }
+        public string? EficienciaEnergetica { get; set; }
+        public string? Colegios { get; set; }
+        public string? Universidades { get; set; }
+        public string? Supermercados { get; set; }
+        public string? Aeropuerto { get; set; }
+        public string? Consumo { get; set; }
+        public string? Emisiones { get; set; }
+        public string? Aerotermia { get; set; }
+        public string? VentilacionCruzada { get; set; }
+        public string? DobleAcristalamiento { get; set; }
+        public string? EnergyCertAsString { get; set; }
+        public string? GeneradorEmergencia { get; set; }
+        public string? VistasDespejadas { get; set; }
+        public string? InstalacionesDiscapacitados { get; set; }
+        public string? Jacuzzi { get; set; }
+        public string? Gym { get; set; }
+        public string? Golf { get; set; }
+        public string? Trastero { get; set; }
+
+        // room
+        public string? SepuedeFumar { get; set; }
+        public string? SeadmitenParejas { get; set; }
+        public string? SeadmitenMenoresdeedad { get; set; }
+        public string? SeadmitenMochileros { get; set; }
+        public string? SeadmitenJubilados { get; set; }
+        public string? SeadmiteLGTBI { get; set; }
+        public string? PropietarioviveEnlacasa { get; set; }
+        public string? PerfilCompartir { get; set; }
+        public string? HabitantesActualmente { get; set; }
+        public string? Ambiente { get; set; }
+        public string? Gastos { get; set; }
+
+        // flat
+        public string? Jardin { get; set; }
+        public string? PiscinaComp { get; set; }
+        public string? Columpios { get; set; }
+        public string? Tenis { get; set; }
+        public string? Padel { get; set; }
+        public string? Sauna { get; set; }
+        public string? BajoOplantabaja { get; set; }
+        public string? VideoPortero { get; set; }
+        public string? ZonaDeOcio { get; set; }
+
+
+        // new project
+        public string? PorcentajeVendido { get; set; }
+        public string? PorcentajeTerminado { get; set; }
+        public string? NombreProyecto { get; set; }
+        public string? EstadoConstruccion { get; set; }
+        public string? Tipos { get; set; }
+        public string? HabitacionesDesde { get; set; }
+        public string? HabitacionesHasta { get; set; }
+        public string? SuperficieDesde { get; set; }
+        public string? SuperficieHasta { get; set; }
+        public string? FinDeObra { get; set; }
+        public string? Alturas { get; set; }
+        public string? TotalViviendasConstruidas { get; set; }
     }
 }

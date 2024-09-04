@@ -10,6 +10,7 @@ using Users.Data;
 using Sieve.Models;
 using Sieve.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Users.Controllers
 {
@@ -142,7 +143,7 @@ namespace Users.Controllers
         }
 
         [HttpPost("save-newpassword")]
-        public async Task<IActionResult> SaveNewPassword([FromBody] UserDto user)
+        public async Task<IActionResult> SaveNewPassword([FromBody] User user)
         {
             if (user == null)
             {

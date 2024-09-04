@@ -12,12 +12,15 @@ namespace Homes.Profiles
     {
         public HomeProfile()
         {
-            CreateMap<HomeDto, Home>();
-            CreateMap<HomeDto, Flat>();
-            CreateMap<HomeDto, House>();
-            CreateMap<HomeDto, Room>();
-            CreateMap<HomeDto, HolidayRent>();
-            CreateMap<HomeDto, NewProject>();
+            CreateMap<HomeDto, Home>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, Flat>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, House>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, Room>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, HolidayRent>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, NewProject>().ValidateMemberList(MemberList.None);/*.ForAllMembers(opts =>
+            {
+                opts.Condition((src, dest, srcMember) => srcMember != null);
+            });*/
         }
     }
 }

@@ -23,6 +23,11 @@ namespace Homes.Controllers
         private readonly IMapper mapper;
         private readonly Cloudinary cloudinary;
         private Home home;
+        private Flat flat;
+        private House house;
+        private HolidayRent holidayRent;
+        private Room room;
+        private NewProject newProject;
         private readonly SieveProcessor sieveProcessor;
 
         public HomeController(IMapper mapper1, IOptions<CloudinarySettings> config, HouseDb hdb, SieveProcessor _sieveProcessor)
@@ -134,7 +139,78 @@ namespace Homes.Controllers
                 Console.WriteLine(dump);
                 await db.NewHome(home);
             }
-            return Created("Created", true);
+            return Created("Created", home);
+        }
+
+        /*
+        *      Update models
+        *
+        */
+
+        [HttpPut("home")]
+        public async Task<IActionResult> UpdateHome([FromBody] Home homeMod)
+        {
+            if (homeMod == null)
+            {
+                return BadRequest();
+            }
+            await db.UpdateHome(homeMod);
+            return Created("Modified", homeMod);
+        }
+
+        [HttpPut("flat")]
+        public async Task<IActionResult> UpdateFlat([FromBody] Flat flatMod)
+        {
+            if (flatMod == null)
+            {
+                return BadRequest();
+            }
+            await db.UpdateFlat(flatMod);
+            return Created("Modified", flatMod);
+        }
+
+        [HttpPut("house")]
+        public async Task<IActionResult> UpdateHouse([FromBody] House houseMod)
+        {
+            if (houseMod == null)
+            {
+                return BadRequest();
+            }
+            await db.UpdateHouse(houseMod);
+            return Created("Modified", houseMod);
+        }
+
+        [HttpPut("room")]
+        public async Task<IActionResult> UpdateRoom([FromBody] Room roomMod)
+        {
+            if (roomMod == null)
+            {
+                return BadRequest();
+            }
+            await db.UpdateRoom(roomMod);
+            return Created("Modified", roomMod);
+        }
+
+        [HttpPut("new-project")]
+        public async Task<IActionResult> UpdateNewProject([FromBody] NewProject newProjectMod)
+        {
+            if (newProjectMod == null)
+            {
+                return BadRequest();
+            }
+            await db.UpdateNewProject(newProjectMod);
+            return Created("Modified", newProjectMod);
+        }
+
+        [HttpPut("holiday-rent")]
+        public async Task<IActionResult> UpdateHolidayRent([FromBody] HolidayRent holidayRentMod)
+        {
+            if (holidayRentMod == null)
+            {
+                return BadRequest();
+            }
+            await db.UpdateHolidayRent(holidayRentMod);
+            return Created("Modified", holidayRentMod);
         }
 
         [HttpDelete("{id}")]
@@ -156,9 +232,9 @@ namespace Homes.Controllers
                 string? listTerm = null;
                 foreach (var sub in subs)
                 {
-                    if (sub.Contains("model@="))
+                    if (sub.Contains("model@=*"))
                     {
-                        listTerm = sub[7..];
+                        listTerm = sub[8..];
                         break;
                     }
                 }
