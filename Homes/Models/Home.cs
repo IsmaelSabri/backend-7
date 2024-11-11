@@ -9,7 +9,9 @@ namespace Homes.Models
         public int Id { get; set; }
         [Sieve(CanFilter = true)]
         public string? ViviendaId { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public double Lat { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public double Lng { get; set; }
         public string? Calle { get; set; }
         public int Numero { get; set; }
@@ -54,6 +56,7 @@ namespace Homes.Models
         public DateTime FechaUltimaModificacion { get; set; }
         public string? NumeroVisitas { get; set; }
         public string? Comentario { get; set; }
+        [Sieve(CanFilter = true)]
         public string? Destacar { get; set; }
         public string? ColorDestacar { get; set; }
         [Sieve(CanFilter = true)]
@@ -99,5 +102,20 @@ namespace Homes.Models
         public string? Fianza { get; set; }
         public string? Disponibilidad { get; set; }
         public string? EstanciaMinima { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public string? LikeMeForeverAsString { get; set; }
+        public int PrecioAlquilerInicial { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool PiscinaComp { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool Trastero { get; set; }
+        [Sieve(CanFilter = true)]
+        public string? VistasDespejadas { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool InstalacionesDiscapacitados { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool Jacuzzi { get; set; }
+        [Sieve(CanFilter = true)]
+        public bool PanelesSolares { get; set; }
     }
 }

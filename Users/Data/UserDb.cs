@@ -1,6 +1,5 @@
 using Users.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Users.Data
 {

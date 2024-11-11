@@ -33,7 +33,6 @@ namespace Users.Models
         public DateTime LastaccessDate { get; set; }
         public DateTime DateRegistry { get; set; }
         public DateTime RefreshTokenDateExpires { get; set; }
-        public string? LikePreferencesAsString { get; set; }
         [Sieve(CanFilter = true)]
         public string? Company { get; set; }
         public string? ReviewsAsString { get; set; }

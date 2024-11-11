@@ -1,11 +1,12 @@
 using Homes.Data;
 using Homes.Models;
 using Microsoft.EntityFrameworkCore;
+using Sieve.Services;
 using System.Linq.Dynamic.Core;
 
 namespace Homes.Collections
 {
-    public class HomeCollection : IHomeCollection
+    public class HomeCollection : IHomeCollection, ISieveCustomFilterMethods
     {
         private readonly HouseDb dbc;
 
@@ -103,6 +104,11 @@ namespace Homes.Collections
             var random = new Random();
             return new string(Enumerable.Repeat(chars, 18)
                                                     .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        public IQueryable<Home> GetBoxedHomes(double BLlng, double BLlat, double TRlng, double TRlat)
+        {
+            return dbc.Homes.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
         }
 
         public IQueryable<Home> GetPagedHomes()

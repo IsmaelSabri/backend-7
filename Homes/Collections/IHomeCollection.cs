@@ -24,6 +24,7 @@ namespace Homes.Collections
         public Task DeleteHome(Home home);
         public string GenerateRandomAlphanumericString();
         public Task<List<Home>> GetAllHomes();
+        public IQueryable<Home> GetBoxedHomes(double BLlat, double BLlng, double TRlat, double TRlng);
         public IQueryable<Home> GetPagedHomes();
         public IQueryable<Flat> GetPagedFlats();
         public IQueryable<House> GetPagedHouses();

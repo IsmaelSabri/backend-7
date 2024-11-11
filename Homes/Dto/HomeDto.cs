@@ -95,7 +95,14 @@ namespace Homes.Dto
         public string? IdCreador { get; set; }
         public string? CabinaHidromasaje { get; set; }
         public string? ColorDestacar { get; set; }
-
+        public string? LikeMeForeverAsString { get; set; }
+        public string? PrecioAlquilerInicial { get; set; }
+        public string? PiscinaComp { get; set; }
+        public string? Trastero { get; set; }
+        public string? VistasDespejadas { get; set; }
+        public string? InstalacionesDiscapacitados { get; set; }
+        public string? Jacuzzi { get; set; }
+        public string? PanelesSolares { get; set; }
 
         // house
         public string? Alarma { get; set; }
@@ -103,7 +110,6 @@ namespace Homes.Dto
         public string? VideoVigilancia { get; set; }
         public string? AlarmaIncendios { get; set; }
         public string? Extintores { get; set; }
-        public string? PanelesSolares { get; set; }
         public string? EficienciaEnergetica { get; set; }
         public string? Colegios { get; set; }
         public string? Universidades { get; set; }
@@ -116,12 +122,8 @@ namespace Homes.Dto
         public string? DobleAcristalamiento { get; set; }
         public string? EnergyCertAsString { get; set; }
         public string? GeneradorEmergencia { get; set; }
-        public string? VistasDespejadas { get; set; }
-        public string? InstalacionesDiscapacitados { get; set; }
-        public string? Jacuzzi { get; set; }
         public string? Gym { get; set; }
         public string? Golf { get; set; }
-        public string? Trastero { get; set; }
 
         // room
         public string? SepuedeFumar { get; set; }
@@ -138,7 +140,6 @@ namespace Homes.Dto
 
         // flat
         public string? Jardin { get; set; }
-        public string? PiscinaComp { get; set; }
         public string? Columpios { get; set; }
         public string? Tenis { get; set; }
         public string? Padel { get; set; }

@@ -24,7 +24,7 @@
     <PackageReference Include="ObjectDumper.NET" Version="4.2.7" />
     <PackageReference Include="Sieve" Version="2.5.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.3" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.5" />
   </ItemGroup>
   <!--<ItemGroup>
     <ProjectReference Include = "../Email/Email.csproj" />

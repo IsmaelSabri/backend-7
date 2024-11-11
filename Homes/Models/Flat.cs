@@ -7,8 +7,6 @@ namespace Homes.Models
     public class Flat : House
     {
         public bool Jardin { get; set; }
-        [Sieve(CanFilter = true)]
-        public bool PiscinaComp { get; set; }
         public bool Columpios { get; set; }
         public bool Tenis { get; set; }
         public bool Padel { get; set; }

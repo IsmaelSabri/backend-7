@@ -12,6 +12,8 @@ using Sieve.Services;
 using Sieve.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Linq;
+using AutoMapper.Configuration.Annotations;
 
 namespace Homes.Controllers
 {
@@ -221,43 +223,89 @@ namespace Homes.Controllers
             return Ok("Deleted");
         }
 
+        private readonly double[] points = new double[4];
         [HttpGet("query")]
         public IActionResult GetQuery([FromQuery] SieveModel model)
         {
-            var homeResult = sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking());
-            if (model.Filters.Contains(','))
+            if (model.Filters.Contains("lng"))
             {
+                NumberFormatInfo provider = new()
+                {
+                    NumberDecimalSeparator = "."
+                };
                 string? s = model.Filters;
                 string[] subs = s.Split(',');
-                string? listTerm = null;
-                foreach (var sub in subs)
+                for (int i = 0; i < subs.Length; i++)
                 {
-                    if (sub.Contains("model@=*"))
+                    if (subs[i].Contains("lng>="))
                     {
-                        listTerm = sub[8..];
-                        break;
+                        points[0] = Convert.ToDouble(subs[i][5..], provider);
+                        subs[i] = "";
+                    }
+                    else if (subs[i].Contains("lng<="))
+                    {
+                        points[1] = Convert.ToDouble(subs[i][5..], provider);
+                        subs[i] = "";
+                    }
+                    else if (subs[i].Contains("lat>="))
+                    {
+                        points[2] = Convert.ToDouble(subs[i][5..], provider);
+                        subs[i] = "";
+                    }
+                    else if (subs[i].Contains("lat<="))
+                    {
+                        points[3] = Convert.ToDouble(subs[i][5..], provider);
+                        subs[i] = "";
                     }
                 }
-                switch (listTerm)
+                var mainFilters = string.Join(",", subs.Select(p => p.ToString()).ToArray());
+                model.Filters = mainFilters.Replace(",,,,", "");
+                if (!string.IsNullOrEmpty(model.Filters)) // responde a los eventos del mapa con con unos criterios de filtrado dados
                 {
-                    case "Flat":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedFlats().AsNoTracking());
-                        break;
-                    case "House":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedHouses().AsNoTracking());
-                        break;
-                    case "Room":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedRooms().AsNoTracking());
-                        break;
-                    case "HolidayRent":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedHolidayRent().AsNoTracking());
-                        break;
-                    case "NewProject":
-                        homeResult = sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking());
-                        break;
+                    return Ok(sieveProcessor.Apply(model, db.GetBoxedHomes(points[0], points[2], points[1], points[3]).AsNoTracking()));
+                }
+                else // responde a los eventos del mapa 
+                {
+                    return Ok(db.GetBoxedHomes(points[0], points[2], points[1], points[3]).AsNoTracking());
                 }
             }
-            return Ok(homeResult);
+            else // consultas para solicitar modelos concretos, modelos de abajo de la jerarquía inclusive (sin coordenadas)  
+            {
+                var homeResult = sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking());
+                if (model.Filters.Contains(','))
+                {
+                    string? s = model.Filters;
+                    string[] subs = s.Split(',');
+                    string? listTerm = null;
+                    foreach (var sub in subs)
+                    {
+                        if (sub.Contains("model@=*"))
+                        {
+                            listTerm = sub[8..];
+                            break;
+                        }
+                    }
+                    switch (listTerm)
+                    {
+                        case "Flat":
+                            homeResult = sieveProcessor.Apply(model, db.GetPagedFlats().AsNoTracking());
+                            break;
+                        case "House":
+                            homeResult = sieveProcessor.Apply(model, db.GetPagedHouses().AsNoTracking());
+                            break;
+                        case "Room":
+                            homeResult = sieveProcessor.Apply(model, db.GetPagedRooms().AsNoTracking());
+                            break;
+                        case "HolidayRent":
+                            homeResult = sieveProcessor.Apply(model, db.GetPagedHolidayRent().AsNoTracking());
+                            break;
+                        case "NewProject":
+                            homeResult = sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking());
+                            break;
+                    }
+                }
+                return Ok(homeResult);
+            }
         }
     }
 }

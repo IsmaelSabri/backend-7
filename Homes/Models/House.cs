@@ -11,8 +11,6 @@ namespace Homes.Models
         public bool VideoVigilancia { get; set; }
         public bool AlarmaIncendios { get; set; }
         public bool Extintores { get; set; }
-        [Sieve(CanFilter = true)]
-        public bool PanelesSolares { get; set; }
         public bool EficienciaEnergetica { get; set; } // ver etiquetas
         public string? Colegios { get; set; }
         public string? Supermercados { get; set; }
@@ -24,15 +22,7 @@ namespace Homes.Models
         public bool? DobleAcristalamiento { get; set; }
         public string? EnergyCertAsString { get; set; }
         public bool GeneradorEmergencia { get; set; }
-        [Sieve(CanFilter = true)]
-        public string? VistasDespejadas { get; set; }
-        [Sieve(CanFilter = true)]
-        public bool InstalacionesDiscapacitados { get; set; }
-        [Sieve(CanFilter = true)]
-        public bool Jacuzzi { get; set; }
         public bool Gym { get; set; }
         public bool Golf { get; set; }
-        [Sieve(CanFilter = true)]
-        public bool Trastero { get; set; }
     }
 }

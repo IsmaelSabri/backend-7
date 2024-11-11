@@ -26,7 +26,6 @@ namespace Users.Dto
         public string? LastaccessDate { get; set; }
         public string? DateRegistry { get; set; }
         public string? RefreshTokenDateExpires { get; set; }
-        public string? LikePreferencesAsString { get; set; }
         public string? Company { get; set; }
         public string? ReviewsAsString { get; set; }
         public string? IsPro { get; set; }
