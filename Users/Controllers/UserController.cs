@@ -174,7 +174,15 @@ namespace Users.Controllers
             {
                 if (!string.IsNullOrEmpty(dto.Email))
                 {
-                    user = await db.GetUserByEmail(dto.Email);
+                    var user1 = await db.GetUserByEmail(dto.Email);
+                    if (user1 is { })
+                    {
+                        user = user1;
+                    }
+                    else
+                    {
+                        return BadRequest("No existe ningún usuario con el email " + dto.Email + " !!");
+                    }
                 }
                 if (!string.IsNullOrEmpty(user.Password) && !string.IsNullOrEmpty(dto.Password))
                 {
@@ -258,8 +266,13 @@ namespace Users.Controllers
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await db.GetUserById(id);
-            await db.DeleteUser(user);
-            return Ok("Deleted successfully");
+            if (user is { })
+            {
+                await db.DeleteUser(user);
+                return Ok("Deleted successfully");
+            } else{
+                return BadRequest("Cannot delete that user. Try after few minutes.");
+            }
         }
 
         [HttpGet("query")] // return a collection

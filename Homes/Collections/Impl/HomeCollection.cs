@@ -50,6 +50,11 @@ namespace Homes.Collections
             return await dbc.Rooms.FindAsync(id);
         }
 
+        public async Task<Other?> GetOtherById(int id)
+        {
+            return await dbc.Others.FindAsync(id);
+        }
+
         public async Task NewHome(Home home)
         {
             dbc.Homes.Add(home);
@@ -92,6 +97,12 @@ namespace Homes.Collections
             await dbc.SaveChangesAsync();
         }
 
+        public async Task UpdateOther(Other other)
+        {
+            dbc.Others.Entry(other).State = EntityState.Modified;
+            await dbc.SaveChangesAsync();
+        }
+
         public async Task DeleteHome(Home home)
         {
             dbc.Homes.Remove(home);
@@ -109,6 +120,36 @@ namespace Homes.Collections
         public IQueryable<Home> GetBoxedHomes(double BLlng, double BLlat, double TRlng, double TRlat)
         {
             return dbc.Homes.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
+        }
+
+        public IQueryable<Home> GetBoxedHouses(double BLlng, double BLlat, double TRlng, double TRlat)
+        {
+            return dbc.Houses.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
+        }
+
+        public IQueryable<Home> GetBoxedFlats(double BLlng, double BLlat, double TRlng, double TRlat)
+        {
+            return dbc.Flats.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
+        }
+
+        public IQueryable<Home> GetBoxedNewProjects(double BLlng, double BLlat, double TRlng, double TRlat)
+        {
+            return dbc.NewProjects.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
+        }
+
+        public IQueryable<Home> GetBoxedRooms(double BLlng, double BLlat, double TRlng, double TRlat)
+        {
+            return dbc.Rooms.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
+        }
+
+        public IQueryable<Home> GetBoxedHolidayRent(double BLlng, double BLlat, double TRlng, double TRlat)
+        {
+            return dbc.HolidayRents.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
+        }
+
+        public IQueryable<Home> GetBoxedOthers(double BLlng, double BLlat, double TRlng, double TRlat)
+        {
+            return dbc.Others.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
         }
 
         public IQueryable<Home> GetPagedHomes()
@@ -139,6 +180,11 @@ namespace Homes.Collections
         public IQueryable<NewProject> GetPagedNewProjects()
         {
             return dbc.NewProjects.AsQueryable();
+        }
+
+        public IQueryable<Other> GetPagedOthers()
+        {
+            return dbc.Others.AsQueryable();
         }
     }
 }

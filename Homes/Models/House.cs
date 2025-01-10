@@ -7,7 +7,9 @@ namespace Homes.Models
     public class House : Home
     {
         public bool Alarma { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool Recepcion24_7 { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool VideoVigilancia { get; set; }
         public bool AlarmaIncendios { get; set; }
         public bool Extintores { get; set; }
@@ -17,9 +19,9 @@ namespace Homes.Models
         public string? Aeropuerto { get; set; }
         public string? Consumo { get; set; }
         public string? Emisiones { get; set; }
-        public bool? Aerotermia { get; set; }
-        public bool? VentilacionCruzada { get; set; }
-        public bool? DobleAcristalamiento { get; set; }
+        public bool Aerotermia { get; set; }
+        public bool VentilacionCruzada { get; set; }
+        public bool DobleAcristalamiento { get; set; }
         public string? EnergyCertAsString { get; set; }
         public bool GeneradorEmergencia { get; set; }
         public bool Gym { get; set; }

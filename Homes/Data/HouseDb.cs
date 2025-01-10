@@ -16,6 +16,7 @@ namespace Homes.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<HolidayRent> HolidayRents { get; set; }
         public DbSet<NewProject> NewProjects { get; set; }
+        public DbSet<Other> Others { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +25,7 @@ namespace Homes.Data
             modelBuilder.Entity<Room>().ToTable("Room");
             modelBuilder.Entity<HolidayRent>().ToTable("HolidayRent");
             modelBuilder.Entity<NewProject>().ToTable("NewProject");
+            modelBuilder.Entity<Other>().ToTable("Other");
             //modelBuilder.Entity<Home>().UseTphMappingStrategy().Property(e=>e.Id).HasDefaultValue;
         }
     }

@@ -25,11 +25,6 @@ namespace Homes.Controllers
         private readonly IMapper mapper;
         private readonly Cloudinary cloudinary;
         private Home home;
-        private Flat flat;
-        private House house;
-        private HolidayRent holidayRent;
-        private Room room;
-        private NewProject newProject;
         private readonly SieveProcessor sieveProcessor;
 
         public HomeController(IMapper mapper1, IOptions<CloudinarySettings> config, HouseDb hdb, SieveProcessor _sieveProcessor)
@@ -79,6 +74,10 @@ namespace Homes.Controllers
             {
                 return Ok(await db.GetNewProjectById(Convert.ToInt32(id)));
             }
+            else if (homeDto.Model == "Other")
+            {
+                return Ok(await db.GetOtherById(Convert.ToInt32(id)));
+            }
             else
             {
                 return BadRequest();
@@ -110,6 +109,9 @@ namespace Homes.Controllers
                         break;
                     case "NewProject":
                         home = mapper.Map<NewProject>(homeDto);
+                        break;
+                    case "Other":
+                        home = mapper.Map<Other>(homeDto);
                         break;
                 }
                 NumberFormatInfo provider = new()
@@ -149,6 +151,7 @@ namespace Homes.Controllers
         *
         */
 
+        [DisableRequestSizeLimit]
         [HttpPut("home")]
         public async Task<IActionResult> UpdateHome([FromBody] Home homeMod)
         {
@@ -160,6 +163,7 @@ namespace Homes.Controllers
             return Created("Modified", homeMod);
         }
 
+        [DisableRequestSizeLimit]
         [HttpPut("flat")]
         public async Task<IActionResult> UpdateFlat([FromBody] Flat flatMod)
         {
@@ -171,6 +175,7 @@ namespace Homes.Controllers
             return Created("Modified", flatMod);
         }
 
+        [DisableRequestSizeLimit]
         [HttpPut("house")]
         public async Task<IActionResult> UpdateHouse([FromBody] House houseMod)
         {
@@ -182,6 +187,7 @@ namespace Homes.Controllers
             return Created("Modified", houseMod);
         }
 
+        [DisableRequestSizeLimit]
         [HttpPut("room")]
         public async Task<IActionResult> UpdateRoom([FromBody] Room roomMod)
         {
@@ -193,6 +199,7 @@ namespace Homes.Controllers
             return Created("Modified", roomMod);
         }
 
+        [DisableRequestSizeLimit]
         [HttpPut("new-project")]
         public async Task<IActionResult> UpdateNewProject([FromBody] NewProject newProjectMod)
         {
@@ -204,6 +211,7 @@ namespace Homes.Controllers
             return Created("Modified", newProjectMod);
         }
 
+        [DisableRequestSizeLimit]
         [HttpPut("holiday-rent")]
         public async Task<IActionResult> UpdateHolidayRent([FromBody] HolidayRent holidayRentMod)
         {
@@ -215,15 +223,36 @@ namespace Homes.Controllers
             return Created("Modified", holidayRentMod);
         }
 
+        [DisableRequestSizeLimit]
+        [HttpPut("other")]
+        public async Task<IActionResult> UpdateOther([FromBody] Other other)
+        {
+            if (other == null)
+            {
+                return BadRequest();
+            }
+            await db.UpdateOther(other);
+            return Created("Modified", other);
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHome(int id)
         {
             var home = await db.GetHomeById(id);
-            await db.DeleteHome(home);
-            return Ok("Deleted");
+            if (home is { })
+            {
+                await db.DeleteHome(home);
+                return Ok("Deleted");
+            }
+            else
+            {
+                return BadRequest("Cannot find model");
+            }
+
         }
 
         private readonly double[] points = new double[4];
+        private string CollectionModel = "";
         [HttpGet("query")]
         public IActionResult GetQuery([FromQuery] SieveModel model)
         {
@@ -257,19 +286,35 @@ namespace Homes.Controllers
                         points[3] = Convert.ToDouble(subs[i][5..], provider);
                         subs[i] = "";
                     }
+                    else if (subs[i].Contains("model@=*"))
+                    {
+                        CollectionModel = subs[i][8..];
+                        subs[i] = "";
+                    }
                 }
                 var mainFilters = string.Join(",", subs.Select(p => p.ToString()).ToArray());
                 model.Filters = mainFilters.Replace(",,,,", "");
                 if (!string.IsNullOrEmpty(model.Filters)) // responde a los eventos del mapa con con unos criterios de filtrado dados
                 {
-                    return Ok(sieveProcessor.Apply(model, db.GetBoxedHomes(points[0], points[2], points[1], points[3]).AsNoTracking()));
+                    var homeResult = sieveProcessor.Apply(model, db.GetBoxedHomes(points[0], points[2], points[1], points[3]).AsNoTracking());
+                    homeResult = CollectionModel switch
+                    {
+                        "Flat" => sieveProcessor.Apply(model, db.GetBoxedFlats(points[0], points[2], points[1], points[3]).AsNoTracking()),
+                        "House" => sieveProcessor.Apply(model, db.GetBoxedHouses(points[0], points[2], points[1], points[3]).AsNoTracking()),
+                        "Room" => sieveProcessor.Apply(model, db.GetBoxedRooms(points[0], points[2], points[1], points[3]).AsNoTracking()),
+                        "HolidayRent" => sieveProcessor.Apply(model, db.GetBoxedHolidayRent(points[0], points[2], points[1], points[3]).AsNoTracking()),
+                        "NewProject" => sieveProcessor.Apply(model, db.GetBoxedNewProjects(points[0], points[2], points[1], points[3]).AsNoTracking()),
+                        "Other" => sieveProcessor.Apply(model, db.GetBoxedOthers(points[0], points[2], points[1], points[3]).AsNoTracking()),
+                        _ => sieveProcessor.Apply(model, db.GetBoxedHomes(points[0], points[2], points[1], points[3]).AsNoTracking()),
+                    };
+                    return Ok(homeResult);
                 }
                 else // responde a los eventos del mapa 
                 {
                     return Ok(db.GetBoxedHomes(points[0], points[2], points[1], points[3]).AsNoTracking());
                 }
             }
-            else // consultas para solicitar modelos concretos, modelos de abajo de la jerarquía inclusive (sin coordenadas)  
+            else // consultas para solicitar modelos concretos => modelos de abajo de la jerarquía inclusive (sin coordenadas)  
             {
                 var homeResult = sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking());
                 if (model.Filters.Contains(','))
@@ -285,24 +330,16 @@ namespace Homes.Controllers
                             break;
                         }
                     }
-                    switch (listTerm)
+                    homeResult = listTerm switch
                     {
-                        case "Flat":
-                            homeResult = sieveProcessor.Apply(model, db.GetPagedFlats().AsNoTracking());
-                            break;
-                        case "House":
-                            homeResult = sieveProcessor.Apply(model, db.GetPagedHouses().AsNoTracking());
-                            break;
-                        case "Room":
-                            homeResult = sieveProcessor.Apply(model, db.GetPagedRooms().AsNoTracking());
-                            break;
-                        case "HolidayRent":
-                            homeResult = sieveProcessor.Apply(model, db.GetPagedHolidayRent().AsNoTracking());
-                            break;
-                        case "NewProject":
-                            homeResult = sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking());
-                            break;
-                    }
+                        "Flat" => sieveProcessor.Apply(model, db.GetPagedFlats().AsNoTracking()),
+                        "House" => sieveProcessor.Apply(model, db.GetPagedHouses().AsNoTracking()),
+                        "Room" => sieveProcessor.Apply(model, db.GetPagedRooms().AsNoTracking()),
+                        "HolidayRent" => sieveProcessor.Apply(model, db.GetPagedHolidayRent().AsNoTracking()),
+                        "NewProject" => sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking()),
+                        "Other" => sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking()),
+                        _ => sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking()),
+                    };
                 }
                 return Ok(homeResult);
             }

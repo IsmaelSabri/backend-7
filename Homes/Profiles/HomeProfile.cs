@@ -17,10 +17,8 @@ namespace Homes.Profiles
             CreateMap<HomeDto, House>().ValidateMemberList(MemberList.None);
             CreateMap<HomeDto, Room>().ValidateMemberList(MemberList.None);
             CreateMap<HomeDto, HolidayRent>().ValidateMemberList(MemberList.None);
-            CreateMap<HomeDto, NewProject>().ValidateMemberList(MemberList.None);/*.ForAllMembers(opts =>
-            {
-                opts.Condition((src, dest, srcMember) => srcMember != null);
-            });*/
+            CreateMap<HomeDto, NewProject>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, Other>().ValidateMemberList(MemberList.None);
         }
     }
 }

@@ -35,10 +35,10 @@ namespace Homes.Dto
         public string? NombreCreador { get; set; }
         public string? FechaCreacion { get; set; }
         public string? FechaUltimaModificacion { get; set; }
-        public string? NumeroVisitas { get; set; }
         public string? Comentario { get; set; }
         public string? Destacar { get; set; }
-        public string? Destacado { get; set; }
+        public string? DestacadoAsString { get; set; }
+        public string? UnderPriceMarketAsString { get; set; }
         public string? ImagesAsString { get; set; }
         public string? Video { get; set; }
         public string? Ascensor { get; set; }
@@ -90,8 +90,6 @@ namespace Homes.Dto
         public string? Orientacion { get; set; }
         public string? PrecioAlquiler { get; set; }
         public string? PoliticaPrivacidad { get; set; }
-        public string? ContadorLikes { get; set; }
-        public string? ContadorVisitas { get; set; }
         public string? IdCreador { get; set; }
         public string? CabinaHidromasaje { get; set; }
         public string? ColorDestacar { get; set; }
@@ -103,6 +101,7 @@ namespace Homes.Dto
         public string? InstalacionesDiscapacitados { get; set; }
         public string? Jacuzzi { get; set; }
         public string? PanelesSolares { get; set; }
+        public string? Prototipo { get; set; }
 
         // house
         public string? Alarma { get; set; }
@@ -162,5 +161,45 @@ namespace Homes.Dto
         public string? FinDeObra { get; set; }
         public string? Alturas { get; set; }
         public string? TotalViviendasConstruidas { get; set; }
+
+        // other
+        public string? Aparcamientos { get; set; }
+        public string? Climatizacion { get; set; }
+        public string? Disposicion { get; set; } // bajo, entresuelo, piso, centro comercial, pie de calle, sótano,
+        public string? Distribucion { get; set; } 
+        public string? ControlDeAccesoPersonal { get; set; } // tornos
+        public string? ControlDeAccesoVehiculos { get; set; }
+        public string? Seguridad24_7 { get; set; }
+        public string? FalsoTecho { get; set; }
+        public string? SueloTecnico { get; set; }
+        public string? Ascensores { get; set; }
+        public string? UsoExclusivoOficina { get; set; }
+        public string? UsoMixtoOficina { get; set; }
+
+        // Edificio
+        public string? EdificioExclusivoOficinas { get; set; }
+
+        // Negocio
+        public string? Nave { get; set; }
+        public string? Local { get; set; }
+        public string? ActividadComercial { get; set; }
+        public string? HaceEsquina { get; set; }
+        public string? SalidaDeHumos { get; set; }
+        public string? Traspaso { get; set; }
+        public string? ConAlmacen { get; set; }
+        public string? ConOficina { get; set; }
+        public string? LucesSalidaEmergencia {get; set;}
+        public string? Escaparates {get; set;}
+
+        // Suelo
+        public string? Urbano { get; set; }
+        public string? Urbanizable { get; set; }
+        public string? NoUrbanizable { get; set; }
+
+        // Garage
+        public string? PlazaParaCoche { get; set; }
+        public string? PlazaParaMoto { get; set; }
+
+        // Trastero
     }
 }

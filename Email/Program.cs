@@ -33,7 +33,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseStaticFiles();
+app.MapStaticAssets();
 app.UseCors(options => options
                 .WithOrigins([ "http://localhost:3000", "http://localhost:8080", "http://localhost:4200","https://localhost:4200",
                 "https://host.docker.internal:4040","https://localhost:4040" ])// React, Vue, Angular

@@ -71,7 +71,7 @@ namespace Users.Repositories
         {
             try
             {
-                var client = new RestClient("https://localhost:4040/api/email/setpassword");
+                var client = new RestClient("http://localhost:3030/api/email/setpassword");
                 var request = new RestRequest
                 {
                     Method = Method.Get
@@ -105,7 +105,7 @@ namespace Users.Repositories
         {
             try
             {
-                var client = new RestClient("https://localhost:4040/api/email/resendpassword");
+                var client = new RestClient("http://localhost:3030/api/email/resendpassword");
                 var request = new RestRequest
                 {
                     Method = Method.Get

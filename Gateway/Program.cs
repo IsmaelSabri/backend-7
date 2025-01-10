@@ -2,6 +2,7 @@
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+    builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = long.MaxValue);
 var app = builder.Build();
 app.MapReverseProxy();
 app.UseHttpsRedirection();

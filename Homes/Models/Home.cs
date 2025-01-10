@@ -54,13 +54,14 @@ namespace Homes.Models
         public string? NombreCreador { get; set; }
         public DateTime FechaCreacion { get; set; }
         public DateTime FechaUltimaModificacion { get; set; }
-        public string? NumeroVisitas { get; set; }
         public string? Comentario { get; set; }
         [Sieve(CanFilter = true)]
         public string? Destacar { get; set; }
         public string? ColorDestacar { get; set; }
-        [Sieve(CanFilter = true)]
-        public bool Destacado { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public string? DestacadoAsString { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public string? UnderPriceMarketAsString { get; set; }
         [Sieve(CanFilter = true)]
         public string? Model { get; set; }
         public string? ImagesAsString { get; set; }
@@ -84,10 +85,6 @@ namespace Homes.Models
         [Sieve(CanFilter = true)]
         public bool Calefaccion { get; set; }
         public bool PoliticaPrivacidad { get; set; }
-        [Sieve(CanFilter = true)]
-        public int ContadorLikes { get; set; }
-        [Sieve(CanFilter = true)]
-        public int ContadorVisitas { get; set; }
         [Sieve(CanFilter = true)]
         public string? IdCreador { get; set; }
         [Sieve(CanFilter = true)]
@@ -117,5 +114,7 @@ namespace Homes.Models
         public bool Jacuzzi { get; set; }
         [Sieve(CanFilter = true)]
         public bool PanelesSolares { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public string? Prototipo { get; set; }
     }
 }
