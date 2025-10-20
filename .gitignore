@@ -12,6 +12,7 @@
 # Api Keys
 Homes/appsettings.json
 Email/appsettings.json
+Users/appsettings.json
 
 # Weird folders
 Users/obj

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Users.Dto;
 using Users.Models;
 
-namespace Users.Repositories
+namespace Users.Collections
 {
     public interface IUserCollection
     {

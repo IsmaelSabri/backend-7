@@ -15,7 +15,5 @@ namespace Homes.Models
         public int SuperficieDesde { get; set; }
         public int SuperficieHasta { get; set; }
         public int FinDeObra { get; set; }
-        public int Alturas { get; set; }
-        public int TotalViviendasConstruidas { get; set; }
     }
 }

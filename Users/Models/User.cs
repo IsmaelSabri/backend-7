@@ -40,5 +40,6 @@ namespace Users.Models
         public bool IsPro { get; set; }
         public string? Status { get; set; }
         public string? ChatsOpenedAsString { get; set; }
+        public ICollection<Order>? Orders { get; } = new List<Order>(); // Collection navigation containing dependents
     }
 }

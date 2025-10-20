@@ -23,12 +23,12 @@ namespace Homes.Collections
         public string GenerateRandomAlphanumericString();
         public Task<List<Home>> GetAllHomes();
         public IQueryable<Home> GetBoxedHomes(double BLlat, double BLlng, double TRlat, double TRlng);
-        public IQueryable<Home> GetBoxedHouses(double BLlng, double BLlat, double TRlng, double TRlat);
-        public IQueryable<Home> GetBoxedFlats(double BLlng, double BLlat, double TRlng, double TRlat);
-        public IQueryable<Home> GetBoxedNewProjects(double BLlng, double BLlat, double TRlng, double TRlat);
-        public IQueryable<Home> GetBoxedRooms(double BLlng, double BLlat, double TRlng, double TRlat);
-        public IQueryable<Home> GetBoxedHolidayRent(double BLlng, double BLlat, double TRlng, double TRlat);
-        public IQueryable<Home> GetBoxedOthers(double BLlng, double BLlat, double TRlng, double TRlat);
+        public IQueryable<House> GetBoxedHouses(double BLlng, double BLlat, double TRlng, double TRlat);
+        public IQueryable<Flat> GetBoxedFlats(double BLlng, double BLlat, double TRlng, double TRlat);
+        public IQueryable<NewProject> GetBoxedNewProjects(double BLlng, double BLlat, double TRlng, double TRlat);
+        public IQueryable<Room> GetBoxedRooms(double BLlng, double BLlat, double TRlng, double TRlat);
+        public IQueryable<HolidayRent> GetBoxedHolidayRent(double BLlng, double BLlat, double TRlng, double TRlat);
+        public IQueryable<Other> GetBoxedOthers(double BLlng, double BLlat, double TRlng, double TRlat);
         public IQueryable<Home> GetPagedHomes();
         public IQueryable<Flat> GetPagedFlats();
         public IQueryable<House> GetPagedHouses();

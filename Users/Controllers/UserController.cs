@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Users.Dto;
 using Users.Jwt;
 using Users.Models;
-using Users.Repositories;
+using Users.Collections.impl;
+using Users.Collections;
 using Users.Enums;
 using Users.Services;
 using AutoMapper;
@@ -19,6 +20,7 @@ namespace Users.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserCollection db;
+        private readonly IImageCollection imageDb;
         private readonly JwtResource jwtResource = new();
         private readonly IPasswordHasher passwordHasher;
         private readonly IMapper mapper;
@@ -119,7 +121,7 @@ namespace Users.Controllers
                 user1.Password = passwordHasher.Hash(user.Password);
                 user1.Isactive = true;
                 user1.IsnotLocked = true;
-                user1.ProfileImageAsString = "{\"imageId\":\"abcde\",\"imageName\":\"kjhjg-jpg\",\"imageUrl\":\"../../assets/img/blank_image.jpg\",\"imageDeleteUrl\":\"https://ibb.co/3kKyhNN/cec17dd74c1a240e64d9fb772bf23fc7\"}";
+                //user1.ProfileImageAsString = "{\"imageId\":\"abcde\",\"imageName\":\"kjhjg-jpg\",\"imageUrl\":\"../../assets/img/blank_image.jpg\",\"imageDeleteUrl\":\"https://ibb.co/3kKyhNN/cec17dd74c1a240e64d9fb772bf23fc7\"}";
                 var dump = ObjectDumper.Dump(user1);
                 Console.WriteLine(dump);
                 await db.UpdateUser(user1);
@@ -270,7 +272,9 @@ namespace Users.Controllers
             {
                 await db.DeleteUser(user);
                 return Ok("Deleted successfully");
-            } else{
+            }
+            else
+            {
                 return BadRequest("Cannot delete that user. Try after few minutes.");
             }
         }

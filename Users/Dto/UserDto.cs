@@ -1,5 +1,6 @@
 
 using System.ComponentModel.DataAnnotations;
+using Users.Models;
 
 namespace Users.Dto
 {

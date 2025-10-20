@@ -11,12 +11,12 @@ namespace Homes.Models
     {
         // Oficina
         [Sieve(CanFilter = true, CanSort = true)]
-        public bool Aparcamientos { get; set; }
+        public int Aparcamientos { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Climatizacion { get; set; } // difusores, rejillas, split, preinstalación, ninguna
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Disposicion { get; set; } // bajo, entresuelo, piso, centro comercial, pie de calle, sótano
-        public string? Distribucion { get; set; } 
+        public string? Distribucion { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool ControlDeAccesoPersonal { get; set; } // tornos
         [Sieve(CanFilter = true, CanSort = true)]
@@ -25,12 +25,22 @@ namespace Homes.Models
         public bool FalsoTecho { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool SueloTecnico { get; set; }
-        public bool UsoExclusivoOficina { get; set; }
-        public bool UsoMixtoOficina { get; set; }
+        public int Ascensores { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public string? Uso { get; set; }
 
         // Edificio
         [Sieve(CanFilter = true, CanSort = true)]
-        public bool EdificioExclusivoOficinas { get; set; }
+        public bool Inquilino { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public bool UsoComercial { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public bool UsoResidencial { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public bool UsoOficinas { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public bool UsoHotelero { get; set; }
+        public bool EdificioExento { get; set; }
 
         // Negocio
         [Sieve(CanFilter = true, CanSort = true)]
@@ -48,25 +58,32 @@ namespace Homes.Models
         public bool ConAlmacen { get; set; }
         [Sieve(CanFilter = true)]
         public bool ConOficina { get; set; }
-        public bool LucesSalidaEmergencia {get; set;}
-        public int Escaparates {get; set;}
+        public bool LucesSalidaEmergencia { get; set; }
+        public int Escaparates { get; set; }
 
         // Suelo
-        [Sieve(CanFilter = true)]
-        public bool Urbano { get; set; }
-        [Sieve(CanFilter = true)]
-        public bool Urbanizable { get; set; }
-        [Sieve(CanFilter = true)]
-        public bool NoUrbanizable { get; set; }
+        public string? Acceso { get; set; }
+        public bool Alcantarillado { get; set; }
+        public bool AlumbradoPublico { get; set; }
+        public bool Aceras { get; set; }
+        public bool Agua { get; set; }
+        public bool Electricidad { get; set; }
+        public string? Calificacion { get; set; }
+        public int SuperficieMinVenta { get; set; }
+        public int SuperficieMinAlquiler { get; set; }
+        public int SuperficieEdificable { get; set; }
+        public int PlantasEdificables { get; set; }
+        public string? NucleoUrbanoCercano { get; set; }
+        public bool SinNumero { get; set; }
 
         // Garage
-        [Sieve(CanFilter = true)]
-        public bool PlazaParaCoche { get; set; }
-        [Sieve(CanFilter = true)]
-        public bool PlazaParaMoto { get; set; }
+        public bool PuertaAutomatica { get; set; }
+        public float SuperficieGarage { get; set; }
+
 
         // Trastero
+        public float AlturaTrastero { get; set; }
+        public float SuperficieTrastero { get; set; }
 
-        // Edificio
     }
 }

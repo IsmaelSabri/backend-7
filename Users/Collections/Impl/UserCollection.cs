@@ -2,63 +2,78 @@ using Users.Data;
 using Microsoft.EntityFrameworkCore;
 using RestSharp;
 using Users.Models;
+using System.Linq.Dynamic.Core;
+using AutoMapper;
 
-namespace Users.Repositories
+namespace Users.Collections.impl
 {
     public class UserCollection(UserDb db) : IUserCollection
     {
-        private readonly UserDb dbc = db;
+        private readonly UserDb db = db;
 
         public async Task DeleteUser(User user)
         {
-            dbc.Users.Remove(user);
-            await dbc.SaveChangesAsync();
+            // el historial de pedidos no se puede borrar por ley
+            // var model = await db.Users.OrderBy(e => e.Username).Include(e => e.ProfileImage).Include(e => e.BrandImage).FirstAsync();
+            // db.Remove(model);
+            db.Users.Remove(user);
+            await db.SaveChangesAsync();
         }
         public async Task<User?> GetUserById(string id)
         {
-            return await dbc.Users.FindAsync(id);
+            return await db.Users.FindAsync(id);
         }
         public async Task<User?> GetUserByEmail(string email)
         {
-            return await db.Users.FirstOrDefaultAsync(x => x.Email == email);
+            return await db.Users
+            .FirstOrDefaultAsync(x => x.Email == email);
         }
 
         public async Task<User?> GetUserByUserId(string userId)
         {
-            return await db.Users.FirstOrDefaultAsync(x => x.UserId == userId);
+            return await db.Users
+            .FirstOrDefaultAsync(x => x.UserId == userId);
         }
         public async Task<User?> GetUserByUsername(string username)
         {
-            return await db.Users.FirstOrDefaultAsync(x => x.Username == username);
+            return await db.Users
+            .FirstOrDefaultAsync(x => x.Username == username);
         }
         public async Task<User?> GetUserByRefreshToken(string refreshToken)
         {
-            return await db.Users.FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
+            return await db.Users
+            .FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
         }
         public async Task<User?> GetUserByToken(string token)
         {
-            return await db.Users.FirstOrDefaultAsync(x => x.Token == token);
+            return await db.Users
+            .FirstOrDefaultAsync(x => x.Token == token);
         }
         public async Task<List<User>> GetAllUsers()
         {
-            return await dbc.Users.ToListAsync();
+            return await db.Users
+            .ToListAsync();
         }
         public async Task NewUser(User user)
         {
-            dbc.Users.Add(user);
-            await dbc.SaveChangesAsync();
+            db.Users.Add(user);
+            await db.SaveChangesAsync();
         }
+
         public async Task UpdateUser(User user)
         {
-            dbc.Entry(user).State = EntityState.Modified;
-            await dbc.SaveChangesAsync();
+            // debería actualizar las orders[]
+            db.Update(user);
+            await db.SaveChangesAsync();
         }
 
         public IQueryable<User> GetPagedUsers()
         {
-            return dbc.Users.AsQueryable();
+            return db.Users
+            .AsQueryable();
         }
 
+        // Utilities
         public string GenerateRandomAlphanumericString()
         {
             const string chars = "1234567890";

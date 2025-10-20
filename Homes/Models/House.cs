@@ -26,5 +26,10 @@ namespace Homes.Models
         public bool GeneradorEmergencia { get; set; }
         public bool Gym { get; set; }
         public bool Golf { get; set; }
+        public string? Universidades { get; set; }
+        public string? Metro { get; set; }
+        public string? Bus { get; set; }
+        public int Alturas { get; set; }
+        public int TotalViviendasConstruidas { get; set; }
     }
 }

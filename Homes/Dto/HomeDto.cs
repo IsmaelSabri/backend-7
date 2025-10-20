@@ -40,6 +40,7 @@ namespace Homes.Dto
         public string? DestacadoAsString { get; set; }
         public string? UnderPriceMarketAsString { get; set; }
         public string? ImagesAsString { get; set; }
+        public string? SchemesAsString { get; set; }
         public string? Video { get; set; }
         public string? Ascensor { get; set; }
         public string? Piso { get; set; }
@@ -48,8 +49,6 @@ namespace Homes.Dto
         public string? ProColor { get; set; }
         public string? ProImageAsString { get; set; }
         public string? Calefaccion { get; set; }
-        public string? Metro { get; set; }
-        public string? Bus { get; set; }
         public string? NumeroRegistro { get; set; }
         public string? Personas { get; set; }
         public string? Camas { get; set; }
@@ -93,7 +92,7 @@ namespace Homes.Dto
         public string? IdCreador { get; set; }
         public string? CabinaHidromasaje { get; set; }
         public string? ColorDestacar { get; set; }
-        public string? LikeMeForeverAsString { get; set; }
+        public string[]? LikeMeForever { get; set; }
         public string? PrecioAlquilerInicial { get; set; }
         public string? PiscinaComp { get; set; }
         public string? Trastero { get; set; }
@@ -102,6 +101,9 @@ namespace Homes.Dto
         public string? Jacuzzi { get; set; }
         public string? PanelesSolares { get; set; }
         public string? Prototipo { get; set; }
+        public string? ColorTextoDestacar { get; set; }
+        public string? TourVirtual { get; set; }
+        public string? Bodega { get; set; }
 
         // house
         public string? Alarma { get; set; }
@@ -112,6 +114,8 @@ namespace Homes.Dto
         public string? EficienciaEnergetica { get; set; }
         public string? Colegios { get; set; }
         public string? Universidades { get; set; }
+        public string? Metro { get; set; }
+        public string? Bus { get; set; }
         public string? Supermercados { get; set; }
         public string? Aeropuerto { get; set; }
         public string? Consumo { get; set; }
@@ -123,6 +127,8 @@ namespace Homes.Dto
         public string? GeneradorEmergencia { get; set; }
         public string? Gym { get; set; }
         public string? Golf { get; set; }
+        public string? Alturas { get; set; }
+        public string? TotalViviendasConstruidas { get; set; }
 
         // room
         public string? SepuedeFumar { get; set; }
@@ -159,25 +165,27 @@ namespace Homes.Dto
         public string? SuperficieDesde { get; set; }
         public string? SuperficieHasta { get; set; }
         public string? FinDeObra { get; set; }
-        public string? Alturas { get; set; }
-        public string? TotalViviendasConstruidas { get; set; }
 
         // other
         public string? Aparcamientos { get; set; }
         public string? Climatizacion { get; set; }
         public string? Disposicion { get; set; } // bajo, entresuelo, piso, centro comercial, pie de calle, sótano,
-        public string? Distribucion { get; set; } 
+        public string? Distribucion { get; set; }
         public string? ControlDeAccesoPersonal { get; set; } // tornos
         public string? ControlDeAccesoVehiculos { get; set; }
         public string? Seguridad24_7 { get; set; }
         public string? FalsoTecho { get; set; }
         public string? SueloTecnico { get; set; }
         public string? Ascensores { get; set; }
-        public string? UsoExclusivoOficina { get; set; }
-        public string? UsoMixtoOficina { get; set; }
+        public string? Uso { get; set; }
 
         // Edificio
-        public string? EdificioExclusivoOficinas { get; set; }
+        public string? Inquilino { get; set; }
+        public string? UsoComercial { get; set; }
+        public string? UsoResidencial { get; set; }
+        public string? UsoOficinas { get; set; }
+        public string? UsoHotelero { get; set; }
+        public string? EdificioExento { get; set; }
 
         // Negocio
         public string? Nave { get; set; }
@@ -188,18 +196,31 @@ namespace Homes.Dto
         public string? Traspaso { get; set; }
         public string? ConAlmacen { get; set; }
         public string? ConOficina { get; set; }
-        public string? LucesSalidaEmergencia {get; set;}
-        public string? Escaparates {get; set;}
+        public string? LucesSalidaEmergencia { get; set; }
+        public string? Escaparates { get; set; }
 
         // Suelo
-        public string? Urbano { get; set; }
-        public string? Urbanizable { get; set; }
-        public string? NoUrbanizable { get; set; }
+        public string? Acceso { get; set; }
+        public string? Alcantarillado { get; set; }
+        public string? AlumbradoPublico { get; set; }
+        public string? Aceras { get; set; }
+        public string? Agua { get; set; }
+        public string? Electricidad { get; set; }
+        public string? Calificacion { get; set; }
+        public string? SuperficieMinVenta { get; set; }
+        public string? SuperficieMinAlquiler { get; set; }
+        public string? SuperficieEdificable { get; set; }
+        public string? PlantasEdificables { get; set; }
+        public string? NucleoUrbanoCercano { get; set; }
+        public string? SinNumero { get; set; }
+
 
         // Garage
-        public string? PlazaParaCoche { get; set; }
-        public string? PlazaParaMoto { get; set; }
+        public string? PuertaAutomatica { get; set; }
+        public string? SuperficieGarage { get; set; }
 
         // Trastero
+        public string? AlturaTrastero { get; set; }
+        public string? SuperficieTrastero { get; set; }
     }
 }

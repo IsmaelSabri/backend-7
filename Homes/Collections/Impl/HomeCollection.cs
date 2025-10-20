@@ -1,10 +1,11 @@
 using Homes.Data;
 using Homes.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens.Configuration;
 using Sieve.Services;
 using System.Linq.Dynamic.Core;
 
-namespace Homes.Collections
+namespace Homes.Collections.Impl
 {
     public class HomeCollection : IHomeCollection, ISieveCustomFilterMethods
     {
@@ -122,32 +123,32 @@ namespace Homes.Collections
             return dbc.Homes.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
         }
 
-        public IQueryable<Home> GetBoxedHouses(double BLlng, double BLlat, double TRlng, double TRlat)
+        public IQueryable<House> GetBoxedHouses(double BLlng, double BLlat, double TRlng, double TRlat)
         {
             return dbc.Houses.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
         }
 
-        public IQueryable<Home> GetBoxedFlats(double BLlng, double BLlat, double TRlng, double TRlat)
+        public IQueryable<Flat> GetBoxedFlats(double BLlng, double BLlat, double TRlng, double TRlat)
         {
             return dbc.Flats.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
         }
 
-        public IQueryable<Home> GetBoxedNewProjects(double BLlng, double BLlat, double TRlng, double TRlat)
+        public IQueryable<NewProject> GetBoxedNewProjects(double BLlng, double BLlat, double TRlng, double TRlat)
         {
             return dbc.NewProjects.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
         }
 
-        public IQueryable<Home> GetBoxedRooms(double BLlng, double BLlat, double TRlng, double TRlat)
+        public IQueryable<Room> GetBoxedRooms(double BLlng, double BLlat, double TRlng, double TRlat)
         {
             return dbc.Rooms.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
         }
 
-        public IQueryable<Home> GetBoxedHolidayRent(double BLlng, double BLlat, double TRlng, double TRlat)
+        public IQueryable<HolidayRent> GetBoxedHolidayRent(double BLlng, double BLlat, double TRlng, double TRlat)
         {
             return dbc.HolidayRents.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
         }
 
-        public IQueryable<Home> GetBoxedOthers(double BLlng, double BLlat, double TRlng, double TRlat)
+        public IQueryable<Other> GetBoxedOthers(double BLlng, double BLlat, double TRlng, double TRlat)
         {
             return dbc.Others.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);
         }

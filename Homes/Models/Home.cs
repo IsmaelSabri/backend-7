@@ -65,14 +65,12 @@ namespace Homes.Models
         [Sieve(CanFilter = true)]
         public string? Model { get; set; }
         public string? ImagesAsString { get; set; }
+        public string? SchemesAsString { get; set; }
         public string? Video { get; set; }
         [Sieve(CanFilter = true)]
         public bool Amueblado { get; set; }
         public bool DireccionAproximada { get; set; }
         public bool GasNatural { get; set; }
-        public string? Universidades { get; set; }
-        public string? Metro { get; set; }
-        public string? Bus { get; set; }
         public string? TipoDeVia { get; set; }
         public string? Distrito { get; set; }
         public string? Orientacion { get; set; }
@@ -116,5 +114,8 @@ namespace Homes.Models
         public bool PanelesSolares { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Prototipo { get; set; }
+        public string? ColorTextoDestacar { get; set; }
+        public string? TourVirtual { get; set; }
+        public bool Bodega { get; set; }
     }
 }

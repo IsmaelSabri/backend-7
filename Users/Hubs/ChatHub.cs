@@ -13,6 +13,7 @@ namespace Users.Hubs
             if (user is not null)
             {
                 user.Status = "online";
+                user.LastaccessDate = DateTime.UtcNow.ToLocalTime();
                 await context.SaveChangesAsync();
 
                 await Clients.All.SendAsync("Users", user);
@@ -27,6 +28,7 @@ namespace Users.Hubs
             if (user is not null)
             {
                 user.Status = "offline";
+                user.LastaccessDate = DateTime.UtcNow.ToLocalTime();
                 await context.SaveChangesAsync();
 
                 await Clients.All.SendAsync("Users", user);

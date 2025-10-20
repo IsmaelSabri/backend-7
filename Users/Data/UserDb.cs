@@ -12,6 +12,8 @@ namespace Users.Data
         }
         public DbSet<User> Users { get; set; }//=> Set<Home>();
         public DbSet<Chat> Chats { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<Image> Images { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -22,6 +24,18 @@ namespace Users.Data
             builder.Entity<Chat>()
             .Property(e => e.Id)
             .ValueGeneratedOnAdd();
+
+            builder.Entity<Image>()
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
+
+            builder.Entity<User>()
+            .HasMany(e => e.Orders)
+            .WithOne(e => e.User)
+            .HasForeignKey(e => e.UserId)
+            .IsRequired(false);
+
+
         }
     }
 }

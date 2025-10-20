@@ -1,5 +1,6 @@
 using System.Globalization;
 using AutoMapper;
+using Homes.Collections.Impl;
 using Homes.Collections;
 using Homes.Data;
 using Homes.Dto;
@@ -14,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Linq;
 using AutoMapper.Configuration.Annotations;
+using System.Net.NetworkInformation;
 
 namespace Homes.Controllers
 {
@@ -84,6 +86,28 @@ namespace Homes.Controllers
             }
         }
 
+        [HttpPost("ping/{url}")]
+        public async Task<IActionResult> ImageCallback(string url)
+        {
+            Ping pingsender = new();
+            try
+            {
+                PingReply reply = await pingsender.SendPingAsync(url);
+                if (reply.Status == IPStatus.Success)
+                {
+                    return Ok("Success!");
+                }
+                else
+                {
+                    return BadRequest("Service unavailable");
+                }
+            }
+            catch (Exception)
+            {
+                return BadRequest("Something wrong");
+            }
+        }
+
         [HttpPost("new")]
         public async Task<IActionResult> CreateHome([FromBody] HomeDto homeDto)
         {
@@ -111,7 +135,24 @@ namespace Homes.Controllers
                         home = mapper.Map<NewProject>(homeDto);
                         break;
                     case "Other":
-                        home = mapper.Map<Other>(homeDto);
+                        var other = mapper.Map<Other>(homeDto);
+                        NumberFormatInfo floatPoint = new()
+                        {
+                            NumberDecimalSeparator = "."
+                        };
+                        if (!string.IsNullOrWhiteSpace(homeDto.SuperficieGarage))
+                        {
+                            other.SuperficieGarage = Convert.ToSingle(homeDto.SuperficieGarage, floatPoint);
+                        }
+                        if (!string.IsNullOrWhiteSpace(homeDto.SuperficieTrastero))
+                        {
+                            other.SuperficieTrastero = Convert.ToSingle(homeDto.SuperficieTrastero, floatPoint);
+                        }
+                        if (!string.IsNullOrWhiteSpace(homeDto.AlturaTrastero))
+                        {
+                            other.AlturaTrastero = Convert.ToSingle(homeDto.AlturaTrastero, floatPoint);
+                        }
+                        home = other;
                         break;
                 }
                 NumberFormatInfo provider = new()
@@ -317,6 +358,8 @@ namespace Homes.Controllers
             else // consultas para solicitar modelos concretos => modelos de abajo de la jerarquía inclusive (sin coordenadas)  
             {
                 var homeResult = sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking());
+                var dump = ObjectDumper.Dump(model);
+                Console.WriteLine(dump);
                 if (model.Filters.Contains(','))
                 {
                     string? s = model.Filters;
@@ -337,7 +380,7 @@ namespace Homes.Controllers
                         "Room" => sieveProcessor.Apply(model, db.GetPagedRooms().AsNoTracking()),
                         "HolidayRent" => sieveProcessor.Apply(model, db.GetPagedHolidayRent().AsNoTracking()),
                         "NewProject" => sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking()),
-                        "Other" => sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking()),
+                        "Other" => sieveProcessor.Apply(model, db.GetPagedOthers().AsNoTracking()),
                         _ => sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking()),
                     };
                 }

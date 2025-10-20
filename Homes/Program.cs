@@ -1,5 +1,6 @@
 using AutoMapper;
 using Homes.Collections;
+using Homes.Collections.Impl;
 using Homes.Data;
 using Homes.Dto;
 using Homes.Infrastructure;
@@ -13,7 +14,6 @@ using Sieve.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -21,9 +21,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IHomeCollection, HomeCollection>();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
 builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
-var mapperConfig = new MapperConfiguration(m => m.AddProfile(new HomeProfile()));
-IMapper mapper = mapperConfig.CreateMapper();
-builder.Services.AddSingleton(mapper);
+//StripeConfiguration.ApiKey = builder.Configuration.GetSection("StripeSettings:PrivateKey").Get<string>();
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new HomeProfile()));
 builder.Services.AddSingleton<SieveProcessor>();
 builder.Services.AddMvc();
 builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = long.MaxValue);

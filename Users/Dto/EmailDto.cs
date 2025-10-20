@@ -1,4 +1,4 @@
-namespace Email.Dto
+namespace Users.Dto
 {
     public class EmailDto
     {

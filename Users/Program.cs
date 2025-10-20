@@ -1,4 +1,5 @@
-using Users.Repositories;
+using Users.Collections;
+using Users.Collections.impl;
 using Users.Jwt;
 using Users.Profiles;
 using AutoMapper;
@@ -9,6 +10,9 @@ using Users.Data;
 using Microsoft.EntityFrameworkCore;
 using Sieve.Models;
 using Sieve.Services;
+using Users.Configuration;
+using Users.Collections.Impl;
+using Users.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +25,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
 builder.Services.AddSingleton<SieveProcessor>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-var mapperConfig = new MapperConfiguration(m => m.AddProfile(new UserProfile()));
-IMapper mapper = mapperConfig.CreateMapper();
-builder.Services.AddSingleton(mapper);
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new UserProfile()));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", builder => builder.WithOrigins("http://localhost:4200", "https://localhost:4200")
@@ -31,7 +33,16 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader()
         .AllowCredentials());
 });
+var StripeSetting = builder.Configuration.GetSection("StripeSettings");
+builder.Services.Configure<StripeOptions>(options =>
+{
+    options.PublishableKey = StripeSetting.GetSection("STRIPE_PUBLISHABLE_KEY").Value!;
+    options.SecretKey = StripeSetting.GetSection("STRIPE_SECRET_KEY").Value!;
+    options.WebhookSecret = StripeSetting.GetSection("STRIPE_WEBHOOK_SECRET").Value!;
+});
 builder.Services.AddScoped<IUserCollection, UserCollection>();
+builder.Services.AddScoped<IOrderCollection, OrderCollection>();
+builder.Services.AddScoped<IImageCollection, ImageCollection>();
 builder.Services.AddScoped<JwtResource>();
 builder.Services.AddSignalR();
 var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
