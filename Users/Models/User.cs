@@ -7,6 +7,7 @@ namespace Users.Models
     public class User
     {
         [Key]
+        [Sieve(CanFilter = true)]
         public string? Id { get; set; }
         [Sieve(CanFilter = true)]
         public string? UserId { get; set; }
@@ -39,7 +40,8 @@ namespace Users.Models
         [Sieve(CanFilter = true)]
         public bool IsPro { get; set; }
         public string? Status { get; set; }
-        public string? ChatsOpenedAsString { get; set; }
+        public string[]? ChatsOpened { get; set; }
+        public string[]? BlockedUsers { get; set; }
         public ICollection<Order>? Orders { get; } = new List<Order>(); // Collection navigation containing dependents
     }
 }

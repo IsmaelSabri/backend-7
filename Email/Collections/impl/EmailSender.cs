@@ -86,6 +86,8 @@ namespace Email.Service.impl
             html = html.Replace("{{message}}", emailDto.Message);
             html = html.Replace("{{fromName}}", emailDto.FromName);
             html = html.Replace("{{subject}}", emailDto.Subject);
+            html = html.Replace("{{dialCodePlus}}", emailDto.DialCodePlus);
+            html = html.Replace("{{country}}", emailDto.Country);
             html = html.Replace("{{phone}}", emailDto.Phone);
             html = html.Replace("{{ccEmail}}", emailDto.CcEmail);
             //html = html.Replace("{{bccEmail}}", emailDto.BccEmail);

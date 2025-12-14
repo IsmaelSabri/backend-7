@@ -31,6 +31,5 @@ namespace Users.Dto
         public string? ReviewsAsString { get; set; }
         public string? IsPro { get; set; }
         public string? Status { get; set; }
-        public string? ChatsOpenedAsString { get; set; }
     }
 }

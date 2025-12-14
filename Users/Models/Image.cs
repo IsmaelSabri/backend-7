@@ -9,7 +9,7 @@ using Sieve.Attributes;
 
 namespace Users.Models
 {
-    public class Image
+    public sealed class Image
     {
         [Key]
         public string? Id { get; set; }

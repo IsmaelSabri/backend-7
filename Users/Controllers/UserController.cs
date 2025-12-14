@@ -260,6 +260,8 @@ namespace Users.Controllers
                 ModelState.AddModelError("Username", "Nombre de usuario no encontrado");
             }
             user.Id = id;
+            var dump = ObjectDumper.Dump(user);
+            Console.WriteLine(dump);
             await db.UpdateUser(user);
             return Created("Modified", user);
         }
