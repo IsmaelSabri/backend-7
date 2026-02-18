@@ -10,6 +10,8 @@ using Users.Collections.impl;
 using Users.Collections;
 using Users.Dto;
 using Users.Collections.Impl;
+using Users.Services;
+using System.Numerics;
 namespace Users.Controllers
 {
     [Route("api/[controller]")]
@@ -19,67 +21,64 @@ namespace Users.Controllers
         private readonly IConfiguration _configuration;
         private readonly UserDb _context;
         private readonly IUserCollection db;
-        private readonly IOrderCollection db2;
+        private readonly IExtraContent db2;
+        private readonly ITransaccionCollection transaccionDb;
+        private readonly IWebHookCollection webHookDb;
+
 
         //private User user1; // user1
 
-        public PaymentsController(IConfiguration configuration, UserDb appContext, UserDb hdb)
+        public PaymentsController(IConfiguration configuration, UserDb appContext, ITransaccionCollection transaccionCollection, IImageService imageService)
         {
             _configuration = configuration;
             _context = appContext;
-            db = new UserCollection(hdb);
-            db2 = new OrderCollection(appContext);
+            db = new UserCollection(appContext, imageService);
+            db2 = new ExtraContentCollection(appContext);
+            transaccionDb = transaccionCollection;
         }
 
         [HttpPost("create-payment-intent")]
-        public async Task<ActionResult> Create([FromBody] PaymentIntentCreateRequestDto request)
+        public async Task<ActionResult> Create([FromBody] PaymentIntentCreateRequestDto? request)
         {
+            if (request == null)
+            {
+                return BadRequest("Invalid request: missing items");
+            }
+
             StripeConfiguration.ApiKey = _configuration.GetSection("StripeSettings").GetSection("STRIPE_SECRET_KEY").Value!;
             var paymentIntentService = new PaymentIntentService();
+
             var paymentIntent = paymentIntentService.Create(new PaymentIntentCreateOptions
             {
-                Amount = CalculateOrderAmount(request.Items),
+                //Amount = request.Amount,
                 Currency = "eur",
-                //Customer = request.Items[0].Customer,
+
+                //Customer = firstItem.Customer,
                 // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
                 AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
                 {
                     Enabled = true,
                 },
             });
-            var options = new ProductCreateOptions
+            var transaccion = new Transaccion
             {
-                
-                Name = "Gold Plan",
-                Description = "Any description"
-            };
-            var service = new ProductService();
-            Product product = service.Create(options);
-            /*
-            * request.Items[0] ok
-            * var user ok
-            * var order ok 
-            */
-            // var user = await db.GetUserByUserId(request.Items[0].Customer);
+                UsuarioId = request.UsuarioId!,
+                StripePaymentIntentId = paymentIntent.Id,
+                Estado = Enums.EstadoTransaccion.Pendiente,
+                FechaCreacion = DateTime.UtcNow,
+                BaseImponible = 21,
+                Iva = CalculateOrderAmount(request.Items!) / 100m * 0.21m,
+                Total = CalculateOrderAmount(request.Items!) / 100m,
+                Moneda = "EUR",
 
-            // if (user == null)
-            // {
-            //     return NotFound();
-            // }
-
-            var order = new Order
-            {
-                UserId = request.Items[0].Customer,
-                PaymentIntentId = paymentIntent.Id,
-                Amount = paymentIntent.Amount,
-                IsPaid = false,
-                CreatedAt = DateTime.UtcNow,
             };
-            var dump = ObjectDumper.Dump(product);
+            transaccion.Total += transaccion.Iva;
+
+
+
+            var dump = ObjectDumper.Dump(transaccion);
             Console.WriteLine(dump);
-            //await db2.Add(order);
-            //await db2.SaveChangesAsync();
-
+            await transaccionDb.AddAsync(transaccion);
             return Json(new
             {
                 clientSecret = paymentIntent.ClientSecret,
@@ -88,6 +87,17 @@ namespace Users.Controllers
             });
         }
 
+        private decimal CalculateOrderAmount(Item[] items)
+        {
+            // Calculate the order total on the server to prevent
+            // people from directly manipulating the amount on the client
+            decimal total = 0;
+            foreach (Item item in items)
+            {
+                total += item.PrecioUnitario * item.Cantidad * 100; // convertir a centimos
+            }
+            return total;
+        }
 
         [AllowAnonymous]
         [HttpPost("webhook")]
@@ -103,25 +113,56 @@ namespace Users.Controllers
 
                 stripeEvent = EventUtility.ConstructEvent(json,
                         signatureHeader, endpointSecret);
-
+                // crear evento webhook
+                var stripeWebhookEvent = new StripeWebhookEvent
+                {
+                    StripeEventId = stripeEvent.Id,
+                    Tipo = stripeEvent.Type,
+                    Fecha = DateTime.UtcNow,
+                    PayloadJson = json
+                };
+                // guardar evento webhook
+                await webHookDb.AddAsync(stripeWebhookEvent);
                 // If on SDK version < 46, use class Events instead of EventTypes
                 if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                    Console.WriteLine("A successful payment for {0} was made.", paymentIntent.Amount);
-                    // Then define and call a method to handle the successful payment intent.
-
-                    var order = await _context.Orders
-                        .Include(o => o.UserId)
-                        .FirstOrDefaultAsync(o => o.PaymentIntentId == paymentIntent.Id);
-                    if (order != null)
+                    if (paymentIntent is not null)
                     {
-                        order.IsPaid = true;
-                        // habilitar extra
-                        //order.User.Credits += 2000;
+                        Console.WriteLine("A successful payment for {0} was made.", paymentIntent.Amount);
+                        // Then define and call a method to handle the successful payment intent. ---> actualizar transacción
+                        var transaccion = await transaccionDb.GetByStripePaymentIntentIdAsync(paymentIntent.Id);
+                        if (transaccion != null)
+                        {
+                            transaccion.Estado = Enums.EstadoTransaccion.Completada;
+                            transaccion.FechaPago = DateTime.UtcNow;
+                            transaccion.StripeChargeId = paymentIntent.LatestChargeId;
+                            await transaccionDb.UpdateAsync(transaccion);
+
+                            // Crear ExtraSubscription para cada línea de transacción
+                            // if (transaccion.Lineas != null && transaccion.Lineas.Count > 0)
+                            // {
+                            //     foreach (var linea in transaccion.Lineas)
+                            //     {
+                            //         var extraSubscription = new ExtraSubscription
+                            //         {
+                            //             Id = Guid.NewGuid(),
+                            //             StripePaymentIntentId = paymentIntent.Id,
+                            //             UsuarioId = transaccion.UsuarioId,
+                            //             ExtraId = linea.ExtraContenidoId?.ToString(),
+                            //             LineaTransaccionId = linea.Id.ToString(),
+                            //             CreatedAt = DateTime.UtcNow,
+                            //             LastUpdatedAt = DateTime.UtcNow
+                            //         };
+                            //         await db2.Add(extraSubscription);
+                            //     }
+                            // }
+                        }
                     }
-                    await _context.SaveChangesAsync();
-                    // handlePaymentIntentSucceeded(paymentIntent);
+                    else
+                    {
+                        Console.WriteLine("Webhook: payment intent is null in event data");
+                    }
                 }
                 else if (stripeEvent.Type == EventTypes.PaymentMethodAttached)
                 {
@@ -140,23 +181,13 @@ namespace Users.Controllers
                 Console.WriteLine("Error: {0}", e.Message);
                 return BadRequest();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(500);
             }
         }
 
-        private long CalculateOrderAmount(Item[] items)
-        {
-            // Calculate the order total on the server to prevent
-            // people from directly manipulating the amount on the client
-            long total = 0;
-            foreach (Item item in items)
-            {
-                total += item.Amount;
-            }
-            return total;
-        }
+
 
     }
 }

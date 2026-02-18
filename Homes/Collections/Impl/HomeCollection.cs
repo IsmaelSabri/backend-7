@@ -110,14 +110,6 @@ namespace Homes.Collections.Impl
             await dbc.SaveChangesAsync();
         }
 
-        public string GenerateRandomAlphanumericString()
-        {
-            const string chars = "1234567890";
-            var random = new Random();
-            return new string(Enumerable.Repeat(chars, 18)
-                                                    .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
         public IQueryable<Home> GetBoxedHomes(double BLlng, double BLlat, double TRlng, double TRlat)
         {
             return dbc.Homes.Where(x => x.Lng >= BLlng && x.Lng <= TRlng && x.Lat >= BLlat && x.Lat <= TRlat);

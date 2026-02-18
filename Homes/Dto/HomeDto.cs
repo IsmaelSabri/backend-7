@@ -104,6 +104,7 @@ namespace Homes.Dto
         public string? ColorTextoDestacar { get; set; }
         public string? TourVirtual { get; set; }
         public string? Bodega { get; set; }
+        public string? DiscardedByUsersAsString { get; set; }
 
         // house
         public string? Alarma { get; set; }

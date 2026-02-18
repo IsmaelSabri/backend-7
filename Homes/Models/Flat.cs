@@ -12,8 +12,8 @@ namespace Homes.Models
         public bool Padel { get; set; }
         public bool Sauna { get; set; }
         public bool BajoOplantabaja { get; set; }
-        public string? VideoPortero { get; set; }
+        public bool VideoPortero { get; set; }
         [Sieve(CanFilter = true)]
-        public string? ZonaDeOcio { get; set; }
+        public bool ZonaDeOcio { get; set; }
     }
 }

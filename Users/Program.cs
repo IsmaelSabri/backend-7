@@ -21,11 +21,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
-builder.Services.AddSingleton<SieveProcessor>();
+//builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new UserProfile()));
+builder.Services.AddHttpClient<IImageService, ImageService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", builder => builder.WithOrigins("http://localhost:4200", "https://localhost:4200")
@@ -41,8 +40,17 @@ builder.Services.Configure<StripeOptions>(options =>
     options.WebhookSecret = StripeSetting.GetSection("STRIPE_WEBHOOK_SECRET").Value!;
 });
 builder.Services.AddScoped<IUserCollection, UserCollection>();
-builder.Services.AddScoped<IOrderCollection, OrderCollection>();
-builder.Services.AddScoped<IImageCollection, ImageCollection>();
+builder.Services.AddScoped<IChats, ChatsCollection>();
+builder.Services.AddScoped<IExtraContent, ExtraContentCollection>();
+builder.Services.AddScoped<IExtraCollection, ExtraCollection>();
+builder.Services.AddScoped<ITransaccionCollection, TransaccionCollection>();
+builder.Services.AddScoped<ILineaTransaccionCollection, LineaTransaccionCollection>();
+builder.Services.AddScoped<IWebHookCollection, WebHookCollection>();
+builder.Services.AddScoped<IPlanCollection, PlanCollection>();
+builder.Services.AddScoped<IPlanSubscriptionCollection, PlanSubscriptionCollection>();
+builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
+builder.Services.AddScoped<ISieveCustomFilterMethods, UserCollection>();
+builder.Services.AddScoped<SieveProcessor>();
 builder.Services.AddScoped<JwtResource>();
 builder.Services.AddSignalR();
 var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
@@ -53,8 +61,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // app.UseSwagger();
+    // app.UseSwaggerUI();
     // show details
     app.UseDeveloperExceptionPage();
 }

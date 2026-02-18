@@ -1,15 +1,17 @@
 using Users.Data;
 using Microsoft.EntityFrameworkCore;
-using RestSharp;
 using Users.Models;
 using System.Linq.Dynamic.Core;
 using AutoMapper;
+using Sieve.Services;
+using Users.Services;
 
 namespace Users.Collections.impl
 {
-    public class UserCollection(UserDb db) : IUserCollection
+    public class UserCollection(UserDb db, IImageService imageService) : IUserCollection, ISieveCustomFilterMethods
     {
         private readonly UserDb db = db;
+        private readonly IImageService imageService = imageService;
 
         public async Task DeleteUser(User user)
         {
@@ -21,38 +23,76 @@ namespace Users.Collections.impl
         }
         public async Task<User?> GetUserById(string id)
         {
-            return await db.Users.FindAsync(id);
+            var user = await db.Users.FirstOrDefaultAsync(m => m.Id.Equals(id));
+            if (user != null)
+            {
+                await InitializeProfileImageAsync(user);
+            }
+            return user;
         }
         public async Task<User?> GetUserByEmail(string email)
         {
-            return await db.Users
-            .FirstOrDefaultAsync(x => x.Email == email);
+            var user = await db.Users
+                .FirstOrDefaultAsync(x => x.Email == email);
+            if (user != null)
+            {
+                await InitializeProfileImageAsync(user);
+            }
+            return user;
         }
 
         public async Task<User?> GetUserByUserId(string userId)
         {
-            return await db.Users
-            .FirstOrDefaultAsync(x => x.UserId == userId);
+            var user = await db.Users
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+            if (user != null)
+            {
+                await InitializeProfileImageAsync(user);
+            }
+            return user;
         }
         public async Task<User?> GetUserByUsername(string username)
         {
-            return await db.Users
-            .FirstOrDefaultAsync(x => x.Username == username);
+            var user = await db.Users
+                .FirstOrDefaultAsync(x => x.Username == username);
+            if (user != null)
+            {
+                await InitializeProfileImageAsync(user);
+            }
+            return user;
         }
         public async Task<User?> GetUserByRefreshToken(string refreshToken)
         {
-            return await db.Users
-            .FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
+            var user = await db.Users
+                .FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
+            if (user != null)
+            {
+                await InitializeProfileImageAsync(user);
+            }
+            return user;
         }
         public async Task<User?> GetUserByToken(string token)
         {
-            return await db.Users
-            .FirstOrDefaultAsync(x => x.Token == token);
+            var user = await db.Users
+                .FirstOrDefaultAsync(x => x.Token == token);
+            if (user != null)
+            {
+                await InitializeProfileImageAsync(user);
+            }
+            return user;
         }
         public async Task<List<User>> GetAllUsers()
         {
-            return await db.Users
-            .ToListAsync();
+            var users = await db.Users
+                .ToListAsync();
+            
+            // Inicializar imágenes para todos los usuarios
+            foreach (var user in users)
+            {
+                await InitializeProfileImageAsync(user);
+            }
+            
+            return users;
         }
         public async Task NewUser(User user)
         {
@@ -73,82 +113,30 @@ namespace Users.Collections.impl
             .AsQueryable();
         }
 
-        // Utilities
-        public string GenerateRandomAlphanumericString()
+        public IQueryable<User> GetBlockYou(IQueryable<User> source, string op, string[] values)
         {
-            const string chars = "1234567890";
-            var random = new Random();
-            return new string(Enumerable.Repeat(chars, 17)
-            .Select(s => s[random.Next(s.Length)]).ToArray());
+            var blocked = values.First();
+            return source.Where(p => p.BlockedUsers.Contains(blocked));
         }
 
-        public void SendWelcomeEmail(User user)
+        private async Task InitializeProfileImageAsync(User user)
         {
+            if (user == null)
+                return;
+
             try
             {
-                var client = new RestClient("http://localhost:3030/api/email/setpassword");
-                var request = new RestRequest
+                var image = await imageService.GetProfileImageByUserIdAsync(user.Id);
+                if (image != null)
                 {
-                    Method = Method.Get
-                };
-                request.AddHeader("Content-Type", "application/json");
-                request.AddJsonBody(new
-                {
-                    Name = user.Firstname,
-                    ToEmail = user.Email,
-                    Subject = "Activar cuenta",
-                    Message = user.UserId,
-                });
-                var response = client.Execute(request);
-                Console.WriteLine($"Content response: {response.Content}");
-                Console.WriteLine($"Status: {response.StatusCode}");
-                if (response.Headers != null)
-                {
-                    foreach (var header in response.Headers)
-                    {
-                        Console.WriteLine(header);
-                    }
+                    user.ProfileImage = image;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                // Log o manejar el error sin romper el flujo
+                System.Console.WriteLine($"Error initializing profile image for user {user.Id}: {ex.Message}");
             }
         }
-
-        public void SendResetEmail(User user)
-        {
-            try
-            {
-                var client = new RestClient("http://localhost:3030/api/email/resendpassword");
-                var request = new RestRequest
-                {
-                    Method = Method.Get
-                };
-                request.AddHeader("Content-Type", "application/json");
-                request.AddJsonBody(new
-                {
-                    Name = user.Firstname,
-                    ToEmail = user.Email,
-                    Subject = "Cambiar contraseña",
-                    Message = user.UserId,
-                });
-                var response = client.Execute(request);
-                Console.WriteLine($"Content response: {response.Content}");
-                Console.WriteLine($"Status: {response.StatusCode}");
-                if (response.Headers != null)
-                {
-                    foreach (var header in response.Headers)
-                    {
-                        Console.WriteLine(header);
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
     }
 }

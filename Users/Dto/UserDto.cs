@@ -1,4 +1,4 @@
-
+using System;
 using System.ComponentModel.DataAnnotations;
 using Users.Models;
 
@@ -20,16 +20,16 @@ namespace Users.Dto
         [EmailAddress]
         public string? Email { get; set; }
         public string? Role { get; set; }
-        public string? Isactive { get; set; }
-        public string? IsnotLocked { get; set; }
+        // Use proper types for boolean flags
+        public bool? Isactive { get; set; }
         public string? Token { get; set; }
         public string? RefreshToken { get; set; }
-        public string? LastaccessDate { get; set; }
-        public string? DateRegistry { get; set; }
-        public string? RefreshTokenDateExpires { get; set; }
+        // Date fields as DateTime
+        public DateTime? LastaccessDate { get; set; }
+        public DateTime? DateRegistry { get; set; }
+        public DateTime? RefreshTokenDateExpires { get; set; }
         public string? Company { get; set; }
-        public string? ReviewsAsString { get; set; }
-        public string? IsPro { get; set; }
+        public bool? IsPro { get; set; }
         public string? Status { get; set; }
     }
 }

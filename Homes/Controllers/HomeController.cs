@@ -6,15 +6,11 @@ using Homes.Data;
 using Homes.Dto;
 using Homes.Models;
 using Microsoft.AspNetCore.Mvc;
-using CloudinaryDotNet;
-using Microsoft.Extensions.Options;
-using Homes.Infrastructure;
+using Homes.Extensions;
 using Sieve.Services;
 using Sieve.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using System.Linq;
-using AutoMapper.Configuration.Annotations;
 using System.Net.NetworkInformation;
 
 namespace Homes.Controllers
@@ -25,19 +21,12 @@ namespace Homes.Controllers
     {
         private readonly IHomeCollection db;
         private readonly IMapper mapper;
-        private readonly Cloudinary cloudinary;
         private Home home;
         private readonly SieveProcessor sieveProcessor;
 
-        public HomeController(IMapper mapper1, IOptions<CloudinarySettings> config, HouseDb hdb, SieveProcessor _sieveProcessor)
+        public HomeController(IMapper mapper1, HouseDb hdb, SieveProcessor _sieveProcessor)
         {
             mapper = mapper1;
-            var account = new Account(
-                config.Value.CloudName,
-                config.Value.ApiKey,
-                config.Value.ApiSecret
-            );
-            cloudinary = new Cloudinary(account);
             db = new HomeCollection(hdb);
             home = new();
             sieveProcessor = _sieveProcessor;
@@ -49,41 +38,25 @@ namespace Homes.Controllers
             return Ok(await db.GetAllHomes());
         }
 
-        [HttpPost("{id}")]
-        public async Task<IActionResult> GetHomeDetails(string id, [FromBody] HomeDto homeDto)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetHomeDetails(int id)
         {
-            if (homeDto == null)
+            var baseHome = await db.GetHomeById(id);
+            if (baseHome == null)
             {
-                return BadRequest();
+                return NotFound();
             }
-            else if (homeDto.Model == "Flat")
+
+            return baseHome.Model switch
             {
-                return Ok(await db.GetFlatById(Convert.ToInt32(id)));
-            }
-            else if (homeDto.Model == "House")
-            {
-                return Ok(await db.GetHouseById(Convert.ToInt32(id)));
-            }
-            else if (homeDto.Model == "Room")
-            {
-                return Ok(await db.GetRoomById(Convert.ToInt32(id)));
-            }
-            else if (homeDto.Model == "HolidayRent")
-            {
-                return Ok(await db.GetHolidayRentById(Convert.ToInt32(id)));
-            }
-            else if (homeDto.Model == "NewProject")
-            {
-                return Ok(await db.GetNewProjectById(Convert.ToInt32(id)));
-            }
-            else if (homeDto.Model == "Other")
-            {
-                return Ok(await db.GetOtherById(Convert.ToInt32(id)));
-            }
-            else
-            {
-                return BadRequest();
-            }
+                "Flat" => Ok(await db.GetFlatById(id)),
+                "House" => Ok(await db.GetHouseById(id)),
+                "Room" => Ok(await db.GetRoomById(id)),
+                "HolidayRent" => Ok(await db.GetHolidayRentById(id)),
+                "NewProject" => Ok(await db.GetNewProjectById(id)),
+                "Other" => Ok(await db.GetOtherById(id)),
+                _ => Ok(baseHome)
+            };
         }
 
         [HttpPost("ping/{url}")]
@@ -179,9 +152,10 @@ namespace Homes.Controllers
                 }
                 home.FechaCreacion = DateTime.UtcNow.ToLocalTime();
                 home.FechaUltimaModificacion = DateTime.UtcNow.ToLocalTime();
-                home.ViviendaId = db.GenerateRandomAlphanumericString();
                 var dump = ObjectDumper.Dump(home);
                 Console.WriteLine(dump);
+                // Normalize string properties: replace null strings with empty string before persisting
+                home.NormalizeNullStrings();
                 await db.NewHome(home);
             }
             return Created("Created", home);
@@ -208,6 +182,8 @@ namespace Homes.Controllers
         [HttpPut("flat")]
         public async Task<IActionResult> UpdateFlat([FromBody] Flat flatMod)
         {
+            var dump = ObjectDumper.Dump(flatMod);
+            Console.WriteLine(dump);
             if (flatMod == null)
             {
                 return BadRequest();

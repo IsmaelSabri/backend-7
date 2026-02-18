@@ -13,12 +13,15 @@
 Homes/appsettings.json
 Email/appsettings.json
 Users/appsettings.json
+Images/appsettings.json
 
 # Weird folders
 Users/obj
 Homes/obj
 Gateway/obj
 Email/obj
+Images/obj
+Images/bin
 Email/bin
 Gateway/bin
 Homes/bin

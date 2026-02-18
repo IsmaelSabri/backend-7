@@ -12,8 +12,13 @@ namespace Users.Data
         }
         public DbSet<User> Users { get; set; }//=> Set<Home>();
         public DbSet<Chat> Chats { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<Image> Images { get; set; }
+        public DbSet<Extra> Extras { get; set; }
+        public DbSet<ExtraContent> ExtraSubscriptions { get; set; }
+        public DbSet<Transaccion> Transacciones { get; set; }
+        public DbSet<LineaTransaccion> LineasTransaccion { get; set; }
+        public DbSet<Plan> Plans { get; set; }
+        public DbSet<PlanSubscription> PlanSubscriptions { get; set; }
+        public DbSet<StripeWebhookEvent> StripeWebhookEvents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -25,17 +30,39 @@ namespace Users.Data
             .Property(e => e.Id)
             .ValueGeneratedOnAdd();
 
-            builder.Entity<Image>()
+            builder.Entity<Extra>()
             .Property(e => e.Id)
             .ValueGeneratedOnAdd();
 
-            builder.Entity<User>()
-            .HasMany(e => e.Orders)
-            .WithOne(e => e.User)
-            .HasForeignKey(e => e.UserId)
-            .IsRequired(false);
+            builder.Entity<ExtraContent>()
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
 
+            builder.Entity<StripeWebhookEvent>()
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
 
+            builder.Entity<LineaTransaccion>()
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
+
+            builder.Entity<Plan>()
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
+
+            builder.Entity<PlanSubscription>()
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
+
+            // builder.Entity<Transaccion>()
+            // .HasMany(t => t.Lineas)
+            // .WithOne()
+            // .HasForeignKey(l => l.TransaccionId)
+            // .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Transaccion>()
+                .HasIndex(x => x.StripePaymentIntentId)
+                .IsUnique();
         }
     }
 }

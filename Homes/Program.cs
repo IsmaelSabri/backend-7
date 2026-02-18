@@ -1,13 +1,8 @@
-using AutoMapper;
 using Homes.Collections;
 using Homes.Collections.Impl;
 using Homes.Data;
-using Homes.Dto;
-using Homes.Infrastructure;
-using Homes.Models;
 using Homes.Profiles;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 using Sieve.Models;
 using Sieve.Services;
 
@@ -19,11 +14,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IHomeCollection, HomeCollection>();
-builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
 builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
+builder.Services.AddScoped<SieveProcessor>();
+builder.Services.AddScoped<ISieveCustomFilterMethods, HomeCollection>();
 //StripeConfiguration.ApiKey = builder.Configuration.GetSection("StripeSettings:PrivateKey").Get<string>();
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new HomeProfile()));
-builder.Services.AddSingleton<SieveProcessor>();
 builder.Services.AddMvc();
 builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = long.MaxValue);
 var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
@@ -44,7 +39,7 @@ app.UseAuthorization();
 app.UseRouting(); //
 app.MapControllers();
 app.UseCors(options => options
-                .WithOrigins([ "http://localhost:3000", "http://localhost:8080", "http://localhost:4200",
+                .WithOrigins([ "http://localhost:3000", "http://localhost:8080", "http://localhost:4200","https://localhost:3030",
                 "https://localhost:4200", "https://localhost:4040", "https://host.docker.internal:4040" ])// React, Vue, Angular
                 .AllowAnyHeader()
                 .AllowAnyMethod()

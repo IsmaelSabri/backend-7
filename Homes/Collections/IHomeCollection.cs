@@ -20,7 +20,6 @@ namespace Homes.Collections
         public Task UpdateRoom(Room room);
         public Task UpdateOther(Other other);
         public Task DeleteHome(Home home);
-        public string GenerateRandomAlphanumericString();
         public Task<List<Home>> GetAllHomes();
         public IQueryable<Home> GetBoxedHomes(double BLlat, double BLlng, double TRlat, double TRlng);
         public IQueryable<House> GetBoxedHouses(double BLlng, double BLlat, double TRlng, double TRlat);

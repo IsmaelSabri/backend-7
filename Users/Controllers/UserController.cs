@@ -11,7 +11,7 @@ using Users.Data;
 using Sieve.Models;
 using Sieve.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
+using Users.Extensions;
 
 namespace Users.Controllers
 {
@@ -20,19 +20,18 @@ namespace Users.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserCollection db;
-        private readonly IImageCollection imageDb;
         private readonly JwtResource jwtResource = new();
         private readonly IPasswordHasher passwordHasher;
         private readonly IMapper mapper;
         private User user1;
         private readonly SieveProcessor sieveProcessor;
 
-        public UserController(IMapper mapper1, IPasswordHasher passwordHasher1, UserDb hdb, SieveProcessor _sieveProcessor)
+        public UserController(IMapper mapper1, IPasswordHasher passwordHasher1, UserDb hdb, SieveProcessor _sieveProcessor, IImageService imageService)
         {
             mapper = mapper1;
             passwordHasher = passwordHasher1;
             user1 = new();
-            db = new UserCollection(hdb);
+            db = new UserCollection(hdb, imageService);
             sieveProcessor = _sieveProcessor;
         }
 
@@ -64,6 +63,8 @@ namespace Users.Controllers
         [HttpPost("new")]
         public async Task<IActionResult> CreateUser([FromBody] UserDto user)
         {
+            var dump = ObjectDumper.Dump(user);
+            Console.WriteLine(dump);
             if (user == null)
             {
                 return BadRequest();
@@ -90,15 +91,12 @@ namespace Users.Controllers
             if (ModelState.IsValid)
             {
                 user1 = mapper.Map<User>(user);
-                user1.UserId = db.GenerateRandomAlphanumericString();
                 user1.Username = user.Firstname + " " + user.Lastname;
                 user1.DateRegistry = DateTime.UtcNow.ToLocalTime();
                 user1.Role = nameof(Role.USER);
                 user1.Isactive = false;
-                user1.IsPro = false;
-                user1.IsnotLocked = false;
                 await db.NewUser(user1);
-                db.SendWelcomeEmail(user1);
+                Utilities.SendWelcomeEmail(user1);
             }
             return Created("Created", true);
         }
@@ -120,8 +118,6 @@ namespace Users.Controllers
                 user1 = mapper.Map<User>(user);
                 user1.Password = passwordHasher.Hash(user.Password);
                 user1.Isactive = true;
-                user1.IsnotLocked = true;
-                //user1.ProfileImageAsString = "{\"imageId\":\"abcde\",\"imageName\":\"kjhjg-jpg\",\"imageUrl\":\"../../assets/img/blank_image.jpg\",\"imageDeleteUrl\":\"https://ibb.co/3kKyhNN/cec17dd74c1a240e64d9fb772bf23fc7\"}";
                 var dump = ObjectDumper.Dump(user1);
                 Console.WriteLine(dump);
                 await db.UpdateUser(user1);
@@ -139,7 +135,7 @@ namespace Users.Controllers
             else
             {
                 user1 = mapper.Map<User>(user);
-                db.SendResetEmail(user1);
+                Utilities.SendResetEmail(user1);
                 return Ok();
             }
         }
@@ -159,8 +155,7 @@ namespace Users.Controllers
                     user1.Password = passwordHasher.Hash(user.Password);
                 }
                 user1.Isactive = true;
-                user1.IsnotLocked = true;
-                if (!string.IsNullOrEmpty(user1.Id))
+                if (user1.Id.IsValid())
                 {
                     await db.UpdateUser(user1);
                 }
@@ -202,7 +197,7 @@ namespace Users.Controllers
                         user.RefreshToken = jwtResource.CreateRefreshToken();
                         user.RefreshTokenDateExpires = DateTime.Now.ToLocalTime().AddDays(7);
                         user.LastaccessDate = DateTime.UtcNow.ToLocalTime();
-                        if (!string.IsNullOrEmpty(user.Id))
+                        if (user.Id.IsValid())
                             await db.UpdateUser(user);
                     }
                 }
@@ -243,13 +238,13 @@ namespace Users.Controllers
                 return BadRequest("Invalid Request. Token expired.");
             user.RefreshToken = jwtResource.CreateRefreshToken();
             user.Token = jwtResource.Generate(user);
-            if (!string.IsNullOrEmpty(user.Id))
+            if (user.Id.IsValid())
                 await db.UpdateUser(user);
             return Ok(user);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser([FromBody] User user, string id)
+        public async Task<IActionResult> UpdateUser([FromBody] User user, Guid id)
         {
             if (user == null)
             {
@@ -273,11 +268,25 @@ namespace Users.Controllers
             if (user is { })
             {
                 await db.DeleteUser(user);
-                return Ok("Deleted successfully");
+                var response = new CustomHttpResponseDto
+                {
+                    HttpStatusCode = 200,
+                    HttpStatus = "OK",
+                    Reason = "Success",
+                    Message = "Usuario eliminado exitosamente"
+                };
+                return Ok(response);
             }
             else
             {
-                return BadRequest("Cannot delete that user. Try after few minutes.");
+                var response = new CustomHttpResponseDto
+                {
+                    HttpStatusCode = 400,
+                    HttpStatus = "BAD_REQUEST",
+                    Reason = "User not found",
+                    Message = "El usuario no existe."
+                };
+                return BadRequest(response);
             }
         }
 

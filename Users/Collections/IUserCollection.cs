@@ -19,9 +19,7 @@ namespace Users.Collections
         Task<User?> GetUserByUserId(string userId);
         Task<User?> GetUserByUsername(string username);
         Task<User?> GetUserByRefreshToken(string refreshToken);
-        string GenerateRandomAlphanumericString();
-        void SendWelcomeEmail(User user);
-        void SendResetEmail(User user);
-        public IQueryable<User> GetPagedUsers();
+        IQueryable<User> GetPagedUsers();
+        IQueryable<User> GetBlockYou(IQueryable<User> source, string op, string[] values);
     }
 }
