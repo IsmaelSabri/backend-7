@@ -1,0 +1,24 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
+using Core.Dto;
+using Core.Models;
+
+namespace Core.Profiles
+{
+    public class HomeProfile : Profile
+    {
+        public HomeProfile()
+        {
+            CreateMap<HomeDto, Home>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, Flat>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, House>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, Room>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, HolidayRent>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, NewProject>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, Other>().ValidateMemberList(MemberList.None);
+        }
+    }
+}
