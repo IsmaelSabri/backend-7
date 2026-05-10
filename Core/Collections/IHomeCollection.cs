@@ -35,5 +35,7 @@ namespace Core.Collections
         public IQueryable<Room> GetPagedRooms();
         public IQueryable<NewProject> GetPagedNewProjects();
         public IQueryable<Other> GetPagedOthers();
+         public Task<IQueryable<Home>> GetHomesByLikeMeForever(string userid);
+         public Task<List<Home>> GetDiscardedHomes(string userid);
     }
 }

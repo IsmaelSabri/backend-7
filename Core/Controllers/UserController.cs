@@ -12,6 +12,7 @@ using Sieve.Models;
 using Sieve.Services;
 using Microsoft.EntityFrameworkCore;
 using Core.Extensions;
+using Core.Collections.Impl;
 
 namespace Core.Controllers
 {
@@ -20,6 +21,7 @@ namespace Core.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserCollection db;
+        private readonly ICustomFilters CustomFilters;
         private readonly JwtResource jwtResource = new();
         private readonly IPasswordHasher passwordHasher;
         private readonly IMapper mapper;
@@ -33,6 +35,7 @@ namespace Core.Controllers
             passwordHasher = passwordHasher1;
             user1 = new();
             db = new UserCollection(hdb, imageService);
+            CustomFilters = new CustomFiltersCollection();
             sieveProcessor = _sieveProcessor;
             this.imageService = imageService;
         }
@@ -46,77 +49,60 @@ namespace Core.Controllers
             return Ok(users);
         }
 
+        private async Task<User?> ComposeUserImages(User? user)
+        {
+            if (user == null) return null;
+            await user.ComposeImagesAsync(imageService);
+            return user;
+        }
+
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetUserDetails(Guid id)
         {
-            var user = await db.GetUserById(id);
-            if (user != null)
-            {
-                await user.ComposeImagesAsync(imageService);
-            }
+            var user = await ComposeUserImages(await db.GetUserById(id));
             return Ok(user);
         }
 
         [HttpGet("check/{id}")]
         public async Task<IActionResult> CheckUserBeforeRegister(string id)
         {
-            var user = await db.GetUserByUserId(id);
-            if (user != null)
-            {
-                await user.ComposeImagesAsync(imageService);
-            }
+            var user = await ComposeUserImages(await db.GetUserByUserId(id));
             return Ok(user);
         }
 
         [HttpGet("checkemail/{email}")]
         public async Task<IActionResult> CheckUserByEmail(string email)
         {
-            var user = await db.GetUserByEmail(email);
-            if (user != null)
-            {
-                await user.ComposeImagesAsync(imageService);
-            }
+            var user = await ComposeUserImages(await db.GetUserByEmail(email));
             return Ok(user);
         }
 
         [HttpPost("new")]
         public async Task<IActionResult> CreateUser([FromBody] UserDto user)
         {
-            var dump = ObjectDumper.Dump(user);
-            Console.WriteLine(dump);
             if (user == null)
             {
-                return BadRequest();
+                return BadRequest("User data is required.");
             }
-            if (user.Email == null)
+            if (string.IsNullOrWhiteSpace(user.Email))
             {
-                ModelState.AddModelError("Email", "Debe incluir una dirección de correo válida.");
-                return BadRequest("Email not found");
+                return BadRequest("Email es requerido.");
             }
-            try
+
+            var existingUser = await db.GetUserByEmail(user.Email);
+            if (existingUser != null)
             {
-                var userExists = await db.GetUserByEmail(user.Email);
-                Console.WriteLine(userExists);
-                if (userExists != null)
-                {
-                    return BadRequest("Ya existe una cuenta para " + user.Email + "\n\nPuede iniciar sesión si recupera su contraseña.\n\n"
-                    + "Se ha enviado un correo a " + user.Email + " con más información.");
-                }
+                return BadRequest($"Ya existe una cuenta para {user.Email}. Recupera tu contraseña.");
             }
-            catch (Exception e)
-            {
-                e.GetBaseException();
-            }
-            if (ModelState.IsValid)
-            {
-                user1 = mapper.Map<User>(user);
-                user1.Username = user.Firstname + " " + user.Lastname;
-                user1.DateRegistry = DateTime.UtcNow.ToLocalTime();
-                user1.Role = nameof(Role.USER);
-                user1.Isactive = false;
-                await db.NewUser(user1);
-                Utilities.SendWelcomeEmail(user1);
-            }
+
+            user1 = mapper.Map<User>(user);
+            user1.Username = $"{user.Firstname} {user.Lastname}".Trim();
+            user1.DateRegistry = DateTime.UtcNow;
+            user1.Role = nameof(Role.USER);
+            user1.Isactive = false;
+            user1.NormalizeNullStrings();
+            await db.NewUser(user1);
+            Utilities.SendWelcomeEmail(user1);
             return Created("Created", true);
         }
 
@@ -137,6 +123,7 @@ namespace Core.Controllers
                 user1 = mapper.Map<User>(user);
                 user1.Password = passwordHasher.Hash(user.Password);
                 user1.Isactive = true;
+                user1.NormalizeNullStrings();
                 var dump = ObjectDumper.Dump(user1);
                 Console.WriteLine(dump);
                 await db.UpdateUser(user1);
@@ -186,58 +173,32 @@ namespace Core.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            User user = new();
-            try
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
             {
-                if (!string.IsNullOrEmpty(dto.Email))
-                {
-                    var user1 = await db.GetUserByEmail(dto.Email);
-                    if (user1 is { })
-                    {
-                        user = user1;
-                    }
-                    else
-                    {
-                        return BadRequest("No existe ningún usuario con el email " + dto.Email + " !!");
-                    }
-                }
-                if (!string.IsNullOrEmpty(user.Password) && !string.IsNullOrEmpty(dto.Password))
-                {
-                    // Incorrect password
-                    if (!passwordHasher.Verify(user.Password, dto.Password))   // (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
-                    {
-                        return BadRequest("Incorrect password. Please try again.");
-                    }
-                    /*
-                    * El usuario ya existe en la bdd y lo ha introducido el password ok (caso ideal)
-                    */
-                    else if (passwordHasher.Verify(user.Password, dto.Password))
-                    {
-                        user.Token = jwtResource.Generate(user);
-                        user.RefreshToken = jwtResource.CreateRefreshToken();
-                        user.RefreshTokenDateExpires = DateTime.Now.ToLocalTime().AddDays(7);
-                        user.LastaccessDate = DateTime.UtcNow.ToLocalTime();
-                        if (user.Id.IsValid())
-                            await db.UpdateUser(user);
-                    }
-                }
+                return BadRequest("Email y contraseña son obligatorios.");
             }
-            catch (Exception)
+
+            var user = await db.GetUserByEmail(dto.Email);
+            if (user == null)
             {
-                // User does not exist
-                return BadRequest("Email not found. Join us in least than 1 minute");
+                return BadRequest("No existe ningún usuario con ese email.");
             }
-            /*Response.Cookies.Append("token", jwt, new CookieOptions
+
+            if (!passwordHasher.Verify(user.Password, dto.Password))
             {
-                HttpOnly = tru¡,
-                IsEssential = true,
-                Secure = false,
-                SameSite = SameSiteMode.Strict,
-                Domain = "localhost", 
-                Expires = DateTime.UtcNow.AddDays(14)
-            });
-            Response.Headers.Add("token", jwt);*/
-            await user.ComposeImagesAsync(imageService);
+                return BadRequest("Contraseña incorrecta.");
+            }
+
+            user.Token = jwtResource.Generate(user);
+            user.RefreshToken = jwtResource.CreateRefreshToken();
+            user.RefreshTokenDateExpires = DateTime.UtcNow.AddDays(7);
+            user.LastaccessDate = DateTime.UtcNow;
+            if (user.Id.IsValid())
+            {
+                await db.UpdateUser(user);
+            }
+
+            await ComposeUserImages(user);
             return Ok(user);
         }
 
@@ -318,11 +279,8 @@ namespace Core.Controllers
         {
             var queryable = db.GetPagedUsers().AsNoTracking();
             var userResult = sieveProcessor.Apply(model, queryable);
-            
-            // Convertir a lista y componer imágenes
             var userList = userResult.ToList();
             await userList.ComposeImagesAsync(imageService);
-            
             return Ok(userList);
         }
 
@@ -330,11 +288,9 @@ namespace Core.Controllers
         public async Task<IActionResult> GetSingleQuery([FromQuery] SieveModel model)
         {
             var queryable = db.GetPagedUsers().AsNoTracking();
-            var userResult = sieveProcessor.Apply(model, queryable).Single();
-            
-            // Componer imágenes en el usuario individual
+            var userResult = sieveProcessor.Apply(model, queryable).SingleOrDefault();
+            if (userResult == null) return NotFound();
             await userResult.ComposeImagesAsync(imageService);
-            
             return Ok(userResult);
         }
     }

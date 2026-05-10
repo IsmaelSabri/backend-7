@@ -12,11 +12,11 @@
 # Api Keys
 Homes/appsettings.json
 Email/appsettings.json
-Users/appsettings.json
+Core/appsettings.json
 Images/appsettings.json
 
 # Weird folders
-Users/obj
+Core/obj
 Homes/obj
 Gateway/obj
 Email/obj
@@ -25,7 +25,7 @@ Images/bin
 Email/bin
 Gateway/bin
 Homes/bin
-Users/bin
+Core/bin
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

@@ -1,9 +1,6 @@
 using Email.Models;
 using Email.Service;
 using Email.Service.impl;
-using Microsoft.AspNetCore.Builder;
-using Sieve.Models;
-using Sieve.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration"));
 builder.Services.AddTransient<IEmailSender,EmailSender>();
-builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
-builder.Services.AddSingleton<SieveProcessor>();
+
 
 var app = builder.Build();
 

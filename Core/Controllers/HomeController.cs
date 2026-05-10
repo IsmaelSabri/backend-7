@@ -22,17 +22,15 @@ namespace Core.Controllers
     {
         private readonly IHomeCollection db;
         private readonly IMapper mapper;
-        private Home home;
         private readonly SieveProcessor sieveProcessor;
-        private readonly IImageService _imageService;
+        private readonly IImageService imageService;
 
         public HomeController(IMapper mapper1, CoreDb hdb, SieveProcessor _sieveProcessor, IImageService imageService)
         {
             mapper = mapper1;
             db = new HomeCollection(hdb, imageService);
-            home = new();
             sieveProcessor = _sieveProcessor;
-            _imageService = imageService;
+            this.imageService = imageService;
         }
 
         [HttpGet("All")]
@@ -62,26 +60,28 @@ namespace Core.Controllers
             };
         }
 
-        [HttpPost("ping/{url}")]
-        public async Task<IActionResult> ImageCallback(string url)
+        [HttpGet("imgbb-health")]
+        public async Task<IActionResult> CheckImgbb()
         {
-            Ping pingsender = new();
             try
             {
-                PingReply reply = await pingsender.SendPingAsync(url);
-                if (reply.Status == IPStatus.Success)
-                {
-                    return Ok("Success!");
-                }
-                else
-                {
-                    return BadRequest("Service unavailable");
-                }
+                using var http = new HttpClient();
+                http.Timeout = TimeSpan.FromSeconds(3);
+
+                var res = await http.GetAsync("https://api.imgbb.com/");
+
+                return Ok(new { ok = res.IsSuccessStatusCode });
             }
-            catch (Exception)
+            catch
             {
-                return BadRequest("Something wrong");
+                return Ok(new { ok = false });
             }
+        }
+
+        [HttpPost("dummy-upload")]
+        public IActionResult DummyUpload()
+        {
+            return Ok();
         }
 
         [HttpPost("new")]
@@ -89,79 +89,97 @@ namespace Core.Controllers
         {
             if (homeDto == null)
             {
-                return BadRequest();
+                return BadRequest("Home data is required.");
             }
-            else
+
+            var home = MapHomeDto(homeDto);
+            if (home == null)
             {
-                switch (homeDto.Model)
-                {
-                    case "Flat":
-                        home = mapper.Map<Flat>(homeDto);
-                        break;
-                    case "House":
-                        home = mapper.Map<House>(homeDto);
-                        break;
-                    case "Room":
-                        home = mapper.Map<Room>(homeDto);
-                        break;
-                    case "HolidayRent":
-                        home = mapper.Map<HolidayRent>(homeDto);
-                        break;
-                    case "NewProject":
-                        home = mapper.Map<NewProject>(homeDto);
-                        break;
-                    case "Other":
-                        var other = mapper.Map<Other>(homeDto);
-                        NumberFormatInfo floatPoint = new()
-                        {
-                            NumberDecimalSeparator = "."
-                        };
-                        if (!string.IsNullOrWhiteSpace(homeDto.SuperficieGarage))
-                        {
-                            other.SuperficieGarage = Convert.ToSingle(homeDto.SuperficieGarage, floatPoint);
-                        }
-                        if (!string.IsNullOrWhiteSpace(homeDto.SuperficieTrastero))
-                        {
-                            other.SuperficieTrastero = Convert.ToSingle(homeDto.SuperficieTrastero, floatPoint);
-                        }
-                        if (!string.IsNullOrWhiteSpace(homeDto.AlturaTrastero))
-                        {
-                            other.AlturaTrastero = Convert.ToSingle(homeDto.AlturaTrastero, floatPoint);
-                        }
-                        home = other;
-                        break;
-                }
-                NumberFormatInfo provider = new()
-                {
-                    NumberDecimalSeparator = "."
-                };
-                NumberFormatInfo priceProvider = new()
-                {
-                    NumberDecimalSeparator = ","
-                };
-                home.Lat = Convert.ToDouble(homeDto.Lat, provider);
-                home.Lng = Convert.ToDouble(homeDto.Lng, provider);
-                if (!string.IsNullOrWhiteSpace(homeDto.PrecioInicial))
-                {
-                    home.PrecioInicial = Convert.ToInt32(homeDto.PrecioInicial, priceProvider);
-                }
-                if (!string.IsNullOrWhiteSpace(homeDto.PrecioFinal))
-                {
-                    home.PrecioFinal = Convert.ToInt32(homeDto.PrecioFinal, priceProvider);
-                }
-                if (!string.IsNullOrWhiteSpace(homeDto.PrecioAlquiler))
-                {
-                    home.PrecioAlquiler = Convert.ToInt32(homeDto.PrecioAlquiler, priceProvider);
-                }
-                home.FechaCreacion = DateTime.UtcNow.ToLocalTime();
-                home.FechaUltimaModificacion = DateTime.UtcNow.ToLocalTime();
-                var dump = ObjectDumper.Dump(home);
-                Console.WriteLine(dump);
-                // Normalize string properties: replace null strings with empty string before persisting
-                home.NormalizeNullStrings();
-                await db.NewHome(home);
+                return BadRequest("Modelo de propiedad no válido.");
             }
+
+            if (!TryParseCoordinates(homeDto.Lat, homeDto.Lng, out var lat, out var lng))
+            {
+                return BadRequest("Coordenadas no válidas.");
+            }
+
+            var priceProvider = new NumberFormatInfo { NumberDecimalSeparator = "," };
+            home.Lat = lat;
+            home.Lng = lng;
+            var precioInicial = ParseNullableInt(homeDto.PrecioInicial, priceProvider);
+            var precioFinal = ParseNullableInt(homeDto.PrecioFinal, priceProvider);
+            var precioAlquiler = ParseNullableInt(homeDto.PrecioAlquiler, priceProvider);
+            if (precioInicial.HasValue)
+                home.PrecioInicial = precioInicial.Value;
+            if (precioFinal.HasValue)
+                home.PrecioFinal = precioFinal.Value;
+            if (precioAlquiler.HasValue)
+                home.PrecioAlquiler = precioAlquiler.Value;
+            home.FechaCreacion = DateTime.UtcNow;
+            home.FechaUltimaModificacion = DateTime.UtcNow;
+            home.NormalizeNullStrings();
+
+            await db.NewHome(home);
             return Created("Created", home);
+        }
+
+        private Home? MapHomeDto(HomeDto homeDto)
+        {
+            switch (homeDto.Model)
+            {
+                case "Flat":
+                    return mapper.Map<Flat>(homeDto);
+                case "House":
+                    return mapper.Map<House>(homeDto);
+                case "Room":
+                    return mapper.Map<Room>(homeDto);
+                case "HolidayRent":
+                    return mapper.Map<HolidayRent>(homeDto);
+                case "NewProject":
+                    return mapper.Map<NewProject>(homeDto);
+                case "Other":
+                {
+                    var other = mapper.Map<Other>(homeDto);
+                    var provider = new NumberFormatInfo { NumberDecimalSeparator = "." };
+                    var superficieGarage = ParseNullableFloat(homeDto.SuperficieGarage, provider);
+                    var superficieTrastero = ParseNullableFloat(homeDto.SuperficieTrastero, provider);
+                    var alturaTrastero = ParseNullableFloat(homeDto.AlturaTrastero, provider);
+                    if (superficieGarage.HasValue)
+                        other.SuperficieGarage = superficieGarage.Value;
+                    if (superficieTrastero.HasValue)
+                        other.SuperficieTrastero = superficieTrastero.Value;
+                    if (alturaTrastero.HasValue)
+                        other.AlturaTrastero = alturaTrastero.Value;
+                    return other;
+                }
+                default:
+                    return null;
+            }
+        }
+
+        private static int? ParseNullableInt(string value, NumberFormatInfo provider)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+            return int.TryParse(value, NumberStyles.Any, provider, out var parsed) ? parsed : null;
+        }
+
+        private static float? ParseNullableFloat(string value, NumberFormatInfo provider)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+            return float.TryParse(value, NumberStyles.Any, provider, out var parsed) ? parsed : null;
+        }
+
+        private static bool TryParseCoordinates(string? latValue, string? lngValue, out double lat, out double lng)
+        {
+            lat = 0;
+            lng = 0;
+            if (string.IsNullOrWhiteSpace(latValue) || string.IsNullOrWhiteSpace(lngValue))
+                return false;
+            var provider = new NumberFormatInfo { NumberDecimalSeparator = "." };
+            return double.TryParse(latValue, NumberStyles.Any, provider, out lat)
+                && double.TryParse(lngValue, NumberStyles.Any, provider, out lng);
         }
 
         /*
@@ -271,187 +289,116 @@ namespace Core.Controllers
 
         }
 
-        private readonly double[] points = new double[4];
-        private string CollectionModel = "";
         [HttpGet("query")]
         public async Task<IActionResult> GetQuery([FromQuery] SieveModel model)
         {
-            if (model.Filters.Contains("lng"))
+            if (!string.IsNullOrWhiteSpace(model.Filters) && model.Filters.Contains("lng"))
             {
-                NumberFormatInfo provider = new()
+                if (!TryParseBoundingBox(model.Filters, out var points, out var collectionModel, out var normalizedFilter))
                 {
-                    NumberDecimalSeparator = "."
+                    return BadRequest("Filtros de coordenadas inválidos.");
+                }
+
+                model.Filters = normalizedFilter;
+                return collectionModel switch
+                {
+                    "Flat" => Ok(sieveProcessor.Apply(model, db.GetBoxedFlats(points[0], points[2], points[1], points[3]).AsNoTracking()).ToList()),
+                    "House" => Ok(sieveProcessor.Apply(model, db.GetBoxedHouses(points[0], points[2], points[1], points[3]).AsNoTracking()).ToList()),
+                    "Room" => Ok(sieveProcessor.Apply(model, db.GetBoxedRooms(points[0], points[2], points[1], points[3]).AsNoTracking()).ToList()),
+                    "HolidayRent" => Ok(sieveProcessor.Apply(model, db.GetBoxedHolidayRent(points[0], points[2], points[1], points[3]).AsNoTracking()).ToList()),
+                    "NewProject" => Ok(sieveProcessor.Apply(model, db.GetBoxedNewProjects(points[0], points[2], points[1], points[3]).AsNoTracking()).ToList()),
+                    "Other" => Ok(sieveProcessor.Apply(model, db.GetBoxedOthers(points[0], points[2], points[1], points[3]).AsNoTracking()).ToList()),
+                    _ => Ok(sieveProcessor.Apply(model, db.GetBoxedHomes(points[0], points[2], points[1], points[3]).AsNoTracking()).ToList()),
                 };
-                string? s = model.Filters;
-                string[] subs = s.Split(',');
-                for (int i = 0; i < subs.Length; i++)
-                {
-                    if (subs[i].Contains("lng>="))
-                    {
-                        points[0] = Convert.ToDouble(subs[i][5..], provider);
-                        subs[i] = "";
-                    }
-                    else if (subs[i].Contains("lng<="))
-                    {
-                        points[1] = Convert.ToDouble(subs[i][5..], provider);
-                        subs[i] = "";
-                    }
-                    else if (subs[i].Contains("lat>="))
-                    {
-                        points[2] = Convert.ToDouble(subs[i][5..], provider);
-                        subs[i] = "";
-                    }
-                    else if (subs[i].Contains("lat<="))
-                    {
-                        points[3] = Convert.ToDouble(subs[i][5..], provider);
-                        subs[i] = "";
-                    }
-                    else if (subs[i].Contains("model@=*"))
-                    {
-                        CollectionModel = subs[i][8..];
-                        subs[i] = "";
-                    }
-                }
-                var mainFilters = string.Join(",", subs.Select(p => p.ToString()).ToArray());
-                model.Filters = mainFilters.Replace(",,,,", "");
-                if (!string.IsNullOrEmpty(model.Filters)) // responde a los eventos del mapa con con unos criterios de filtrado dados
-                {
-                    var homeResult = sieveProcessor.Apply(model, db.GetBoxedHomes(points[0], points[2], points[1], points[3]).AsNoTracking());
-                    homeResult = CollectionModel switch
-                    {
-                        "Flat" => sieveProcessor.Apply(model, db.GetBoxedFlats(points[0], points[2], points[1], points[3]).AsNoTracking()),
-                        "House" => sieveProcessor.Apply(model, db.GetBoxedHouses(points[0], points[2], points[1], points[3]).AsNoTracking()),
-                        "Room" => sieveProcessor.Apply(model, db.GetBoxedRooms(points[0], points[2], points[1], points[3]).AsNoTracking()),
-                        "HolidayRent" => sieveProcessor.Apply(model, db.GetBoxedHolidayRent(points[0], points[2], points[1], points[3]).AsNoTracking()),
-                        "NewProject" => sieveProcessor.Apply(model, db.GetBoxedNewProjects(points[0], points[2], points[1], points[3]).AsNoTracking()),
-                        "Other" => sieveProcessor.Apply(model, db.GetBoxedOthers(points[0], points[2], points[1], points[3]).AsNoTracking()),
-                        _ => sieveProcessor.Apply(model, db.GetBoxedHomes(points[0], points[2], points[1], points[3]).AsNoTracking()),
-                    };
-                    // Materializar el resultado y componer con imágenes
-                    var homes = homeResult.Cast<Home>().ToList();
-                    var homesWithImages = await ComposeWithImagesAsync(homes);
-                    return Ok(homesWithImages);
-                }
-                else // responde a los eventos del mapa 
-                {
-                    var homes = await db.GetBoxedHomes(points[0], points[2], points[1], points[3]).AsNoTracking().ToListAsync();
-                    var homesWithImages = await ComposeWithImagesAsync(homes);
-                    return Ok(homesWithImages);
-                }
             }
-            else // consultas para solicitar modelos concretos => modelos de abajo de la jerarquía inclusive (sin coordenadas)  
+
+            if (!string.IsNullOrWhiteSpace(model.Filters) && model.Filters.Contains("model@=*"))
             {
-                var homeResult = sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking());
-                var dump = ObjectDumper.Dump(model);
-                Console.WriteLine(dump);
-                if (model.Filters.Contains(','))
+                var collectionModel = ExtractModelFromFilter(model.Filters);
+                return collectionModel switch
                 {
-                    string? s = model.Filters;
-                    string[] subs = s.Split(',');
-                    string? listTerm = null;
-                    foreach (var sub in subs)
-                    {
-                        if (sub.Contains("model@=*"))
-                        {
-                            listTerm = sub[8..];
-                            break;
-                        }
-                    }
-                    homeResult = listTerm switch
-                    {
-                        "Flat" => sieveProcessor.Apply(model, db.GetPagedFlats().AsNoTracking()),
-                        "House" => sieveProcessor.Apply(model, db.GetPagedHouses().AsNoTracking()),
-                        "Room" => sieveProcessor.Apply(model, db.GetPagedRooms().AsNoTracking()),
-                        "HolidayRent" => sieveProcessor.Apply(model, db.GetPagedHolidayRent().AsNoTracking()),
-                        "NewProject" => sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking()),
-                        "Other" => sieveProcessor.Apply(model, db.GetPagedOthers().AsNoTracking()),
-                        _ => sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking()),
-                    };
-                }
-                // Materializar el resultado y componer con imágenes
-                var homes = homeResult.Cast<Home>().ToList();
-                var homesWithImages = await ComposeWithImagesAsync(homes);
-                return Ok(homesWithImages);
+                    "Flat" => Ok(sieveProcessor.Apply(model, db.GetPagedFlats().AsNoTracking()).ToList()),
+                    "House" => Ok(sieveProcessor.Apply(model, db.GetPagedHouses().AsNoTracking()).ToList()),
+                    "Room" => Ok(sieveProcessor.Apply(model, db.GetPagedRooms().AsNoTracking()).ToList()),
+                    "HolidayRent" => Ok(sieveProcessor.Apply(model, db.GetPagedHolidayRent().AsNoTracking()).ToList()),
+                    "NewProject" => Ok(sieveProcessor.Apply(model, db.GetPagedNewProjects().AsNoTracking()).ToList()),
+                    "Other" => Ok(sieveProcessor.Apply(model, db.GetPagedOthers().AsNoTracking()).ToList()),
+                    _ => Ok(sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking()).ToList()),
+                };
             }
+
+            var normalQuery = sieveProcessor.Apply(model, db.GetPagedHomes().AsNoTracking()).ToList();
+            return Ok(normalQuery);
+        }
+
+        private static string ExtractModelFromFilter(string filters)
+        {
+            var terms = filters.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var term in terms)
+            {
+                if (term.StartsWith("model@=*"))
+                {
+                    return term[8..];
+                }
+            }
+            return string.Empty;
+        }
+
+        private bool TryParseBoundingBox(string filters, out double[] pointsOut, out string collectionModel, out string normalizedFilters)
+        {
+            pointsOut = new double[4];
+            collectionModel = string.Empty;
+            normalizedFilters = string.Empty;
+
+            var provider = new NumberFormatInfo { NumberDecimalSeparator = "." };
+            var subs = filters.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var keep = new List<string>();
+            foreach (var sub in subs)
+            {
+                if (sub.StartsWith("lng>="))
+                {
+                    pointsOut[0] = double.TryParse(sub[5..], NumberStyles.Any, provider, out var value) ? value : 0;
+                }
+                else if (sub.StartsWith("lng<="))
+                {
+                    pointsOut[1] = double.TryParse(sub[5..], NumberStyles.Any, provider, out var value) ? value : 0;
+                }
+                else if (sub.StartsWith("lat>="))
+                {
+                    pointsOut[2] = double.TryParse(sub[5..], NumberStyles.Any, provider, out var value) ? value : 0;
+                }
+                else if (sub.StartsWith("lat<="))
+                {
+                    pointsOut[3] = double.TryParse(sub[5..], NumberStyles.Any, provider, out var value) ? value : 0;
+                }
+                else if (sub.StartsWith("model@=*"))
+                {
+                    collectionModel = sub[8..];
+                }
+                else
+                {
+                    keep.Add(sub);
+                }
+            }
+
+            normalizedFilters = string.Join(',', keep);
+            return true;
         }
 
         /// <summary>
-        /// Implementa API Composition Pattern: materializa resultados y carga imágenes con UNA sola llamada a la API
+        /// Cosultas sobre el arrays !!!
         /// </summary>
-        private async Task<List<Home>> ComposeWithImagesAsync(List<Home> homes)
+        [HttpGet("by-like-me-forever/{userId}")]
+        public async Task<IActionResult> GetHomesByLikeMeForever(string userId)
         {
-            if (homes.Count == 0)
-                return homes;
-
-            // Extraer todas las ViviendaIds únicas
-            var viviendaIds = homes
-                .Where(x => !string.IsNullOrEmpty(x.ViviendaId))
-                .Select(x => x.ViviendaId)
-                .Distinct()
-                .ToList();
-
-            if (viviendaIds.Count == 0)
-                return homes;
-
-            // UNA SOLA petición con todas las IDs (concurrencia limitada a 8)
-            var allImagesDictionary = new Dictionary<string, Core.Dto.HomeImagesDto>();
-            try
-            {
-                var semaphore = new SemaphoreSlim(8);
-                var tasks = viviendaIds.Select(async viviendaId =>
-                {
-                    await semaphore.WaitAsync();
-                    try
-                    {
-                        var imagesDto = await _imageService.GetHomeImagesByViviendaIdAsync(viviendaId);
-                        if (imagesDto != null)
-                        {
-                            lock (allImagesDictionary)
-                            {
-                                allImagesDictionary[viviendaId] = imagesDto;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error fetching images for {viviendaId}: {ex.Message}");
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                });
-
-                await Task.WhenAll(tasks);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in API Composition: {ex.Message}");
-            }
-
-            // Composición: asignar las imágenes a cada objeto
-            foreach (var home in homes)
-            {
-                if (!string.IsNullOrEmpty(home.ViviendaId) && allImagesDictionary.TryGetValue(home.ViviendaId, out var imagesDto))
-                {
-                    if (imagesDto.Images != null && imagesDto.Images.Length > 0)
-                    {
-                        home.Images = imagesDto.Images;
-                    }
-                    
-                    if (imagesDto.Schemes != null && imagesDto.Schemes.Length > 0)
-                    {
-                        home.Schemes = imagesDto.Schemes;
-                    }
-                    
-                    if (imagesDto.EnergyCert != null)
-                    {
-                        home.EnergyCert = imagesDto.EnergyCert;
-                    }
-                }
-            }
-
-            return homes;
+            return Ok(await db.GetHomesByLikeMeForever(userId));
         }
+        [HttpGet("discard-me/{userId}")]
+        public async Task<IActionResult> GetDiscardedHomes(string userId)
+        {
+            return Ok(await db.GetDiscardedHomes(userId));
+        }
+
+
     }
 }

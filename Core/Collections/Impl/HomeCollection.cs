@@ -223,6 +223,36 @@ namespace Core.Collections.Impl
             return dbc.Others.AsQueryable();
         }
 
+        public async Task<IQueryable<Home>> GetHomesByLikeMeForever(string userid)
+        {
+            var likedHomes = await dbc.Homes
+                .Where(ul => ul.LikeMeForever.Contains(userid))
+                .ToListAsync();
+
+            // Inicializar imágenes para los homes obtenidos
+            foreach (var home in likedHomes)
+            {
+                await InitializeImagesAsync(home);
+            }
+
+            return likedHomes.AsQueryable();
+        }
+
+        public async Task<List<Home>> GetDiscardedHomes(string userid)
+        {
+            var discardedHomes = await dbc.Homes
+                .Where(ul => ul.DiscardedByUsers.Contains(userid))
+                .ToListAsync();
+
+            // Inicializar imágenes para los homes obtenidos
+            foreach (var home in discardedHomes)
+            {
+                await InitializeImagesAsync(home);
+            }
+
+            return discardedHomes;
+        }
+
         private async Task InitializeImagesAsync(Home home)
         {
             if (home == null || string.IsNullOrEmpty(home.ViviendaId))
@@ -252,7 +282,7 @@ namespace Core.Collections.Impl
             catch (Exception ex)
             {
                 // Log o manejar el error sin romper el flujo
-                System.Console.WriteLine($"Error initializing images for home {home.ViviendaId}: {ex.Message}");
+                Console.WriteLine($"Error initializing images for home {home.ViviendaId}: {ex.Message}");
             }
         }
 

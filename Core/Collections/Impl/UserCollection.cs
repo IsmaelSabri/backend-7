@@ -2,12 +2,11 @@ using Core.Data;
 using Microsoft.EntityFrameworkCore;
 using Core.Models;
 using System.Linq.Dynamic.Core;
-using Sieve.Services;
 using Core.Services;
 
 namespace Core.Collections.impl
 {
-    public class UserCollection(CoreDb db, IImageService imageService) : IUserCollection, ISieveCustomFilterMethods
+    public class UserCollection(CoreDb db, IImageService imageService) : IUserCollection
     {
         private readonly CoreDb db = db;
         private readonly IImageService imageService = imageService;

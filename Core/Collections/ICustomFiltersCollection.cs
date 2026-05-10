@@ -1,8 +1,8 @@
 
 namespace Core.Collections
 {
-    public interface ICustomFilters 
+    public interface ICustomFilters
     {
-        
+       
     }
 }
