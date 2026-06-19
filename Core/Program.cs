@@ -22,6 +22,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new UserProfile()));
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new HomeProfile()));
 builder.Services.AddHttpClient<IImageService, ImageService>();
+builder.Services.AddHttpClient<IEmailService, EmailService>(client => client.BaseAddress = new Uri("http://localhost:3030"));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", builder => builder.WithOrigins("http://localhost:4200", "https://localhost:4200")
@@ -37,6 +38,9 @@ builder.Services.Configure<StripeOptions>(options =>
     options.WebhookSecret = StripeSetting.GetSection("STRIPE_WEBHOOK_SECRET").Value!;
 });
 builder.Services.AddScoped<IUserCollection, UserCollection>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IHomeCollection, HomeCollection>();
 builder.Services.AddScoped<IChats, ChatsCollection>();
 builder.Services.AddScoped<IExtraContent, ExtraContentCollection>();

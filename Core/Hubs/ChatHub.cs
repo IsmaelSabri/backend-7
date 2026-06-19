@@ -98,6 +98,27 @@ namespace Core.Hubs
             await Clients.Client(receiverConnectionId).SendAsync("MessageReceived", messageId);
         }
 
+        public async Task NotifyConversationRead(
+    string userId,
+    string viviendaId)
+        {
+            if (!Guid.TryParse(userId, out Guid guid))
+                return;
+
+            var connectionId =
+                Users.FirstOrDefault(x => x.Value == guid).Key;
+
+            if (!string.IsNullOrEmpty(connectionId))
+            {
+                await Clients.Client(connectionId)
+                    .SendAsync(
+                        "ConversationRead",
+                        userId,
+                        viviendaId
+                    );
+            }
+        }
+
 
 
 

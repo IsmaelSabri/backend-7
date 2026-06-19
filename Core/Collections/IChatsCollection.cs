@@ -10,5 +10,10 @@ namespace Core.Collections
         Task<Chat> CreateChat(Chat chat, CancellationToken cancellationToken);
         Task<Chat> UpdateChat(Chat chat, CancellationToken cancellationToken);
         Task DeleteChat(Chat chat, CancellationToken cancellationToken);
+        Task<List<string>> MarkConversationAsRead(
+    Guid currentUserId,
+    Guid otherUserId,
+    string viviendaId,
+    CancellationToken ct);
     }
 }

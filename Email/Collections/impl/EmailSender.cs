@@ -26,11 +26,11 @@ namespace Email.Service.impl
             switch (action)
             {
                 case "Welcome!":
-                    if (emailDto.Name != null && emailDto.Message != null)
+                    if (emailDto.Name != null && emailDto.Token != null)
                     {
                         var builder = new BodyBuilder
                         {
-                            HtmlBody = WelcomeHTML(emailDto.Name, emailDto.Message)
+                            HtmlBody = WelcomeHTML(emailDto.Name, emailDto.Token)
                         };
                         email.Body = builder.ToMessageBody();
                     }
@@ -55,6 +55,16 @@ namespace Email.Service.impl
                         email.Body = builder.ToMessageBody();
                     }
                     break;
+                case "OTP":
+                    if (emailDto.Name != null && emailDto.Message != null)
+                    {
+                        var builder = new BodyBuilder
+                        {
+                            HtmlBody = OtpHTML(emailDto.Name, emailDto.Message)
+                        };
+                        email.Body = builder.ToMessageBody();
+                    }
+                    break;
             }
             using var smtp = new SmtpClient();
             smtp.Connect(emailConfiguration.ServerAddress, emailConfiguration.ServerPort, SecureSocketOptions.StartTls);
@@ -63,19 +73,19 @@ namespace Email.Service.impl
             smtp.Disconnect(true);
         }
 
-        public string WelcomeHTML(string name, string message)
+        public string WelcomeHTML(string name, string token)
         {
             var html = File.ReadAllText(@"./Assets/Welcome.html");
             html = html.Replace("{{name}}", name);
-            html = html.Replace("{{message}}", message);
+            html = html.Replace("{{token}}", token);
             return html;
         }
 
-        public string SetPasswordHTML(string name, string message)
+        public string SetPasswordHTML(string name, string token)
         {
             var html = File.ReadAllText(@"./Assets/SetPassword.html");
             html = html.Replace("{{name}}", name);
-            html = html.Replace("{{message}}", message);
+            html = html.Replace("{{token}}", token);
             return html;
         }
 
@@ -91,6 +101,14 @@ namespace Email.Service.impl
             html = html.Replace("{{phone}}", emailDto.Phone);
             html = html.Replace("{{ccEmail}}", emailDto.CcEmail);
             //html = html.Replace("{{bccEmail}}", emailDto.BccEmail);
+            return html;
+        }
+
+        public string OtpHTML(string name, string code)
+        {
+            var html = File.ReadAllText(@"./Assets/SendOtp.html");
+            html = html.Replace("{{name}}", name);
+            html = html.Replace("{{code}}", code);
             return html;
         }
     }

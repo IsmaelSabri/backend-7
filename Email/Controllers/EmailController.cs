@@ -17,7 +17,7 @@ namespace Email.Controllers
             this.emailSender = emailSender;
         }
 
-        [HttpGet("setpassword")]
+        [HttpPost("setpassword")]
         public async Task<IActionResult> Index(EmailDto emailDto)
         {
             try
@@ -38,7 +38,7 @@ namespace Email.Controllers
             }
         }
 
-        [HttpGet("resendpassword")]
+        [HttpPost("resendpassword")]
         public async Task<IActionResult> ReIndex(EmailDto emailDto)
         {
             try
@@ -71,6 +71,27 @@ namespace Email.Controllers
                 else
                 {
                     await emailSender.SendEmailAsync(emailDto, "Contact");
+                    return Ok("Enviado !!");
+                }
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpPost("send-otp")]
+        public async Task<IActionResult> SendOtpAsync(EmailDto emailDto)
+        {
+            try
+            {
+                if (emailDto == null)
+                {
+                    return BadRequest();
+                }
+                else
+                {
+                    await emailSender.SendEmailAsync(emailDto, "OTP");
                     return Ok("Enviado !!");
                 }
             }

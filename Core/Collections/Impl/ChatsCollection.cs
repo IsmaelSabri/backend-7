@@ -1,4 +1,5 @@
 using Core.Data;
+using Core.Enums;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ namespace Core.Collections.Impl
         {
             return await db.Chats
                 .Where(p =>
-                    ((p.UserId == userId && p.ToUserId == toUserId) || (p.ToUserId == userId && p.UserId == toUserId)) && 
+                    ((p.UserId == userId && p.ToUserId == toUserId) || (p.ToUserId == userId && p.UserId == toUserId)) &&
                     p.ViviendaId == ViviendaId)
                 .OrderBy(p => p.Date)
                 .ToListAsync(cancellationToken);
@@ -61,5 +62,30 @@ namespace Core.Collections.Impl
             db.Chats.Remove(chat);
             await db.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<List<string>> MarkConversationAsRead(
+        Guid currentUserId,
+        Guid otherUserId,
+        string viviendaId,
+        CancellationToken ct)
+        {
+            var chats = await db.Chats
+                .Where(x =>
+                    x.ToUserId == currentUserId &&
+                    x.UserId == otherUserId &&
+                    x.ViviendaId == viviendaId &&
+                    x.State != "Read")
+                .ToListAsync(ct);
+
+            foreach (var chat in chats)
+            {
+                chat.State = "Read";
+            }
+
+            await db.SaveChangesAsync(ct);
+
+            return chats.Select(x => x.Id).ToList();
+        }
+
     }
 }

@@ -87,10 +87,12 @@ namespace Core.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteChat(string id, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(id)) return BadRequest("Invalid id");
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest("Invalid id");
 
             var existing = await chatsDb.GetChatById(id, cancellationToken);
-            if (existing == null) return NotFound("Chat not found");
+            if (existing == null)
+                return NotFound("Chat not found");
 
             await chatsDb.DeleteChat(existing, cancellationToken);
 
@@ -111,7 +113,41 @@ namespace Core.Controllers
             return Ok(new { deleted = id });
         }
 
+        [HttpPut]
+        public async Task<IActionResult> MarkConversationAsRead(
+      [FromBody] MarkConversationReadDto request,
+      CancellationToken cancellationToken)
+        {
+            var updatedIds = await chatsDb.MarkConversationAsRead(
+                request.CurrentUserId,
+                request.OtherUserId,
+                request.ViviendaId,
+                cancellationToken);
 
+            var connectionId =
+                ChatHub.Users
+                    .FirstOrDefault(x => x.Value == request.OtherUserId)
+                    .Key;
+                        Console.WriteLine(updatedIds);
+                            if (!string.IsNullOrEmpty(connectionId))
+                            {
+                                await hubContext.Clients
+                    .Client(connectionId)
+                    .SendAsync(
+                        "ConversationRead",
+                        updatedIds,
+                        cancellationToken);
+                            }
+
+                            return Ok(updatedIds);
+        }
     }
 
+}
+
+public class MarkConversationReadDto
+{
+    public Guid CurrentUserId { get; set; }
+    public Guid OtherUserId { get; set; }
+    public string ViviendaId { get; set; } = string.Empty;
 }
