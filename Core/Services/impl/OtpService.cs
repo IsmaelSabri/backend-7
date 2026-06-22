@@ -44,6 +44,15 @@ namespace Core.Services.impl
 
         public async Task<PasswordResetOtp?> SaveOtpAsync(Guid userId, string code, DateTime expiresAt)
         {
+            var previousOtps = await _db.PasswordResetOtps
+                .Where(o => o.UserId == userId && !o.Used)
+                .ToListAsync();
+
+            foreach (var previousOtp in previousOtps)
+            {
+                previousOtp.Used = true;
+            }
+
             var hashedCode = HashOtp(code);
             var otp = new PasswordResetOtp
             {
@@ -62,7 +71,8 @@ namespace Core.Services.impl
         public async Task<PasswordResetOtp?> GetByUserIdAsync(Guid userId)
         {
             return await _db.PasswordResetOtps
-                .Where(o => o.UserId == userId && !o.Used && o.ExpiresAt > DateTime.UtcNow)
+                .Where(o => o.UserId == userId && !o.Used && o.ExpiresAt > DateTime.UtcNow && o.Attempts < 3)
+                .OrderByDescending(o => o.Id)
                 .FirstOrDefaultAsync();
         }
 

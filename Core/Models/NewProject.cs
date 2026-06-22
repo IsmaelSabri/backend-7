@@ -9,7 +9,7 @@ namespace Core.Models
         public int PorcentajeTerminado { get; set; }
         public string? NombreProyecto { get; set; }
         public string? EstadoConstruccion { get; set; }
-        public string? Tipos { get; set; }
+        public string[]? Tipos { get; set; }
         public int HabitacionesDesde { get; set; }
         public int HabitacionesHasta { get; set; }
         public int SuperficieDesde { get; set; }

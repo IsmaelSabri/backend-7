@@ -28,6 +28,7 @@ namespace Core.Data
         public DbSet<NewProject> NewProjects { get; set; }
         public DbSet<Other> Others { get; set; }
         public DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
+        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -73,6 +74,10 @@ namespace Core.Data
             .ValueGeneratedOnAdd();
 
             builder.Entity<PasswordResetOtp>()
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
+
+            builder.Entity<PasswordResetToken>()
             .Property(e => e.Id)
             .ValueGeneratedOnAdd();
 

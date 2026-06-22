@@ -32,7 +32,6 @@ namespace Core.Dto
         public string? Garage { get; set; }
         public string? Estado { get; set; }
         public string? DistanciaAlMar { get; set; }
-        public string? NombreCreador { get; set; }
         public string? FechaCreacion { get; set; }
         public string? FechaUltimaModificacion { get; set; }
         public string? Comentario { get; set; }
@@ -98,6 +97,7 @@ namespace Core.Dto
         public string? ColorTextoDestacar { get; set; }
         public string? TourVirtual { get; set; }
         public string? Bodega { get; set; }
+        public string? PlantaMasAlta { get; set; }
 
         // house
         public string? Alarma { get; set; }

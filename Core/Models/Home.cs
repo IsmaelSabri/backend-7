@@ -6,6 +6,7 @@ namespace Core.Models
 {
     public class Home
     {
+        [Sieve(CanFilter = true, CanSort = true)]
         public Guid Id { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? ViviendaId { get; set; }
@@ -51,7 +52,6 @@ namespace Core.Models
         public string? Estado { get; set; }
         public string? DistanciaAlMar { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? NombreCreador { get; set; }
         public DateTime FechaCreacion { get; set; }
         public DateTime FechaUltimaModificacion { get; set; }
         public string? Comentario { get; set; }
@@ -106,6 +106,7 @@ namespace Core.Models
         public string? ColorTextoDestacar { get; set; }
         public string? TourVirtual { get; set; }
         public bool Bodega { get; set; }
+        public string? PlantaMasAlta { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string[]? DiscardedByUsers { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]

@@ -156,8 +156,8 @@ namespace Core.Controllers
             // ENVIAR EMAIL
 
             await emailService.SendWelcomeEmailAsync(
-                newUser.Username,
-                newUser.Email,
+                newUser.Username ?? "Usuario",
+                newUser.Email ?? string.Empty,
                 verificationToken
             );
 
@@ -258,14 +258,78 @@ namespace Core.Controllers
 
         [HttpPost("request-password-reset")]
         public async Task<IActionResult> RequestPasswordReset(
-    [FromBody] PasswordResetRequestDto dto)
+            [FromBody] PasswordResetRequestDto dto)
         {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Email))
+            {
+                return BadRequest(new { message = "El email es obligatorio." });
+            }
+
             await authService.RequestPasswordReset(dto.Email);
 
             return Ok(new
             {
                 message =
                   "Revisa tu correo."
+            });
+        }
+
+        [HttpPost("validate-password-reset-otp")]
+        public async Task<IActionResult> ValidatePasswordResetOtp(
+            [FromBody] ValidatePasswordResetOtpDto dto)
+        {
+            if (
+                dto == null ||
+                string.IsNullOrWhiteSpace(dto.Email) ||
+                string.IsNullOrWhiteSpace(dto.Otp)
+            )
+            {
+                return BadRequest(new { message = "El email y el OTP son obligatorios." });
+            }
+
+            var resetToken = await authService.ValidatePasswordResetOtp(dto.Email, dto.Otp);
+
+            if (string.IsNullOrWhiteSpace(resetToken))
+            {
+                return BadRequest(new
+                {
+                    message = "Código OTP inválido, caducado o ya utilizado."
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Código verificado correctamente.",
+                resetToken,
+            });
+        }
+
+        [HttpPost("reset-password-with-token")]
+        public async Task<IActionResult> ResetPasswordWithToken(
+            [FromBody] ResetPasswordWithTokenDto dto)
+        {
+            if (
+                dto == null ||
+                string.IsNullOrWhiteSpace(dto.Token) ||
+                string.IsNullOrWhiteSpace(dto.Password)
+            )
+            {
+                return BadRequest(new { message = "Token y contraseña son obligatorios." });
+            }
+
+            var updated = await authService.ResetPasswordWithToken(dto.Token, dto.Password);
+
+            if (!updated)
+            {
+                return BadRequest(new
+                {
+                    message = "No se pudo cambiar la contraseña. El token no es válido o ha expirado."
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Contraseña cambiada correctamente."
             });
         }
 
@@ -448,6 +512,13 @@ namespace Core.Controllers
                 );
 
             // COMPARACIÓN SEGURA
+
+            if (string.IsNullOrWhiteSpace(user.RefreshToken))
+            {
+                return BadRequest(
+                    "Invalid request."
+                );
+            }
 
             if (
                 !CryptographicOperations.FixedTimeEquals(
