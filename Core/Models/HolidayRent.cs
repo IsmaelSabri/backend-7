@@ -26,8 +26,8 @@ namespace Core.Models
         public bool MueblesJardin { get; set; }
         public bool Barbacoa { get; set; }
         public string? ValoracionesUsuarios { get; set; }
-        public int Valoraciones { get; set; }
-        public int StarRatingAverage { get; set; }
+        public int? Valoraciones { get; set; }
+        public int? StarRatingAverage { get; set; }
 
     }
 }

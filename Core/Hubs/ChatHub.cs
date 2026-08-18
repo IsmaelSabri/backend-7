@@ -84,37 +84,31 @@ namespace Core.Hubs
             }
         }
 
-        public async Task MarkMessageAsReceived(string messageId, string receiverId)
+        public async Task MarkMessageAsReceived(string messageId, string senderId)
         {
-            if (!Guid.TryParse(receiverId, out Guid receiverGuid))
+            if (string.IsNullOrWhiteSpace(messageId) || !Guid.TryParse(senderId, out Guid senderGuid))
                 return;
-            // Busca la conexión del usuario receptor
-            var receiverConnectionId = Users.FirstOrDefault(p => p.Value == receiverGuid).Key;
+            var senderConnectionId = Users.FirstOrDefault(p => p.Value == senderGuid).Key;
 
-            if (string.IsNullOrEmpty(receiverConnectionId))
+            if (string.IsNullOrEmpty(senderConnectionId))
                 return;
 
-            // Envía el evento al usuario específico
-            await Clients.Client(receiverConnectionId).SendAsync("MessageReceived", messageId);
+            await Clients.Client(senderConnectionId).SendAsync("MessageReceived", messageId);
         }
 
-        public async Task NotifyConversationRead(
-    string userId,
-    string viviendaId)
+        public async Task MarkMessageAsRead(string messageId, string senderId)
         {
-            if (!Guid.TryParse(userId, out Guid guid))
+            if (string.IsNullOrWhiteSpace(messageId) || !Guid.TryParse(senderId, out Guid senderGuid))
                 return;
 
-            var connectionId =
-                Users.FirstOrDefault(x => x.Value == guid).Key;
+            var connectionId = Users.FirstOrDefault(x => x.Value == senderGuid).Key;
 
             if (!string.IsNullOrEmpty(connectionId))
             {
                 await Clients.Client(connectionId)
                     .SendAsync(
-                        "ConversationRead",
-                        userId,
-                        viviendaId
+                        "MessageRead",
+                        new[] { messageId }
                     );
             }
         }

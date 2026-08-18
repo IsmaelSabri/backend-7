@@ -29,7 +29,7 @@ namespace Core.Models
         public string? Universidades { get; set; }
         public string? Metro { get; set; }
         public string? Bus { get; set; }
-        public int Alturas { get; set; }
-        public int TotalViviendasConstruidas { get; set; }
+        public int? Alturas { get; set; }
+        public int? TotalViviendasConstruidas { get; set; }
     }
 }

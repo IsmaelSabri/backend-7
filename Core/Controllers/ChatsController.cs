@@ -134,7 +134,7 @@ namespace Core.Controllers
                                 await hubContext.Clients
                     .Client(connectionId)
                     .SendAsync(
-                        "ConversationRead",
+                        "MessageRead",
                         updatedIds,
                         cancellationToken);
                             }

@@ -85,101 +85,43 @@ namespace Core.Controllers
         }
 
         [HttpPost("new")]
-        public async Task<IActionResult> CreateHome([FromBody] HomeDto homeDto)
+        public async Task<IActionResult> CreateHome([FromBody] Home homeDto)
         {
             if (homeDto == null)
-            {
-                return BadRequest("Home data is required.");
-            }
+                return BadRequest();
 
-            var home = MapHomeDto(homeDto);
+            Home? home = homeDto.Model switch
+            {
+                "Flat" => mapper.Map<Flat>(homeDto),
+                "House" => mapper.Map<House>(homeDto),
+                "Room" => mapper.Map<Room>(homeDto),
+                "HolidayRent" => mapper.Map<HolidayRent>(homeDto),
+                "NewProject" => mapper.Map<NewProject>(homeDto),
+                "Other" => mapper.Map<Other>(homeDto),
+                _ => null
+            };
+
             if (home == null)
-            {
                 return BadRequest("Modelo de propiedad no válido.");
-            }
 
-            if (!TryParseCoordinates(homeDto.Lat, homeDto.Lng, out var lat, out var lng))
+            var coordinateProvider = new NumberFormatInfo
             {
-                return BadRequest("Coordenadas no válidas.");
-            }
+                NumberDecimalSeparator = "."
+            };
 
-            var priceProvider = new NumberFormatInfo { NumberDecimalSeparator = "," };
-            home.Lat = lat;
-            home.Lng = lng;
-            var precioInicial = ParseNullableInt(homeDto.PrecioInicial, priceProvider);
-            var precioFinal = ParseNullableInt(homeDto.PrecioFinal, priceProvider);
-            var precioAlquiler = ParseNullableInt(homeDto.PrecioAlquiler, priceProvider);
-            if (precioInicial.HasValue)
-                home.PrecioInicial = precioInicial.Value;
-            if (precioFinal.HasValue)
-                home.PrecioFinal = precioFinal.Value;
-            if (precioAlquiler.HasValue)
-                home.PrecioAlquiler = precioAlquiler.Value;
-            home.FechaCreacion = DateTime.UtcNow;
-            home.FechaUltimaModificacion = DateTime.UtcNow;
+            var priceProvider = new NumberFormatInfo
+            {
+                NumberDecimalSeparator = ","
+            };
+
+            home.Lat = Convert.ToDouble(homeDto.Lat, coordinateProvider);
+            home.Lng = Convert.ToDouble(homeDto.Lng, coordinateProvider);
+            home.FechaCreacion = DateTime.UtcNow.ToLocalTime();
+            home.FechaUltimaModificacion = DateTime.UtcNow.ToLocalTime();
             home.NormalizeNullStrings();
-
             await db.NewHome(home);
+
             return Created("Created", home);
-        }
-
-        private Home? MapHomeDto(HomeDto homeDto)
-        {
-            switch (homeDto.Model)
-            {
-                case "Flat":
-                    return mapper.Map<Flat>(homeDto);
-                case "House":
-                    return mapper.Map<House>(homeDto);
-                case "Room":
-                    return mapper.Map<Room>(homeDto);
-                case "HolidayRent":
-                    return mapper.Map<HolidayRent>(homeDto);
-                case "NewProject":
-                    return mapper.Map<NewProject>(homeDto);
-                case "Other":
-                {
-                    var other = mapper.Map<Other>(homeDto);
-                    var provider = new NumberFormatInfo { NumberDecimalSeparator = "." };
-                    var superficieGarage = ParseNullableFloat(homeDto.SuperficieGarage, provider);
-                    var superficieTrastero = ParseNullableFloat(homeDto.SuperficieTrastero, provider);
-                    var alturaTrastero = ParseNullableFloat(homeDto.AlturaTrastero, provider);
-                    if (superficieGarage.HasValue)
-                        other.SuperficieGarage = superficieGarage.Value;
-                    if (superficieTrastero.HasValue)
-                        other.SuperficieTrastero = superficieTrastero.Value;
-                    if (alturaTrastero.HasValue)
-                        other.AlturaTrastero = alturaTrastero.Value;
-                    return other;
-                }
-                default:
-                    return null;
-            }
-        }
-
-        private static int? ParseNullableInt(string value, NumberFormatInfo provider)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return null;
-            return int.TryParse(value, NumberStyles.Any, provider, out var parsed) ? parsed : null;
-        }
-
-        private static float? ParseNullableFloat(string value, NumberFormatInfo provider)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return null;
-            return float.TryParse(value, NumberStyles.Any, provider, out var parsed) ? parsed : null;
-        }
-
-        private static bool TryParseCoordinates(string? latValue, string? lngValue, out double lat, out double lng)
-        {
-            lat = 0;
-            lng = 0;
-            if (string.IsNullOrWhiteSpace(latValue) || string.IsNullOrWhiteSpace(lngValue))
-                return false;
-            var provider = new NumberFormatInfo { NumberDecimalSeparator = "." };
-            return double.TryParse(latValue, NumberStyles.Any, provider, out lat)
-                && double.TryParse(lngValue, NumberStyles.Any, provider, out lng);
         }
 
         /*

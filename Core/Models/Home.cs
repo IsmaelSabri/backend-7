@@ -15,27 +15,27 @@ namespace Core.Models
         [Sieve(CanFilter = true, CanSort = true)]
         public double Lng { get; set; }
         public string? Calle { get; set; }
-        public int Numero { get; set; }
+        public int? Numero { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Ciudad { get; set; }
-        public int Cp { get; set; }
+        public int? Cp { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public int Habitaciones { get; set; }
+        public int? Habitaciones { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public int Aseos { get; set; }
+        public int? Aseos { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public int AseoEnsuite { get; set; }
+        public int? AseoEnsuite { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public int Superficie { get; set; }
+        public int? Superficie { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Condicion { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Tipo { get; set; }
-        public int PrecioInicial { get; set; }
+        public int? PrecioInicial { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public int PrecioFinal { get; set; }
+        public int? PrecioFinal { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public int PrecioAlquiler { get; set; }
+        public int? PrecioAlquiler { get; set; }
         public string? Duracion { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Descripcion { get; set; }
@@ -45,16 +45,13 @@ namespace Core.Models
         public bool PiscinaPrivada { get; set; }
         public bool Parquet { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public int Antiguedad { get; set; }
-        [Sieve(CanFilter = true, CanSort = true)]
-        public int Garage { get; set; }
+        public int? Antiguedad { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Estado { get; set; }
         public string? DistanciaAlMar { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public DateTime FechaCreacion { get; set; }
         public DateTime FechaUltimaModificacion { get; set; }
-        public string? Comentario { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Destacar { get; set; }
         public string? ColorDestacar { get; set; }
@@ -81,20 +78,20 @@ namespace Core.Models
         public bool CabinaHidromasaje { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool Ascensor { get; set; }
-        public string? Piso { get; set; }
+        public int? Piso { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Mascotas { get; set; }
         public string? Fianza { get; set; }
         public string? Disponibilidad { get; set; }
         public string? EstanciaMinima { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public int PrecioAlquilerInicial { get; set; }
+        public int? PrecioAlquilerInicial { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool PiscinaComp { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool Trastero { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? VistasDespejadas { get; set; }
+        public string[]? VistasDespejadas { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool InstalacionesDiscapacitados { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
@@ -106,7 +103,7 @@ namespace Core.Models
         public string? ColorTextoDestacar { get; set; }
         public string? TourVirtual { get; set; }
         public bool Bodega { get; set; }
-        public string? PlantaMasAlta { get; set; }
+        public int? PlantaMasAlta { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string[]? DiscardedByUsers { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
@@ -117,5 +114,6 @@ namespace Core.Models
         public Image[]? Schemes { get; set; }
         [NotMapped]
         public Image? EnergyCert { get; set; }
+        public ICollection<Garage>? Garages { get; set; } = [];
     }
 }

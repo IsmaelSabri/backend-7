@@ -10,7 +10,7 @@ namespace Core.Models
     {
         // Oficina
         [Sieve(CanFilter = true, CanSort = true)]
-        public int Aparcamientos { get; set; }
+        public int? Aparcamientos { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Climatizacion { get; set; } // difusores, rejillas, split, preinstalación, ninguna
         [Sieve(CanFilter = true, CanSort = true)]
@@ -24,7 +24,7 @@ namespace Core.Models
         public bool FalsoTecho { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool SueloTecnico { get; set; }
-        public int Ascensores { get; set; }
+        public int? Ascensores { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Uso { get; set; }
 
@@ -58,7 +58,7 @@ namespace Core.Models
         [Sieve(CanFilter = true)]
         public bool ConOficina { get; set; }
         public bool LucesSalidaEmergencia { get; set; }
-        public int Escaparates { get; set; }
+        public int? Escaparates { get; set; }
 
         // Suelo
         public string? Acceso { get; set; }
@@ -68,10 +68,10 @@ namespace Core.Models
         public bool Agua { get; set; }
         public bool Electricidad { get; set; }
         public string? Calificacion { get; set; }
-        public int SuperficieMinVenta { get; set; }
-        public int SuperficieMinAlquiler { get; set; }
-        public int SuperficieEdificable { get; set; }
-        public int PlantasEdificables { get; set; }
+        public int? SuperficieMinVenta { get; set; }
+        public int? SuperficieMinAlquiler { get; set; }
+        public int? SuperficieEdificable { get; set; }
+        public int? PlantasEdificables { get; set; }
         public string? NucleoUrbanoCercano { get; set; }
         public bool SinNumero { get; set; }
 

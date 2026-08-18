@@ -1,3 +1,4 @@
+using Core.Dto;
 using Core.Models;
 
 namespace Core.Collections
@@ -22,6 +23,7 @@ namespace Core.Collections
         public Task DeleteHome(Home home);
         public Task<List<Home>> GetAllHomes();
         public IQueryable<Home> GetBoxedHomes(double BLng, double BLlat, double TRlng, double TRlat);
+        // public IQueryable<MapPropertyDto> GetBoxedProperties(double BLng, double BLlat, double TRlng, double TRlat);
         public IQueryable<House> GetBoxedHouses(double BLng, double BLlat, double TRlng, double TRlat);
         public IQueryable<Flat> GetBoxedFlats(double BLng, double BLlat, double TRlng, double TRlat);
         public IQueryable<NewProject> GetBoxedNewProjects(double BLng, double BLlat, double TRlng, double TRlat);
@@ -35,7 +37,7 @@ namespace Core.Collections
         public IQueryable<Room> GetPagedRooms();
         public IQueryable<NewProject> GetPagedNewProjects();
         public IQueryable<Other> GetPagedOthers();
-         public Task<IQueryable<Home>> GetHomesByLikeMeForever(string userid);
-         public Task<List<Home>> GetDiscardedHomes(string userid);
+        public Task<IQueryable<Home>> GetHomesByLikeMeForever(string userid);
+        public Task<List<Home>> GetDiscardedHomes(string userid);
     }
 }

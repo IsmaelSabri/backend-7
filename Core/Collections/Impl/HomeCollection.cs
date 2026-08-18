@@ -18,7 +18,7 @@ namespace Core.Collections.Impl
 
         public async Task<List<Home>> GetAllHomes()
         {
-            var homes = await dbc.Homes.ToListAsync();
+            var homes = await dbc.Homes.Include(h => h.Garages).ToListAsync();
             
             // Inicializar imágenes para todos los homes
             foreach (var home in homes)
@@ -107,43 +107,43 @@ namespace Core.Collections.Impl
 
         public async Task UpdateHome(Home home)
         {
-            dbc.Homes.Entry(home).State = EntityState.Modified;
+            dbc.Homes.Update(home);
             await dbc.SaveChangesAsync();
         }
 
         public async Task UpdateFlat(Flat flat)
         {
-            dbc.Flats.Entry(flat).State = EntityState.Modified;
+            dbc.Flats.Update(flat);
             await dbc.SaveChangesAsync();
         }
 
         public async Task UpdateHouse(House house)
         {
-            dbc.Houses.Entry(house).State = EntityState.Modified;
+            dbc.Houses.Update(house);
             await dbc.SaveChangesAsync();
         }
 
         public async Task UpdateNewProject(NewProject newProject)
         {
-            dbc.NewProjects.Entry(newProject).State = EntityState.Modified;
+            dbc.NewProjects.Update(newProject);
             await dbc.SaveChangesAsync();
         }
 
         public async Task UpdateHolidayRent(HolidayRent holidayRent)
         {
-            dbc.HolidayRents.Entry(holidayRent).State = EntityState.Modified;
+            dbc.HolidayRents.Update(holidayRent);
             await dbc.SaveChangesAsync();
         }
 
         public async Task UpdateRoom(Room room)
         {
-            dbc.Rooms.Entry(room).State = EntityState.Modified;
+            dbc.Rooms.Update(room);
             await dbc.SaveChangesAsync();
         }
 
         public async Task UpdateOther(Other other)
         {
-            dbc.Others.Entry(other).State = EntityState.Modified;
+            dbc.Others.Update(other);
             await dbc.SaveChangesAsync();
         }
 

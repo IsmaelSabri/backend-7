@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Core.Migrations
 {
     [DbContext(typeof(CoreDb))]
-    [Migration("20260622022356_mymigration")]
-    partial class mymigration
+    [Migration("20260718104451_AddGarageTable")]
+    partial class AddGarageTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,44 +27,32 @@ namespace Core.Migrations
 
 
 
-
-
-         
-
-         
-
-           
-
-            modelBuilder.Entity("Core.Models.PasswordResetToken", b =>
+            modelBuilder.Entity("Core.Models.Garage", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<Guid>("HomeId")
+                        .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("Used")
+                    b.Property<bool>("IsIncluded")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
-                    b.ToTable("PasswordResetTokens");
+                    b.HasIndex("HomeId");
+
+                    b.ToTable("Garage");
                 });
 
-            
+            modelBuilder.Entity("Core.Models.Home", b =>
+                {
+                    b.Navigation("Garages");
+                });
 #pragma warning restore 612, 618
         }
     }
