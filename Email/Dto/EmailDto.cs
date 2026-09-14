@@ -12,8 +12,6 @@ namespace Email.Dto
         public string? Subject { get; set; }
         public string? Message { get; set; }
         public string? Phone { get; set; }
-        public string? DialCodePlus { get; set; }
-        public string? Country { get; set; }
         public string? Token { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Net.Http.Json;
+using Core.Dto;
 using Core.Services;
 using Microsoft.Extensions.Logging;
 
@@ -38,20 +39,42 @@ namespace Core.Services.impl
         {
             try
             {
+                _logger.LogInformation(
+                    "Enviando email a URL: {Url} con payload: {Payload}",
+                    url,
+                    payload
+                );
+
                 var response = await _httpClient.PostAsJsonAsync(url, payload);
+
+                var responseBody = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Email no enviado. URL: {Url}, Status: {Status}", url, response.StatusCode);
+                    _logger.LogWarning(
+                        "Email no enviado. URL: {Url}, Status: {Status}, Response: {Response}",
+                        url,
+                        response.StatusCode,
+                        responseBody
+                    );
+
+                    return;
                 }
-                else
-                {
-                    _logger.LogInformation("Email enviado correctamente. URL: {Url}", url);
-                }
+
+                _logger.LogInformation(
+                    "Email enviado correctamente. URL: {Url}, Response: {Response}",
+                    url,
+                    responseBody
+                );
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error enviando email a {Payload}", payload);
+                _logger.LogError(
+                    ex,
+                    "Error enviando email a {Payload}",
+                    payload
+                );
+
                 throw;
             }
         }

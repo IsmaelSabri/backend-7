@@ -1,3 +1,5 @@
+using Core.Dto;
+
 namespace Core.Services
 {
     public interface IEmailService

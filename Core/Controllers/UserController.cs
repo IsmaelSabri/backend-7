@@ -35,9 +35,11 @@ namespace Core.Controllers
         private User user1;
         private readonly SieveProcessor sieveProcessor;
         private readonly IImageService imageService;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(IMapper mapper1, IPasswordHasher passwordHasher1, IAuthService authService1, IOtpService otpService1, IEmailService emailService1, ITokenService tokenService1, CoreDb hdb, SieveProcessor _sieveProcessor, IImageService imageService)
+        public UserController(IMapper mapper1, IPasswordHasher passwordHasher1, IAuthService authService1, IOtpService otpService1, IEmailService emailService1, ITokenService tokenService1, CoreDb hdb, SieveProcessor _sieveProcessor, IImageService imageService, ILogger<UserController> logger)
         {
+            _logger = logger;
             mapper = mapper1;
             passwordHasher = passwordHasher1;
             authService = authService1;
@@ -167,9 +169,6 @@ namespace Core.Controllers
                     "Cuenta creada. Verifica tu correo electrónico."
             });
         }
-
-
-
 
         [HttpPut("complete-registration")]
         public async Task<IActionResult> CompleteRegistry(
@@ -359,24 +358,19 @@ namespace Core.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(
-            [FromBody] LoginDto dto)
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            if (
-                dto == null ||
+            if (dto == null ||
                 string.IsNullOrWhiteSpace(dto.Email) ||
-                string.IsNullOrWhiteSpace(dto.Password)
-            )
+                string.IsNullOrWhiteSpace(dto.Password))
             {
-                return BadRequest(
-                    "Credenciales incorrectas."
-                );
+                return BadRequest("Credenciales incorrectas.");
             }
 
-            var user = await ComposeUserImages( await db.GetUserByEmail(dto.Email));
+            // 1. Obtener usuario REAL desde BD
+            var user = await db.GetUserByEmail(dto.Email);
 
-            // PREVENCIÓN ENUMERACIÓN
-
+            // 2. Prevención de enumeración
             var fakeHash =
                 "4tTQWUk9Qm5LQnR4VGJ4Zw==;Y7x8pS6Pj9g9Q0wM1t7JxQ==";
 
@@ -384,24 +378,17 @@ namespace Core.Controllers
             {
                 passwordHasher.Verify(fakeHash, dto.Password);
 
-                return BadRequest(
-                    "Credenciales incorrectas."
-                );
+                return BadRequest("Credenciales incorrectas.");
             }
 
-            if (
-                string.IsNullOrWhiteSpace(user.Password) ||
-                !passwordHasher.Verify(
-                    user.Password,
-                    dto.Password
-                )
-            )
+            // 3. Verificar password
+            if (string.IsNullOrWhiteSpace(user.Password) ||
+                !passwordHasher.Verify(user.Password, dto.Password))
             {
-                return BadRequest(
-                    "Credenciales incorrectas."
-                );
+                return BadRequest("Credenciales incorrectas.");
             }
 
+            // 4. Usuario activo
             if (!user.Isactive)
             {
                 return BadRequest(
@@ -409,27 +396,24 @@ namespace Core.Controllers
                 );
             }
 
-            // TOKENS
-
+            // 5. Generar access token
             var accessToken = jwtResource.Generate(user);
 
-            var refreshToken =
-                jwtResource.CreateRefreshToken();
+            // 6. Generar refresh token
+            var refreshToken = jwtResource.CreateRefreshToken();
 
-            var refreshTokenHash =
-                Convert.ToHexString(
-                    SHA256.HashData(
-                        Encoding.UTF8.GetBytes(refreshToken)
-                    )
-                );
+            // 7. Hash del refresh token para BD
+            var refreshTokenHash = Convert.ToHexString(
+                SHA256.HashData(
+                    Encoding.UTF8.GetBytes(refreshToken)
+                )
+            );
 
+            // 8. Actualizar SOLO datos de autenticación
             user.Token = accessToken;
-
             user.RefreshToken = refreshTokenHash;
-
             user.RefreshTokenDateExpires =
                 DateTime.UtcNow.AddDays(7);
-
             user.LastaccessDate = DateTime.UtcNow;
 
             if (user.Id.IsValid())
@@ -437,6 +421,10 @@ namespace Core.Controllers
                 await db.UpdateUser(user);
             }
 
+            // 9. Componer datos adicionales PARA LA RESPUESTA
+            await ComposeUserImages(user);
+
+            // 10. Nunca devolver password ni refresh token hash
             return Ok(new
             {
                 accessToken,
@@ -449,7 +437,7 @@ namespace Core.Controllers
                     user.Username,
                     user.Email,
                     user.Role,
-                    user?.ProfileImage
+                    user.ProfileImage
                 }
             });
         }

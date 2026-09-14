@@ -8,69 +8,99 @@ using MailKit.Net.Smtp;
 namespace Email.Service.impl
 {
     public class EmailSender : IEmailSender
-
     {
         private readonly EmailConfiguration emailConfiguration;
-        public EmailSender(IOptions<EmailConfiguration> options)
+        private readonly ILogger<EmailSender> _logger;
+
+        public EmailSender(IOptions<EmailConfiguration> options, ILogger<EmailSender> logger)
         {
             emailConfiguration = options.Value;
+            _logger = logger;
         }
+
         public async Task SendEmailAsync(EmailDto emailDto, string action)
         {
-            var email = new MimeMessage
+            if (emailDto == null)
             {
-                Sender = MailboxAddress.Parse(emailConfiguration.FromAddress)
-            };
-            email.To.Add(MailboxAddress.Parse(emailDto.ToEmail));
-            email.Subject = emailDto.Subject;
+                throw new ArgumentNullException(nameof(emailDto));
+            }
+
+            var email = BuildMessage(emailDto.ToEmail, emailDto.CcEmail, emailDto.Subject ?? "FuturCasa", "");
+
             switch (action)
             {
                 case "Welcome!":
-                    if (emailDto.Name != null && emailDto.Token != null)
+                    if (!string.IsNullOrWhiteSpace(emailDto.Name) && !string.IsNullOrWhiteSpace(emailDto.Token))
                     {
-                        var builder = new BodyBuilder
-                        {
-                            HtmlBody = WelcomeHTML(emailDto.Name, emailDto.Token)
-                        };
-                        email.Body = builder.ToMessageBody();
+                        email.Body = new BodyBuilder { HtmlBody = WelcomeHTML(emailDto.Name, emailDto.Token) }.ToMessageBody();
                     }
                     break;
+
                 case "Reset":
-                    if (emailDto.Name != null && emailDto.Message != null)
+                    if (!string.IsNullOrWhiteSpace(emailDto.Name) && !string.IsNullOrWhiteSpace(emailDto.Message))
                     {
-                        var builder = new BodyBuilder
-                        {
-                            HtmlBody = SetPasswordHTML(emailDto.Name, emailDto.Message)
-                        };
-                        email.Body = builder.ToMessageBody();
+                        email.Body = new BodyBuilder { HtmlBody = SetPasswordHTML(emailDto.Name, emailDto.Message) }.ToMessageBody();
                     }
                     break;
+
                 case "Contact":
-                    if (emailDto != null)
+                    email.Body = new BodyBuilder { HtmlBody = ContactUser(emailDto) }.ToMessageBody();
+                    break;
+
+                case "ContactConfirmation":
+                    if (!string.IsNullOrWhiteSpace(emailDto.Name) && !string.IsNullOrWhiteSpace(emailDto.Subject))
                     {
-                        var builder = new BodyBuilder
-                        {
-                            HtmlBody = ContactUser(emailDto)
-                        };
-                        email.Body = builder.ToMessageBody();
+                        email.Body = new BodyBuilder { HtmlBody = ContactConfirmationHTML(emailDto.Name, emailDto.Subject) }.ToMessageBody();
                     }
                     break;
+
                 case "OTP":
-                    if (emailDto.Name != null && emailDto.Message != null)
+                    if (!string.IsNullOrWhiteSpace(emailDto.Name) && !string.IsNullOrWhiteSpace(emailDto.Message))
                     {
-                        var builder = new BodyBuilder
-                        {
-                            HtmlBody = OtpHTML(emailDto.Name, emailDto.Message)
-                        };
-                        email.Body = builder.ToMessageBody();
+                        email.Body = new BodyBuilder { HtmlBody = OtpHTML(emailDto.Name, emailDto.Message) }.ToMessageBody();
                     }
+                    break;
+
+                case "MessageBetweenUsers":
+                    email.Body = new BodyBuilder { HtmlBody = MessageBetweenUsersHTML(emailDto) }.ToMessageBody();
                     break;
             }
-            using var smtp = new SmtpClient();
-            smtp.Connect(emailConfiguration.ServerAddress, emailConfiguration.ServerPort, SecureSocketOptions.StartTls);
-            smtp.Authenticate(emailConfiguration.FromAddress, emailConfiguration.Password);
-            await smtp.SendAsync(email);
-            smtp.Disconnect(true);
+
+            await SendAsync(email);
+        }
+
+        public Task SendEmailAsync(ContactMessage message, string action)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            if (action == "Contact")
+            {
+                var email = BuildMessage(message.Email, null, $"[Nueva consulta #{message.Reference}] {message.Category}", string.Empty);
+                email.Body = new BodyBuilder { HtmlBody = ContactCompanyHTML(message) }.ToMessageBody();
+                return SendAsync(email);
+            }
+
+            throw new NotSupportedException($"La acción '{action}' no está soportada para ContactMessage.");
+        }
+
+        public Task SendEmailAsync(UsersContactMessage message, string action)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            if (action == "MessageBetweenUsers")
+            {
+                var email = BuildMessage(message.ToEmail, null, message.Subject ?? "Nuevo interés por tu anuncio", string.Empty);
+                email.Body = new BodyBuilder { HtmlBody = MessageBetweenUsersHTML(message) }.ToMessageBody();
+                return SendAsync(email);
+            }
+
+            throw new NotSupportedException($"La acción '{action}' no está soportada para UsersContactMessage.");
         }
 
         public string WelcomeHTML(string name, string token)
@@ -91,16 +121,73 @@ namespace Email.Service.impl
 
         public string ContactUser(EmailDto emailDto)
         {
-            var html = File.ReadAllText(@"./Assets/NewMessage.html");
-            html = html.Replace("{{name}}", emailDto.Name);
-            html = html.Replace("{{message}}", emailDto.Message);
-            html = html.Replace("{{fromName}}", emailDto.FromName);
-            html = html.Replace("{{subject}}", emailDto.Subject);
-            html = html.Replace("{{dialCodePlus}}", emailDto.DialCodePlus);
-            html = html.Replace("{{country}}", emailDto.Country);
-            html = html.Replace("{{phone}}", emailDto.Phone);
-            html = html.Replace("{{ccEmail}}", emailDto.CcEmail);
-            //html = html.Replace("{{bccEmail}}", emailDto.BccEmail);
+            var html = File.ReadAllText(@"./Assets/ContactCompany.html");
+            html = html.Replace("{{reference}}", "");
+            html = html.Replace("{{category}}", "Consulta");
+            html = html.Replace("{{subject}}", emailDto.Subject ?? "Sin asunto");
+            html = html.Replace("{{fromName}}", emailDto.FromName ?? "Sin nombre");
+            html = html.Replace("{{fromAddress}}", emailDto.FromAddress ?? "Sin email");
+            html = html.Replace("{{phone}}", emailDto.Phone ?? "");
+            html = html.Replace("{{message}}", emailDto.Message ?? "");
+            return html;
+        }
+
+        public string ContactCompanyHTML(ContactMessage message)
+        {
+            var html = File.ReadAllText(@"./Assets/ContactCompany.html");
+            html = html.Replace("{{reference}}", message.Reference ?? "Sin referencia");
+            html = html.Replace("{{category}}", message.Category ?? "Consulta");
+            html = html.Replace("{{subject}}", message.Subject ?? "Sin asunto");
+            html = html.Replace("{{fromName}}", message.Name ?? "Sin nombre");
+            html = html.Replace("{{fromAddress}}", message.Email ?? "Sin email");
+            html = html.Replace("{{userId}}", message.UserId ?? "Usuario no registrado");
+            html = html.Replace("{{phone}}", message.Phone ?? "");
+            html = html.Replace("{{message}}", message.Message ?? "");
+            return html;
+        }
+
+        private static bool IsValidEmail(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+            return MailboxAddress.TryParse(value, out _);
+        }
+
+        public string ContactConfirmationHTML(string name, string subject)
+        {
+            var html = File.ReadAllText(@"./Assets/ContactConfirmation.html");
+            html = html.Replace("{{name}}", name);
+            html = html.Replace("{{subject}}", subject);
+            return html;
+        }
+
+        public string MessageBetweenUsersHTML(EmailDto emailDto)
+        {
+            var html = File.ReadAllText(@"./Assets/MessageBetweenUsers.html");
+            html = html.Replace("{{name}}", emailDto.Name ?? "Propietario");
+            html = html.Replace("{{subject}}", emailDto.Subject ?? "Nuevo interés por tu anuncio");
+            html = html.Replace("{{fromName}}", emailDto.FromName ?? "Sin nombre");
+            html = html.Replace("{{fromAddress}}", emailDto.FromAddress ?? "Sin email");
+            html = html.Replace("{{phone}}", emailDto.Phone ?? "No indicado");
+            html = html.Replace("{{message}}", emailDto.Message ?? "Sin mensaje");
+            html = html.Replace("{{propertyLink}}", "#");
+            html = html.Replace("{{thumbnail}}", "https://via.placeholder.com/150x130?text=Propiedad");
+            html = html.Replace("{{category}}", "Propiedad");
+            return html;
+        }
+
+        public string MessageBetweenUsersHTML(UsersContactMessage message)
+        {
+            var html = File.ReadAllText(@"./Assets/MessageBetweenUsers.html");
+            html = html.Replace("{{name}}", message.Name ?? "Propietario");
+            html = html.Replace("{{subject}}", message.Subject ?? "Nuevo interés por tu anuncio");
+            html = html.Replace("{{fromName}}", message.Name ?? "Sin nombre");
+            html = html.Replace("{{fromAddress}}", message.FromEmail ?? "Sin email");
+            html = html.Replace("{{phone}}", message.Phone ?? "No indicado");
+            html = html.Replace("{{message}}", message.Message ?? "Sin mensaje");
+            html = html.Replace("{{propertyLink}}", message.PropertyLink ?? "#");
+            html = html.Replace("{{thumbnail}}", message.PropertyThumbnail ?? "https://via.placeholder.com/150x130?text=Propiedad");
+            html = html.Replace("{{category}}", "Propiedad");
             return html;
         }
 
@@ -110,6 +197,58 @@ namespace Email.Service.impl
             html = html.Replace("{{name}}", name);
             html = html.Replace("{{code}}", code);
             return html;
+        }
+
+        private MimeMessage BuildMessage(string? toEmail, string? ccEmail, string subject, string body)
+        {
+            if (string.IsNullOrWhiteSpace(emailConfiguration.FromAddress))
+            {
+                throw new InvalidOperationException("La dirección del remitente no está configurada.");
+            }
+
+            var email = new MimeMessage
+            {
+                Sender = MailboxAddress.Parse(emailConfiguration.FromAddress),
+                Subject = subject ?? "FuturCasa"
+            };
+
+            if (!string.IsNullOrWhiteSpace(toEmail))
+            {
+                email.To.Add(MailboxAddress.Parse(toEmail));
+            }
+
+            if (!string.IsNullOrWhiteSpace(ccEmail) && IsValidEmail(ccEmail))
+            {
+                _logger.LogInformation("Adding CC email: {CcEmail}", ccEmail);
+                email.Cc.Add(MailboxAddress.Parse(ccEmail));
+            }
+
+            email.Body = new BodyBuilder { HtmlBody = body }.ToMessageBody();
+            return email;
+        }
+
+        public async Task SendAsync(MimeMessage email)
+        {
+            if (!email.To.Any() && !email.Cc.Any() && !email.Bcc.Any())
+            {
+                throw new InvalidOperationException(
+                    "No se puede enviar el email porque no se ha especificado ningún destinatario.");
+            }
+
+            using var smtp = new SmtpClient();
+
+            await smtp.ConnectAsync(
+                emailConfiguration.ServerAddress,
+                emailConfiguration.ServerPort,
+                SecureSocketOptions.StartTls);
+
+            await smtp.AuthenticateAsync(
+                emailConfiguration.FromAddress,
+                emailConfiguration.Password);
+
+            await smtp.SendAsync(email);
+
+            await smtp.DisconnectAsync(true);
         }
     }
 }

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nuevo interés por tu anuncio</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #eef3f8;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #1f2937;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      img {
+        border: 0;
+        outline: none;
+        text-decoration: none;
+        display: block;
+      }
+      a {
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="max-width: 680px; margin: 32px auto; background: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);">
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%); padding: 28px 32px; color: #ffffff;">
+        <div style="font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 8px;">FuturCasa</div>
+        <h1 style="margin: 0; font-size: 28px; line-height: 1.2;">Nuevo interés por tu propiedad</h1>
+      </div>
+
+      <div style="padding: 32px; background: #f8fafc;">
+        <p style="margin: 0 0 16px; font-size: 18px; color: #1f2937;">Hola {{name}},</p>
+        <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.7; color: #475569;">
+          Has recibido una nueva solicitud de contacto sobre tu anuncio. A continuación te dejamos los detalles del interesado para que puedas responderle directamente.
+        </p>
+
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; margin-bottom: 24px;">
+          <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+            <tr>
+              <td valign="top" style="padding: 0; width: 150px; background: #f1f5f9;">
+                <a href="{{propertyLink}}" target="_blank" style="display: block;">
+                  <img src="{{thumbnail}}" alt="Propiedad" width="150" height="130" style="width: 150px; height: 130px; object-fit: cover;" />
+                </a>
+              </td>
+              <td valign="top" style="padding: 20px 20px 18px;">
+                <div style="font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #3b82f6; margin-bottom: 8px;">{{category}}</div>
+                <div style="font-size: 22px; font-weight: bold; color: #0f172a; margin-bottom: 8px;">{{subject}}</div>
+                <a href="{{propertyLink}}" target="_blank" style="display: inline-block; font-size: 14px; color: #2563eb; font-weight: bold;">Ver propiedad</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px 22px; margin-bottom: 24px;">
+          <p style="margin: 0 0 14px; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #64748b;">Datos del interesado</p>
+
+          <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+            <tr>
+              <td style="padding: 6px 0; font-size: 15px; color: #475569; width: 150px;"><strong>Nombre:</strong></td>
+              <td style="padding: 6px 0; font-size: 15px; color: #0f172a;">{{fromName}}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-size: 15px; color: #475569;"><strong>Email:</strong></td>
+              <td style="padding: 6px 0; font-size: 15px; color: #0f172a;">{{fromAddress}}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-size: 15px; color: #475569;"><strong>Teléfono:</strong></td>
+              <td style="padding: 6px 0; font-size: 15px; color: #0f172a;">{{phone}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px 22px; margin-bottom: 24px;">
+          <p style="margin: 0 0 12px; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #64748b;">Mensaje</p>
+          <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #334155; white-space: pre-wrap;">{{message}}</p>
+        </div>
+
+        <div style="text-align: center;">
+          <a href="{{propertyLink}}" target="_blank" style="display: inline-block; background: #2563eb; color: #ffffff; font-size: 15px; font-weight: bold; line-height: 48px; border-radius: 12px; padding: 0 24px; min-width: 200px;">Ver anuncio</a>
+        </div>
+      </div>
+
+      <div style="padding: 20px 32px 30px; background: #ffffff; border-top: 1px solid #e5e7eb; font-size: 13px; line-height: 1.6; color: #64748b; text-align: center;">
+        Equipo de FuturCasa<br />
+        <span>Recuerda responder lo antes posible para dar una buena experiencia al cliente.</span>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,22 +1,24 @@
+using Email.Data;
 using Email.Models;
 using Email.Service;
 using Email.Service.impl;
+using Email.Services;
+using Email.Services.impl;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration"));
-builder.Services.AddTransient<IEmailSender,EmailSender>();
-
+builder.Services.AddDbContext<EmailDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("EmailDbConnection")));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IContactUsService, ContactUsService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -24,17 +26,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.MapStaticAssets();
 app.UseCors(options => options
-                .WithOrigins([ "http://localhost:3000", "http://localhost:8080", "http://localhost:4200","https://localhost:4200",
-                "https://host.docker.internal:4040","https://localhost:4040" ])// React, Vue, Angular
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials()
-                );
+    .WithOrigins(["http://localhost:3000", "http://localhost:8080", "http://localhost:4200", "https://localhost:4200",
+        "https://host.docker.internal:4040", "https://localhost:4040"])
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials());
 app.Run();
