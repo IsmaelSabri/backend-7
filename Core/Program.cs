@@ -11,6 +11,7 @@ using Sieve.Models;
 using Sieve.Services;
 using Core.Configuration;
 using Core.Collections.Impl;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpClient("Overpass", client =>
+{
+    client.BaseAddress = new Uri("https://overpass-api.de/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+
+    client.DefaultRequestHeaders.UserAgent.ParseAdd(
+        "FuturCasa/1.0"
+    );
+
+    client.DefaultRequestHeaders.Accept.ParseAdd(
+        "application/json"
+    );
+});
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+});
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new UserProfile()));
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new HomeProfile()));
@@ -52,6 +72,7 @@ builder.Services.AddScoped<IWebHookCollection, WebHookCollection>();
 builder.Services.AddScoped<IPlanCollection, PlanCollection>();
 builder.Services.AddScoped<IPlanSubscriptionCollection, PlanSubscriptionCollection>();
 builder.Services.AddScoped<IOrganizationCollection, OrganizationCollection>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
 builder.Services.AddScoped<ISieveCustomFilterMethods, CustomFiltersCollection>();
 builder.Services.AddScoped<SieveProcessor>();
@@ -67,7 +88,20 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
+app.UseForwardedHeaders();
+app.UseForwardedHeaders();
+app.Use(async (context, next) =>
+{
+    var remoteIp = context.Connection.RemoteIpAddress?.ToString();
 
+    if (!string.IsNullOrWhiteSpace(remoteIp))
+    {
+        context.Request.Headers["X-Forwarded-For"] = remoteIp;
+        context.Request.Headers["X-Real-IP"] = remoteIp;
+    }
+
+    await next();
+});
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

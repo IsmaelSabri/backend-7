@@ -23,6 +23,7 @@ namespace Core.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private const string RefreshTokenCookieName = "fc_refresh_token";
         private readonly IUserCollection db;
         private readonly ICustomFilters CustomFilters;
         private readonly JwtResource jwtResource = new();
@@ -32,6 +33,7 @@ namespace Core.Controllers
         private readonly IOtpService otpService;
         private readonly IEmailService emailService;
         private readonly ITokenService tokenService;
+        private readonly CoreDb coreDb;
         private User user1;
         private readonly SieveProcessor sieveProcessor;
         private readonly IImageService imageService;
@@ -46,11 +48,38 @@ namespace Core.Controllers
             otpService = otpService1;
             emailService = emailService1;
             tokenService = tokenService1;
+            coreDb = hdb;
             user1 = new();
             db = new UserCollection(hdb, imageService);
             CustomFilters = new CustomFiltersCollection();
             sieveProcessor = _sieveProcessor;
             this.imageService = imageService;
+        }
+
+        private static string HashRefreshToken(string refreshToken)
+        {
+            return Convert.ToHexString(
+                SHA256.HashData(
+                    Encoding.UTF8.GetBytes(refreshToken)
+                )
+            );
+        }
+
+        private string? GetClientIpAddress()
+        {
+            var forwardedFor = Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(forwardedFor))
+            {
+                return forwardedFor.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+            }
+
+            var realIp = Request.Headers["X-Real-IP"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(realIp))
+            {
+                return realIp;
+            }
+
+            return Request.HttpContext.Connection.RemoteIpAddress?.ToString();
         }
 
         //[Authorize]
@@ -68,6 +97,30 @@ namespace Core.Controllers
                 return null;
             await user.ComposeImagesAsync(imageService);
             return user;
+        }
+
+        private void SetRefreshTokenCookie(string refreshToken)
+        {
+            Response.Cookies.Append(RefreshTokenCookieName, refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+                IsEssential = true
+            });
+        }
+
+        private void ClearRefreshTokenCookie()
+        {
+            Response.Cookies.Delete(RefreshTokenCookieName, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false,
+                SameSite = SameSiteMode.Lax,
+                Path = "/"
+            });
         }
 
         [HttpGet("{id:guid}")]
@@ -367,10 +420,8 @@ namespace Core.Controllers
                 return BadRequest("Credenciales incorrectas.");
             }
 
-            // 1. Obtener usuario REAL desde BD
             var user = await db.GetUserByEmail(dto.Email);
 
-            // 2. Prevención de enumeración
             var fakeHash =
                 "4tTQWUk9Qm5LQnR4VGJ4Zw==;Y7x8pS6Pj9g9Q0wM1t7JxQ==";
 
@@ -381,14 +432,12 @@ namespace Core.Controllers
                 return BadRequest("Credenciales incorrectas.");
             }
 
-            // 3. Verificar password
             if (string.IsNullOrWhiteSpace(user.Password) ||
                 !passwordHasher.Verify(user.Password, dto.Password))
             {
                 return BadRequest("Credenciales incorrectas.");
             }
 
-            // 4. Usuario activo
             if (!user.Isactive)
             {
                 return BadRequest(
@@ -396,24 +445,13 @@ namespace Core.Controllers
                 );
             }
 
-            // 5. Generar access token
             var accessToken = jwtResource.Generate(user);
-
-            // 6. Generar refresh token
             var refreshToken = jwtResource.CreateRefreshToken();
+            var refreshTokenHash = HashRefreshToken(refreshToken);
+            var clientIpAddress = !string.IsNullOrWhiteSpace(dto.IpAddress)
+                ? dto.IpAddress
+                : GetClientIpAddress();
 
-            // 7. Hash del refresh token para BD
-            var refreshTokenHash = Convert.ToHexString(
-                SHA256.HashData(
-                    Encoding.UTF8.GetBytes(refreshToken)
-                )
-            );
-
-            // 8. Actualizar SOLO datos de autenticación
-            user.Token = accessToken;
-            user.RefreshToken = refreshTokenHash;
-            user.RefreshTokenDateExpires =
-                DateTime.UtcNow.AddDays(7);
             user.LastaccessDate = DateTime.UtcNow;
 
             if (user.Id.IsValid())
@@ -421,15 +459,31 @@ namespace Core.Controllers
                 await db.UpdateUser(user);
             }
 
-            // 9. Componer datos adicionales PARA LA RESPUESTA
+            var expiresAt = DateTime.UtcNow.AddDays(7);
+
+            var userRefreshSession = new UserRefreshSession
+            {
+                UserId = user.UserId ?? user.Id.ToString(),
+                SessionId = Guid.NewGuid().ToString(),
+                TokenHash = refreshTokenHash,
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = expiresAt,
+                LastSeenAt = DateTime.UtcNow,
+                UserAgent = Request.Headers["User-Agent"].ToString(),
+                IpAddress = clientIpAddress,
+                RevokedAt = null
+            };
+
+            await coreDb.UserRefreshSessions.AddAsync(userRefreshSession);
+            await coreDb.SaveChangesAsync();
+
             await ComposeUserImages(user);
 
-            // 10. Nunca devolver password ni refresh token hash
+            SetRefreshTokenCookie(refreshToken);
+
             return Ok(new
             {
                 accessToken,
-                refreshToken,
-
                 user = new
                 {
                     user.Id,
@@ -442,135 +496,87 @@ namespace Core.Controllers
             });
         }
 
-
-        [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh(
-            [FromBody] TokenDto tokenDto)
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
         {
-            if (
-                tokenDto == null ||
-                string.IsNullOrWhiteSpace(
-                    tokenDto.AccessToken
-                ) ||
-                string.IsNullOrWhiteSpace(
-                    tokenDto.RefreshToken
-                )
-            )
+            var refreshToken = Request.Cookies[RefreshTokenCookieName];
+
+            if (!string.IsNullOrWhiteSpace(refreshToken))
             {
-                return BadRequest(
-                    "Invalid request."
-                );
+                var refreshTokenHash = HashRefreshToken(refreshToken);
+
+                var session = await coreDb.UserRefreshSessions
+                    .FirstOrDefaultAsync(x =>
+                        x.TokenHash == refreshTokenHash &&
+                        x.RevokedAt == null);
+
+                if (session != null)
+                {
+                    session.RevokedAt = DateTime.UtcNow;
+                    await coreDb.SaveChangesAsync();
+                }
             }
 
-            var principal =
-                jwtResource.GetPrincipleFromExpiredToken(
-                    tokenDto.AccessToken
-                );
+            ClearRefreshTokenCookie();
 
-            if (
-                principal?.Identity?.Name == null
-            )
+            return Ok(new { message = "Sesión cerrada correctamente." });
+        }
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh()
+        {
+            var refreshToken = Request.Cookies[RefreshTokenCookieName];
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
             {
-                return BadRequest(
-                    "Invalid request."
-                );
+                return BadRequest("Invalid request.");
             }
 
-            var username = principal.Identity.Name;
+            var refreshTokenHash = HashRefreshToken(refreshToken);
 
-            var user =
-                await db.GetUserByUsername(username);
+            var userRefreshSession = await coreDb.UserRefreshSessions
+                .FirstOrDefaultAsync(x =>
+                    x.TokenHash == refreshTokenHash &&
+                    x.RevokedAt == null &&
+                    x.ExpiresAt > DateTime.UtcNow);
+
+            if (userRefreshSession == null)
+            {
+                return BadRequest("Invalid request.");
+            }
+
+            var user = await db.GetUserByUserId(userRefreshSession.UserId);
 
             if (user == null)
             {
-                return BadRequest(
-                    "Invalid request."
-                );
+                return BadRequest("Invalid request.");
             }
 
-            // HASH DEL REFRESH TOKEN RECIBIDO
+            var newAccessToken = jwtResource.Generate(user);
+            var newRefreshToken = jwtResource.CreateRefreshToken();
+            var newRefreshTokenHash = HashRefreshToken(newRefreshToken);
 
-            var refreshTokenHash =
-                Convert.ToHexString(
-                    SHA256.HashData(
-                        Encoding.UTF8.GetBytes(
-                            tokenDto.RefreshToken
-                        )
-                    )
-                );
-
-            // COMPARACIÓN SEGURA
-
-            if (string.IsNullOrWhiteSpace(user.RefreshToken))
-            {
-                return BadRequest(
-                    "Invalid request."
-                );
-            }
-
-            if (
-                !CryptographicOperations.FixedTimeEquals(
-                    Encoding.UTF8.GetBytes(user.RefreshToken),
-                    Encoding.UTF8.GetBytes(refreshTokenHash)
-                )
-            )
-            {
-                return BadRequest(
-                    "Invalid request."
-                );
-            }
-
-            if (
-                user.RefreshTokenDateExpires <=
-                DateTime.UtcNow
-            )
-            {
-                return BadRequest(
-                    "Session expired."
-                );
-            }
-
-            // ROTACIÓN REFRESH TOKEN
-
-            var newAccessToken =
-                jwtResource.Generate(user);
-
-            var newRefreshToken =
-                jwtResource.CreateRefreshToken();
-
-            var newRefreshTokenHash =
-                Convert.ToHexString(
-                    SHA256.HashData(
-                        Encoding.UTF8.GetBytes(
-                            newRefreshToken
-                        )
-                    )
-                );
-
-            user.Token = newAccessToken;
-
-            user.RefreshToken = newRefreshTokenHash;
-
-            user.RefreshTokenDateExpires =
-                DateTime.UtcNow.AddDays(7);
+            user.LastaccessDate = DateTime.UtcNow;
 
             await db.UpdateUser(user);
+
+            var nextExpiresAt = DateTime.UtcNow.AddDays(7);
+
+            userRefreshSession.TokenHash = newRefreshTokenHash;
+            userRefreshSession.ExpiresAt = nextExpiresAt;
+            userRefreshSession.LastSeenAt = DateTime.UtcNow;
+            userRefreshSession.UserAgent = Request.Headers["User-Agent"].ToString();
+            userRefreshSession.IpAddress ??= GetClientIpAddress();
+
+            coreDb.UserRefreshSessions.Update(userRefreshSession);
+            await coreDb.SaveChangesAsync();
+
+            SetRefreshTokenCookie(newRefreshToken);
 
             await user.ComposeImagesAsync(imageService);
 
             return Ok(new
             {
                 accessToken = newAccessToken,
-                refreshToken = newRefreshToken,
-
-                user = new
-                {
-                    user.UserId,
-                    user.Username,
-                    user.Email,
-                    user.Role,
-                    user?.ProfileImage?.ImageUrl
-                }
             });
         }
 

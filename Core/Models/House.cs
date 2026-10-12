@@ -15,9 +15,6 @@ namespace Core.Models
         public bool AlarmaIncendios { get; set; }
         public bool Extintores { get; set; }
         public bool EficienciaEnergetica { get; set; } // ver etiquetas
-        public string? Colegios { get; set; }
-        public string? Supermercados { get; set; }
-        public string? Aeropuerto { get; set; }
         public string? Consumo { get; set; }
         public string? Emisiones { get; set; }
         public bool Aerotermia { get; set; }
@@ -26,9 +23,6 @@ namespace Core.Models
         public bool GeneradorEmergencia { get; set; }
         public bool Gym { get; set; }
         public bool Golf { get; set; }
-        public string? Universidades { get; set; }
-        public string? Metro { get; set; }
-        public string? Bus { get; set; }
         public int? Alturas { get; set; }
         public int? TotalViviendasConstruidas { get; set; }
     }

@@ -28,11 +28,6 @@ namespace Core.Models
         public Guid OrganizationId { get; private set; }
 
         public bool Isactive { get; set; }
-        [Sieve(CanFilter = true)]
-        public string? Token { get; set; }
-        [Sieve(CanFilter = true)]
-        public string? RefreshToken { get; set; }
-        public DateTime RefreshTokenDateExpires { get; set; }
         public string? Status { get; set; }
         [Sieve(CanFilter = true)]
         public string[]? BlockedUsers { get; set; }

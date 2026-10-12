@@ -59,26 +59,6 @@ namespace Core.Collections.impl
             }
             return user;
         }
-        public async Task<User?> GetUserByRefreshToken(string refreshToken)
-        {
-            var user = await db.Users
-                .FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
-            if (user != null)
-            {
-                await InitializeProfileImageAsync(user);
-            }
-            return user;
-        }
-        public async Task<User?> GetUserByToken(string token)
-        {
-            var user = await db.Users
-                .FirstOrDefaultAsync(x => x.Token == token);
-            if (user != null)
-            {
-                await InitializeProfileImageAsync(user);
-            }
-            return user;
-        }
         public async Task<List<User>> GetAllUsers()
         {
             var users = await db.Users

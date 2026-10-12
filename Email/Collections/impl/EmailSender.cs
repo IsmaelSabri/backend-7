@@ -164,7 +164,8 @@ namespace Email.Service.impl
         public string MessageBetweenUsersHTML(EmailDto emailDto)
         {
             var html = File.ReadAllText(@"./Assets/MessageBetweenUsers.html");
-            html = html.Replace("{{name}}", emailDto.Name ?? "Propietario");
+            html = html.Replace("{{name}}", emailDto.Name ?? "Interesado");
+            html = html.Replace("{{toName}}", emailDto.ToName ?? "Propietario");
             html = html.Replace("{{subject}}", emailDto.Subject ?? "Nuevo interés por tu anuncio");
             html = html.Replace("{{fromName}}", emailDto.FromName ?? "Sin nombre");
             html = html.Replace("{{fromAddress}}", emailDto.FromAddress ?? "Sin email");
@@ -179,7 +180,8 @@ namespace Email.Service.impl
         public string MessageBetweenUsersHTML(UsersContactMessage message)
         {
             var html = File.ReadAllText(@"./Assets/MessageBetweenUsers.html");
-            html = html.Replace("{{name}}", message.Name ?? "Propietario");
+            html = html.Replace("{{name}}", message.Name ?? "Interesado");
+            html = html.Replace("{{toName}}", message.ToName ?? "Propietario");
             html = html.Replace("{{subject}}", message.Subject ?? "Nuevo interés por tu anuncio");
             html = html.Replace("{{fromName}}", message.Name ?? "Sin nombre");
             html = html.Replace("{{fromAddress}}", message.FromEmail ?? "Sin email");

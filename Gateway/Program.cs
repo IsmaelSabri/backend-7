@@ -1,9 +1,30 @@
 
+using Microsoft.AspNetCore.HttpOverrides;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
-    builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = long.MaxValue);
+builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = long.MaxValue);
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+options.ForwardedHeaders =
+    ForwardedHeaders.XForwardedFor |
+    ForwardedHeaders.XForwardedProto;
+});
 var app = builder.Build();
+app.UseForwardedHeaders();
+app.Use(async (context, next) =>
+{
+    var remoteIp = context.Connection.RemoteIpAddress?.ToString();
+
+    if (!string.IsNullOrWhiteSpace(remoteIp))
+    {
+        context.Request.Headers["X-Forwarded-For"] = remoteIp;
+        context.Request.Headers["X-Real-IP"] = remoteIp;
+    }
+
+    await next();
+});
 app.MapReverseProxy();
 app.UseHttpsRedirection();
 app.UseCors(options => options

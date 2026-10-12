@@ -38,11 +38,6 @@ namespace Core.Jwt
         {
             var tokenBytes = RandomNumberGenerator.GetBytes(64);
             var refreshToken = Convert.ToBase64String(tokenBytes);
-            /*var tokenInUser = db.GetUserByRefreshToken(refreshToken);
-            if (tokenInUser!=null)
-            {
-                return CreateRefreshToken();
-            }*/
             return refreshToken;
         }
 

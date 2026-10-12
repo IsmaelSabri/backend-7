@@ -9,6 +9,7 @@ namespace Email.Dto
         public string? BccEmail { get; set; }
         public string? Username { get; set; }
         public string? Name { get; set; }
+        public string? ToName { get; set; }
         public string? Subject { get; set; }
         public string? Message { get; set; }
         public string? Phone { get; set; }

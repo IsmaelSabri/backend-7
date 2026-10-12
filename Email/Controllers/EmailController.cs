@@ -81,6 +81,7 @@ namespace Email.Controllers
                     UserId = contactMessage.UserId ?? string.Empty,
                     FromEmail = contactMessage.FromEmail ?? string.Empty,
                     ToEmail = contactMessage.ToEmail ?? string.Empty,
+                    ToName = contactMessage.ToName ?? string.Empty,
                     PropertyLink = contactMessage.PropertyLink ?? "Url del anuncio no disponible",
                     PropertyThumbnail = contactMessage.PropertyThumbnail ?? "Miniatura no disponible",
                     Name = contactMessage.Name ?? string.Empty,

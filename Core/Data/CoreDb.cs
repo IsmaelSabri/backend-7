@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,10 +32,37 @@ namespace Core.Data
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
         public DbSet<Garage> Garages { get; set; }
+        public DbSet<TrackEvent> TrackEvents { get; set; }
+        public DbSet<AnalyticsIdentity> AnalyticsIdentities { get; set; }
+        public DbSet<UserRefreshSession> UserRefreshSessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<User>()
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
+
+            builder.Entity<TrackEvent>()
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
+
+            builder.Entity<TrackEvent>()
+                .ToTable("TrackEvent")
+                .Property(e => e.Metadata)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => v == null ? null : JsonSerializer.Serialize(v),
+                    v => string.IsNullOrWhiteSpace(v)
+                        ? new Dictionary<string, object>()
+                        : JsonSerializer.Deserialize<Dictionary<string, object>>(v) ?? new Dictionary<string, object>());
+
+            builder.Entity<AnalyticsIdentity>()
+                        .ToTable("AnalyticsIdentity")
+            .Property(e => e.Id)
+            .ValueGeneratedOnAdd();
+
+            builder.Entity<UserRefreshSession>()
+            .ToTable("UserRefreshSession")
             .Property(e => e.Id)
             .ValueGeneratedOnAdd();
 
