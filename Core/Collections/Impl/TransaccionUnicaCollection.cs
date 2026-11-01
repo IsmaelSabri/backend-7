@@ -10,17 +10,18 @@ namespace Core.Collections.Impl
 
         public async Task<Transaccion?> GetByIdAsync(Guid id)
         {
-            return await db.Transacciones.FirstOrDefaultAsync(t => t.Id == id);
+            return await db.Transacciones.Include(t => t.Lineas).FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task<List<Transaccion>> GetAllAsync()
         {
-            return await db.Transacciones.ToListAsync();
+            return await db.Transacciones.Include(t => t.Lineas).ToListAsync();
         }
 
         public async Task<List<Transaccion>> GetByUsuarioIdAsync(string usuarioId)
         {
             return await db.Transacciones
+                .Include(t => t.Lineas)
                 .Where(t => t.UsuarioId == usuarioId)
                 .ToListAsync();
         }
@@ -28,6 +29,7 @@ namespace Core.Collections.Impl
         public async Task<Transaccion?> GetByStripePaymentIntentIdAsync(string paymentIntentId)
         {
             return await db.Transacciones
+                .Include(t => t.Lineas)
                 .FirstOrDefaultAsync(t => t.StripePaymentIntentId == paymentIntentId);
         }
 

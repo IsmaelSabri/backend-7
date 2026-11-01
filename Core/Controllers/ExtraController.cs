@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Core.Collections;
-using Core.Extensions;
 using Core.Models;
 
 [ApiController]
@@ -42,9 +41,9 @@ public class ExtraController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] Extra extra)
     {
-        if (!extra.Id.IsValid())
+        if (id == Guid.Empty || extra.Id != id)
         {
-            return BadRequest();
+            return BadRequest("The route id must match the extra id.");
         }
         await _extraCollection.UpdateAsync(extra);
         return NoContent();

@@ -19,8 +19,10 @@ namespace Core.Hubs
                 return;
             }
 
+            Users[Context.ConnectionId] = guidUserId;
             await Clients.Caller.SendAsync("UserConnected", guidUserId);
-            Users.TryAdd(Context.ConnectionId, guidUserId);
+            await Clients.Caller.SendAsync("OnlineUsers", Users.Values.Distinct().Where(id => id != guidUserId));
+            await Clients.Others.SendAsync("UserStatus", userId, "online");
 
             User? user = await context.Users.FindAsync(guidUserId);
             if (user is not null)
@@ -59,7 +61,13 @@ namespace Core.Hubs
                 return;
             }
 
-            //await Clients.Caller.SendAsync("UserDisconnected", userId); // Notifica a todos los clientes
+            // Otra pestaña/conexión del mismo usuario sigue activa
+            if (Users.Values.Contains(userId))
+            {
+                await base.OnDisconnectedAsync(exception);
+                return;
+            }
+
             User? user = await context.Users.FindAsync(userId);
             if (user is not null)
             {
@@ -67,7 +75,7 @@ namespace Core.Hubs
                 user.LastaccessDate = DateTime.UtcNow.ToLocalTime();
                 await context.SaveChangesAsync();
 
-                await Clients.All.SendAsync("Users", user);
+                await Clients.All.SendAsync("UserStatus", userId.ToString(), "offline");
             }
 
             await base.OnDisconnectedAsync(exception);

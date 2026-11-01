@@ -3,15 +3,12 @@ using AutoMapper;
 using Core.Collections.Impl;
 using Core.Collections;
 using Core.Data;
-using Core.Dto;
 using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Core.Extensions;
 using Sieve.Services;
 using Sieve.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Net.NetworkInformation;
 using Core.Services;
 
 namespace Core.Controllers
@@ -56,6 +53,27 @@ namespace Core.Controllers
                 "HolidayRent" => Ok(await db.GetHolidayRentById(id)),
                 "NewProject" => Ok(await db.GetNewProjectById(id)),
                 "Other" => Ok(await db.GetOtherById(id)),
+                _ => Ok(baseHome)
+            };
+        }
+
+        [HttpGet("vivienda/{id}")]
+        public async Task<IActionResult> GetVivienda(string id)
+        {
+            var baseHome = await db.GetHomeByViviendaId(id);
+            if (baseHome == null)
+            {
+                return NotFound();
+            }
+
+            return baseHome.Model switch
+            {
+                "Flat" => Ok(await db.GetFlatByViviendaId(id)),
+                "House" => Ok(await db.GetHouseByViviendaId(id)),
+                "Room" => Ok(await db.GetRoomByViviendaId(id)),
+                "HolidayRent" => Ok(await db.GetHolidayRentByViviendaId(id)),
+                "NewProject" => Ok(await db.GetNewProjectByViviendaId(id)),
+                "Other" => Ok(await db.GetOtherByViviendaId(id)),
                 _ => Ok(baseHome)
             };
         }
@@ -109,11 +127,6 @@ namespace Core.Controllers
                 NumberDecimalSeparator = "."
             };
 
-            var priceProvider = new NumberFormatInfo
-            {
-                NumberDecimalSeparator = ","
-            };
-
             home.Lat = Convert.ToDouble(homeDto.Lat, coordinateProvider);
             home.Lng = Convert.ToDouble(homeDto.Lng, coordinateProvider);
             home.FechaCreacion = DateTime.UtcNow.ToLocalTime();
@@ -137,6 +150,7 @@ namespace Core.Controllers
             {
                 return BadRequest();
             }
+            await db.ApplyPriceHistory(homeMod);
             await db.UpdateHome(homeMod);
             return Created("Modified", homeMod);
         }
@@ -151,6 +165,7 @@ namespace Core.Controllers
             {
                 return BadRequest();
             }
+            await db.ApplyPriceHistory(flatMod);
             await db.UpdateFlat(flatMod);
             return Created("Modified", flatMod);
         }
@@ -163,6 +178,7 @@ namespace Core.Controllers
             {
                 return BadRequest();
             }
+            await db.ApplyPriceHistory(houseMod);
             await db.UpdateHouse(houseMod);
             return Created("Modified", houseMod);
         }
@@ -175,6 +191,7 @@ namespace Core.Controllers
             {
                 return BadRequest();
             }
+            await db.ApplyPriceHistory(roomMod);
             await db.UpdateRoom(roomMod);
             return Created("Modified", roomMod);
         }
@@ -187,6 +204,7 @@ namespace Core.Controllers
             {
                 return BadRequest();
             }
+            await db.ApplyPriceHistory(newProjectMod);
             await db.UpdateNewProject(newProjectMod);
             return Created("Modified", newProjectMod);
         }
@@ -199,6 +217,7 @@ namespace Core.Controllers
             {
                 return BadRequest();
             }
+            await db.ApplyPriceHistory(holidayRentMod);
             await db.UpdateHolidayRent(holidayRentMod);
             return Created("Modified", holidayRentMod);
         }
@@ -211,6 +230,7 @@ namespace Core.Controllers
             {
                 return BadRequest();
             }
+            await db.ApplyPriceHistory(other);
             await db.UpdateOther(other);
             return Created("Modified", other);
         }
@@ -340,7 +360,5 @@ namespace Core.Controllers
         {
             return Ok(await db.GetDiscardedHomes(userId));
         }
-
-
     }
 }

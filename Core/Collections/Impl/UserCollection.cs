@@ -99,7 +99,7 @@ namespace Core.Collections.impl
 
         private async Task InitializeProfileImageAsync(User user)
         {
-            if (user == null)
+            if (user == null || string.IsNullOrEmpty(user.UserId))
                 return;
 
             try

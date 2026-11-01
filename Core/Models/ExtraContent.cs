@@ -1,22 +1,22 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using Core.Enums;
+
 namespace Core.Models
 {
-    public class ExtraContent // se persiste
-    // derecho de uso. Aquí vive la caducidad
+    [Table("ExtraContent")]
+    public class ExtraContent
     {
-        [Key]
         public Guid Id { get; set; }
-        public string? StripePaymentIntentId { get; set; }
-        public string? UsuarioId { get; set; }
-        public string? ViviendaId { get; set; }
-        public string? ExtraId { get; set; }
-        public string? LineaTransaccionId { get; set; }
-
-        // atributos del extra en particular
-
-        [Required]
+        public string ExtraId { get; set; } = string.Empty;
+        public string ViviendaId { get; set; } = string.Empty;
+        public string TransaccionId { get; set; } = string.Empty;
+        [Column("Estado")]
+        [JsonConverter(typeof(JsonStringEnumConverter<EstadoExtraContent>))]
+        public EstadoExtraContent Estado { get; set; } = EstadoExtraContent.PendientePago;
+        public DateTime? FechaActivacion { get; set; }
+        public DateTime? FechaExpiracion { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        [Required]
-        public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime LastUpdate { get; set; } = DateTime.UtcNow;
     }
 }

@@ -15,6 +15,7 @@ namespace Core.Models
         public string? Climatizacion { get; set; } // difusores, rejillas, split, preinstalación, ninguna
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Disposicion { get; set; } // bajo, entresuelo, piso, centro comercial, pie de calle, sótano
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Distribucion { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool ControlDeAccesoPersonal { get; set; } // tornos
@@ -24,6 +25,7 @@ namespace Core.Models
         public bool FalsoTecho { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool SueloTecnico { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? Ascensores { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Uso { get; set; }
@@ -39,6 +41,7 @@ namespace Core.Models
         public bool UsoOficinas { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool UsoHotelero { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool EdificioExento { get; set; }
 
         // Negocio
@@ -46,6 +49,7 @@ namespace Core.Models
         public bool Nave { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool Local { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? ActividadComercial { get; set; }
         [Sieve(CanFilter = true)]
         public bool HaceEsquina { get; set; }
@@ -57,31 +61,50 @@ namespace Core.Models
         public bool ConAlmacen { get; set; }
         [Sieve(CanFilter = true)]
         public bool ConOficina { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool LucesSalidaEmergencia { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? Escaparates { get; set; }
 
         // Suelo
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Acceso { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool Alcantarillado { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool AlumbradoPublico { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool Aceras { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool Agua { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool Electricidad { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Calificacion { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? SuperficieMinVenta { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? SuperficieMinAlquiler { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? SuperficieEdificable { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? PlantasEdificables { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? NucleoUrbanoCercano { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool SinNumero { get; set; }
 
         // Garage
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool PuertaAutomatica { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public float SuperficieGarage { get; set; }
 
 
         // Trastero
+        [Sieve(CanFilter = true, CanSort = true)]
         public float AlturaTrastero { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public float SuperficieTrastero { get; set; }
 
     }

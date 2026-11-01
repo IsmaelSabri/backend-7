@@ -84,7 +84,7 @@ namespace Core.Collections.Impl
 
             await db.SaveChangesAsync(ct);
 
-            return chats.Select(x => x.Id).ToList();
+            return chats.Select(x => x.Id).OfType<string>().ToList();
         }
 
     }

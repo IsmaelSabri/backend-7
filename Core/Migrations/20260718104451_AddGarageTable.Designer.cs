@@ -28,44 +28,26 @@ namespace Core.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Core.Models.UserRefreshSession", b =>
+            modelBuilder.Entity("Core.Models.Garage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<Guid>("HomeId")
+                        .HasColumnType("uuid");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<bool>("IsIncluded")
+                        .HasColumnType("boolean");
 
-                    b.Property<string>("IpAddress")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("LastSeenAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("SessionId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TokenHash")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserAgent")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId", "SessionId");
+                    b.HasIndex("HomeId");
 
-                    b.ToTable("UserRefreshSession");
+                    b.ToTable("Garages");
                 });
 #pragma warning restore 612, 618
         }

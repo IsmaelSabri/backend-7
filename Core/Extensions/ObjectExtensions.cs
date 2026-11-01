@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Core.Models;
 
 namespace Core.Extensions
 {
@@ -11,12 +12,14 @@ namespace Core.Extensions
         /// </summary>
         public static void NormalizeNullStrings(this object obj)
         {
-            if (obj == null) return;
+            if (obj == null)
+                return;
 
             var type = obj.GetType();
             foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                if (!prop.CanRead || !prop.CanWrite) continue;
+                if (!prop.CanRead || !prop.CanWrite)
+                    continue;
 
                 // Propiedades string
                 if (prop.PropertyType == typeof(string))
@@ -31,7 +34,8 @@ namespace Core.Extensions
                 {
                     // Evitar procesar tipos del sistema (System.*) que no tienen sentido recorrer
                     var ns = prop.PropertyType.Namespace ?? string.Empty;
-                    if (ns.StartsWith("System")) continue;
+                    if (ns.StartsWith("System"))
+                        continue;
 
                     var nested = prop.GetValue(obj);
                     if (nested != null)

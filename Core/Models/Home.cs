@@ -14,10 +14,13 @@ namespace Core.Models
         public double Lat { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public double Lng { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Calle { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? Numero { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Ciudad { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? Cp { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public int? Habitaciones { get; set; }
@@ -31,39 +34,53 @@ namespace Core.Models
         public string? Condicion { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Tipo { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? PrecioInicial { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public int? PrecioFinal { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
+        public Decimal? PrecioHistoricoVenta { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public Decimal? PrecioHistoricoAlquiler { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? PrecioAlquiler { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Duracion { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Descripcion { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool ArmariosEmpotrados { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool Terraza { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool PiscinaPrivada { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool Parquet { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public int? Antiguedad { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Estado { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? DistanciaAlMar { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public DateTime FechaCreacion { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public DateTime FechaUltimaModificacion { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? Destacar { get; set; }
-        public string? ColorDestacar { get; set; }
-        [Sieve(CanFilter = true, CanSort = true)]
         public string? Model { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Video { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool Amueblado { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool DireccionAproximada { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool GasNatural { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? TipoDeVia { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Distrito { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Orientacion { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool AireAcondicionado { get; set; }
@@ -71,6 +88,7 @@ namespace Core.Models
         public bool Balcon { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool Calefaccion { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool PoliticaPrivacidad { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? IdCreador { get; set; }
@@ -78,11 +96,15 @@ namespace Core.Models
         public bool CabinaHidromasaje { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public bool Ascensor { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? Piso { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Mascotas { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Fianza { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? Disponibilidad { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? EstanciaMinima { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public int? PrecioAlquilerInicial { get; set; }
@@ -100,9 +122,15 @@ namespace Core.Models
         public bool PanelesSolares { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string? Prototipo { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? ColorTextoDestacar { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public string? TourVirtual { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public bool Bodega { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public bool RociadoresDeIncendios { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
         public int? PlantaMasAlta { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string[]? DiscardedByUsers { get; set; }

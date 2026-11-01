@@ -55,9 +55,6 @@ namespace Core.Dto
         public DateTime FechaUltimaModificacion { get; set; }
         public string? Comentario { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
-        public string? Destacar { get; set; }
-        public string? ColorDestacar { get; set; }
-        [Sieve(CanFilter = true, CanSort = true)]
         public string? Model { get; set; }
         public string? Video { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]

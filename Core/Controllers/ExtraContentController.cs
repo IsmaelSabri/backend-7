@@ -3,12 +3,12 @@ using Core.Collections;
 using Core.Models;
 
 [ApiController]
-[Route("api/[controller]")]
-public class ExtraSubscriptionController : ControllerBase
+[Route("api/extracontent")]
+public class ExtraContentController : ControllerBase
 {
-    private readonly IExtraContent _extraContentCollection;
+    private readonly IExtraContentCollection _extraContentCollection;
 
-    public ExtraSubscriptionController(IExtraContent extraContentCollection)
+    public ExtraContentController(IExtraContentCollection extraContentCollection)
     {
         _extraContentCollection = extraContentCollection;
     }
@@ -18,6 +18,12 @@ public class ExtraSubscriptionController : ControllerBase
     {
         var extras = await _extraContentCollection.GetAllAsync();
         return Ok(extras);
+    }
+
+    [HttpGet("vivienda/{viviendaId}")]
+    public async Task<ActionResult<IEnumerable<ExtraContent>>> GetByVivienda(string viviendaId)
+    {
+        return Ok(await _extraContentCollection.GetByViviendaIdAsync(viviendaId));
     }
 
     [HttpGet("{id}")]

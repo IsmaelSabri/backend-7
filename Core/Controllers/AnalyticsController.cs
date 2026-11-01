@@ -57,6 +57,15 @@ public class AnalyticsController(IAnalyticsService analyticsService) : Controlle
         return Ok(await analyticsService.GetOverviewAsync(start, end, cancellationToken));
     }
 
+    [HttpGet("dashboard")]
+    public async Task<IActionResult> GetDashboard([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] int limit = 10, CancellationToken cancellationToken = default)
+    {
+        var start = (from ?? DateTime.UtcNow.AddDays(-7)).Date;
+        var end = (to ?? DateTime.UtcNow).Date.AddDays(1).AddTicks(-1);
+
+        return Ok(await analyticsService.GetDashboardAsync(start, end, Math.Clamp(limit, 1, 50), cancellationToken));
+    }
+
     [HttpGet("emails")]
     public async Task<IActionResult> GetEmails([FromQuery] DateTime? from, [FromQuery] DateTime? to, CancellationToken cancellationToken)
     {

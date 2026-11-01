@@ -14,36 +14,30 @@ namespace Core.Migrations
         {
 
             migrationBuilder.CreateTable(
-                name: "UserRefreshSession",
+                name: "Garages",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    SessionId = table.Column<string>(type: "text", nullable: false),
-                    TokenHash = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    RevokedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    LastSeenAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UserAgent = table.Column<string>(type: "text", nullable: true),
-                    IpAddress = table.Column<string>(type: "text", nullable: true)
+                    HomeId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsIncluded = table.Column<bool>(type: "boolean", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRefreshSession", x => x.Id);
+                    table.PrimaryKey("PK_Garages", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRefreshSession_UserId_SessionId",
-                table: "UserRefreshSession",
-                columns: new[] { "UserId", "SessionId" });
+                name: "IX_Garages_HomeId",
+                table: "Garages",
+                column: "HomeId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "UserRefreshSession");
+                name: "Garages");
 
         }
     }

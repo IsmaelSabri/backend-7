@@ -6,12 +6,20 @@ namespace Core.Collections
     public interface IHomeCollection
     {
         public Task<Home?> GetHomeById(Guid id);
+        public Task<Home?> GetHomeByViviendaId(string id);
+        public Task<Home?> GetStoredHomePrices(Guid id);
         public Task<Flat?> GetFlatById(Guid id);
         public Task<House?> GetHouseById(Guid id);
         public Task<HolidayRent?> GetHolidayRentById(Guid id);
         public Task<NewProject?> GetNewProjectById(Guid id);
         public Task<Room?> GetRoomById(Guid id);
         public Task<Other?> GetOtherById(Guid id);
+        public Task<Flat?> GetFlatByViviendaId(string id);
+        public Task<House?> GetHouseByViviendaId(string id);
+        public Task<HolidayRent?> GetHolidayRentByViviendaId(string id);
+        public Task<NewProject?> GetNewProjectByViviendaId(string id);
+        public Task<Room?> GetRoomByViviendaId(string id);
+        public Task<Other?> GetOtherByViviendaId(string id);
         public Task NewHome(Home home);
         public Task UpdateHome(Home home);
         public Task UpdateFlat(Flat flat);

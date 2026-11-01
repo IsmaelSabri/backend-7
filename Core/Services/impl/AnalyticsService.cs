@@ -121,6 +121,44 @@ public class AnalyticsService(CoreDb db) : IAnalyticsService
         };
     }
 
+    public async Task<AnalyticsDashboardDto> GetDashboardAsync(DateTime from, DateTime to, int recentLimit = 10, CancellationToken cancellationToken = default)
+    {
+        var overview = await GetOverviewAsync(from, to, cancellationToken);
+
+        var recent = await db.TrackEvents
+            .Where(e => e.OccurredAt >= from && e.OccurredAt <= to)
+            .OrderByDescending(e => e.OccurredAt)
+            .Take(recentLimit)
+            .ToListAsync(cancellationToken);
+
+        var userIds = recent
+            .Select(e => Guid.TryParse(e.UserId, out var id) ? id : (Guid?)null)
+            .Where(id => id.HasValue)
+            .Select(id => id!.Value)
+            .Distinct()
+            .ToList();
+
+        var usernames = await db.Users
+            .Where(u => userIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id.ToString(), u => u.Username, cancellationToken);
+
+        return new AnalyticsDashboardDto
+        {
+            Overview = overview,
+            RecentActivity = recent.Select(e => new AnalyticsRecentActivityDto
+            {
+                Id = e.Id,
+                EventType = e.EventType,
+                OccurredAt = e.OccurredAt,
+                UserId = e.UserId,
+                Username = e.UserId is not null && usernames.TryGetValue(e.UserId.ToLowerInvariant(), out var name) ? name : null,
+                ViviendaId = e.HomeId,
+                Channel = e.Channel,
+                Metadata = e.Metadata
+            }).ToList()
+        };
+    }
+
     public async Task<EmailMetricsDto> GetEmailMetricsAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default)
     {
         var events = await db.TrackEvents
@@ -198,9 +236,12 @@ public class AnalyticsService(CoreDb db) : IAnalyticsService
                 Views = g.Count(e => e.EventType == TrackEventTypes.PropertyViewed),
                 Favorites = g.Count(e => e.EventType == TrackEventTypes.PropertyFavorited),
                 Unfavorites = g.Count(e => e.EventType == TrackEventTypes.PropertyUnfavorited),
-                Contacts = g.Count(e => e.EventType == TrackEventTypes.UserPhoneViewed)
+                Contacts = g.Count(e => e.EventType == TrackEventTypes.UserPhoneViewed),
+                Chats = g.Count(e => e.EventType == TrackEventTypes.ChatStarted),
+                MessagesSent = g.Count(e => e.EventType == TrackEventTypes.ChatMessageSent),
+                MessagesReceived = g.Count(e => e.EventType == TrackEventTypes.ChatMessageReceived)
             })
-            .OrderByDescending(x => x.Views + x.Favorites + x.Contacts)
+            .OrderByDescending(x => x.Views + x.Favorites + x.Contacts + x.Chats + x.MessagesSent + x.MessagesReceived)
             .Take(10)
             .ToList();
 

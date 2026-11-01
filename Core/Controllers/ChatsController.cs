@@ -97,7 +97,7 @@ namespace Core.Controllers
             await chatsDb.DeleteChat(existing, cancellationToken);
 
             // Notificar a los participantes conectados
-            var participantIds = new[] { existing.UserId, existing.ToUserId }?.Where(pid => pid.HasValue && pid.Value != Guid.Empty).Select(pid => pid.Value).Distinct();
+            var participantIds = new[] { existing.UserId, existing.ToUserId }.OfType<Guid>().Where(pid => pid != Guid.Empty).Distinct();
             if (participantIds != null)
             {
                 foreach (var pid in participantIds)

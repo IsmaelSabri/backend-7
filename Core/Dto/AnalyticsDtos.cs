@@ -1,5 +1,23 @@
 namespace Core.Dto;
 
+public class AnalyticsRecentActivityDto
+{
+    public Guid Id { get; set; }
+    public string EventType { get; set; } = string.Empty;
+    public DateTime OccurredAt { get; set; }
+    public string? UserId { get; set; }
+    public string? Username { get; set; }
+    public string? ViviendaId { get; set; }
+    public string? Channel { get; set; }
+    public Dictionary<string, object>? Metadata { get; set; }
+}
+
+public class AnalyticsDashboardDto
+{
+    public AnalyticsOverviewDto Overview { get; set; } = new();
+    public List<AnalyticsRecentActivityDto> RecentActivity { get; set; } = [];
+}
+
 public class AnalyticsOverviewDto
 {
     public int TotalEvents { get; set; }
@@ -53,6 +71,9 @@ public class PropertyRankingItemDto
     public int Favorites { get; set; }
     public int Unfavorites { get; set; }
     public int Contacts { get; set; }
+    public int Chats { get; set; }
+    public int MessagesSent { get; set; }
+    public int MessagesReceived { get; set; }
 }
 
 public class PropertyRankingResponseDto

@@ -88,25 +88,26 @@ services:
 
   postgres:
     container_name: postgres-sql
-    image: postgres
-    hostname: myfancyhost
+    image: postgres:18  # 1. Congelamos explícitamente la versión estable actual
+    hostname: host
     environment:
       POSTGRES_USER: yo
       POSTGRES_PASSWORD: admin
-      PGDATA: /data/postgres
+      PGDATA: /var/lib/postgresql/data/houses_cluster # 2. Ruta de datos interna recomendada
       POSTGRES_DB: housesdb
-      #DATABASE_HOST: 127.0.0.1
     volumes:
-      - ~/Documentos/docker-vol/postgres-volume/data:/var/lib/postgresql/data
+      # 3. Apuntamos a la carpeta padre del contenedor (/var/lib/postgresql) 
+      - ~/Documentos/docker-vol/postgres-volume/data:/var/lib/postgresql
     ports:
       - "5433:5432"
     networks:
       - postgres
     restart: unless-stopped
 
+
   pgadmin:
     container_name: pgadmin
-    image: dpage/pgadmin4:9.18
+    image: dpage/pgadmin4:9.19
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
