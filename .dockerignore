@@ -1,0 +1,14 @@
+**
+!Images/
+!Images/**/
+!Images/**/*.cs
+!Images/Images.csproj
+!ImageWorker/
+!ImageWorker/**/
+!ImageWorker/**/*.cs
+!ImageWorker/ImageWorker.csproj
+**/[Bb]in/
+**/[Oo]bj/
+**/appsettings*.json
+**/.env*
+**/*.pfx

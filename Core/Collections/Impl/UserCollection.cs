@@ -80,7 +80,6 @@ namespace Core.Collections.impl
 
         public async Task UpdateUser(User user)
         {
-            // debería actualizar las orders[]
             db.Update(user);
             await db.SaveChangesAsync();
         }
@@ -93,8 +92,9 @@ namespace Core.Collections.impl
 
         public IQueryable<User> GetBlockYou(IQueryable<User> source, string op, string[] values)
         {
-            var blocked = values.First();
-            return source.Where(p => p.BlockedUsers.Contains(blocked));
+            if (values.Length == 0 || !Guid.TryParse(values[0], out var blocked))
+                throw new ArgumentException("Identificador de usuario inválido.");
+            return source.Where(p => db.UserBlocks.Any(b => b.BlockerUserId == p.Id && b.BlockedUserId == blocked));
         }
 
         private async Task InitializeProfileImageAsync(User user)

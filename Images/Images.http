@@ -1,0 +1,36 @@
+@baseUrl = http://localhost:3003
+@imageId = 00000000-0000-0000-0000-000000000000
+
+### Upload an image (replace the file path with a local image)
+POST {{baseUrl}}/api/images/upload
+Content-Type: multipart/form-data; boundary=example
+
+--example
+Content-Disposition: form-data; name="ownerId"
+
+property-123
+--example
+Content-Disposition: form-data; name="ownerType"
+
+HomeImages
+--example
+Content-Disposition: form-data; name="files"; filename="photo.jpg"
+Content-Type: image/jpeg
+
+< ./photo.jpg
+--example--
+
+### Query property images
+GET {{baseUrl}}/api/images/query?filters=ownerId%3D%3Dproperty-123
+
+### Get image and poll status until Ready or Failed
+GET {{baseUrl}}/api/images/{{imageId}}
+
+### Update display metadata
+PUT {{baseUrl}}/api/images/{{imageId}}
+Content-Type: application/json
+
+{"altText":"Living room","order":0,"isCover":true}
+
+### Delete image
+DELETE {{baseUrl}}/api/images/{{imageId}}

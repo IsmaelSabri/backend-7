@@ -184,7 +184,7 @@ namespace Core.Controllers
 
             newUser.Isactive = false;
 
-            newUser.NormalizeNullStrings();
+            newUser.NormalizeNullValues();
 
             await db.NewUser(newUser);
 
@@ -293,7 +293,7 @@ namespace Core.Controllers
 
             user.Isactive = true;
 
-            user.NormalizeNullStrings();
+            user.NormalizeNullValues();
 
             verificationToken.Used = true;
 
@@ -385,30 +385,6 @@ namespace Core.Controllers
             });
         }
 
-        [HttpPost("save-newpassword")]
-        public async Task<IActionResult> SaveNewPassword([FromBody] User user)
-        {
-            if (user == null)
-            {
-                return BadRequest("User cannot be null !!");
-            }
-            else
-            {
-                user1 = mapper.Map<User>(user);
-                if (!string.IsNullOrEmpty(user.Password))
-                {
-                    user1.Password = passwordHasher.Hash(user.Password);
-                }
-                user1.Isactive = true;
-                if (user1.Id.IsValid())
-                {
-                    await db.UpdateUser(user1);
-                }
-                await user1.ComposeImagesAsync(imageService);
-                return Ok(user1);
-            }
-        }
-
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
@@ -489,8 +465,7 @@ namespace Core.Controllers
                     user.Id,
                     user.UserId,
                     user.Username,
-                    user.Email,
-                    user.Role,
+                    user.Status,
                     user.ProfileImage
                 }
             });
@@ -582,22 +557,87 @@ namespace Core.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser([FromBody] User user, Guid id)
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserProfileRequest request, Guid id)
         {
-            if (user == null)
+            if (request == null)
             {
                 return BadRequest();
             }
-            if (user.Username?.Length == 0)
+
+            var existing = await db.GetUserById(id);
+            if (existing == null)
             {
-                ModelState.AddModelError("Username", "Nombre de usuario no encontrado");
+                return NotFound();
             }
-            user.Id = id;
-            var dump = ObjectDumper.Dump(user);
-            Console.WriteLine(dump);
-            await db.UpdateUser(user);
-            await user.ComposeImagesAsync(imageService);
-            return Created("Modified", user);
+
+            if (request.Firstname != null)
+                existing.Firstname = request.Firstname;
+            if (request.Lastname != null)
+                existing.Lastname = request.Lastname;
+            if (request.Phone != null)
+                existing.Phone = request.Phone;
+            if (request.ProfileImage != null)
+            {
+                if (existing.ProfileImage == null)
+                    existing.ProfileImage = new();
+                existing.ProfileImage.Id = request.ProfileImage.Id;
+                existing.ProfileImage.AvatarUrl = request.ProfileImage.AvatarUrl;
+                existing.ProfileImage.CropperUrl = request.ProfileImage.CropperUrl;
+            }
+
+            await db.UpdateUser(existing);
+            await existing.ComposeImagesAsync(imageService);
+            return Ok(existing);
+        }
+
+        [HttpPut("admin/{id}")]
+        public async Task<IActionResult> UpdateUserAdmin([FromBody] UpdateUserAdminRequest request, Guid id)
+        {
+            if (request == null)
+            {
+                return BadRequest();
+            }
+
+            var existing = await db.GetUserById(id);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            if (request.Firstname != null)
+                existing.Firstname = request.Firstname;
+            if (request.Lastname != null)
+                existing.Lastname = request.Lastname;
+            if (request.Username != null)
+            {
+                if (request.Username.Length == 0)
+                    ModelState.AddModelError("Username", "Nombre de usuario no puede estar vacío");
+                else
+                    existing.Username = request.Username;
+            }
+            if (request.Email != null)
+                existing.Email = request.Email;
+            if (request.Phone != null)
+                existing.Phone = request.Phone;
+            if (request.Role != null)
+                existing.Role = request.Role;
+            if (request.Isactive.HasValue)
+                existing.Isactive = request.Isactive.Value;
+            if (request.ProfileImage != null)
+            {
+                if (existing.ProfileImage == null)
+                    existing.ProfileImage = new();
+                existing.ProfileImage.Id = request.ProfileImage.Id;
+                existing.ProfileImage.AvatarUrl = request.ProfileImage.AvatarUrl;
+                existing.ProfileImage.CropperUrl = request.ProfileImage.CropperUrl;
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await db.UpdateUser(existing);
+            await existing.ComposeImagesAsync(imageService);
+            return Ok(existing);
         }
 
         [HttpDelete("{id:guid}")]

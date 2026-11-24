@@ -106,7 +106,7 @@ namespace Core.Services.impl
 
             user.Password = passwordHasher.Hash(password);
             user.Isactive = true;
-            user.NormalizeNullStrings();
+            user.NormalizeNullValues();
             await userCollection.UpdateUser(user);
 
             resetToken.Used = true;

@@ -1,153 +1,126 @@
-using System.Linq.Dynamic.Core;
+using System.Security.Claims;
+using Core.Collections;
+using Core.Dto;
+using Core.Hubs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Core.Collections;
-using Core.Hubs;
-using Core.Models;
-using Sieve.Services;
-using Sieve.Models;
 
-namespace Core.Controllers
+namespace Core.Controllers;
+
+[Route("api/[controller]/[action]")]
+[ApiController]
+[Authorize]
+public sealed class ChatsController(IChats chats, IUserBlocks blocks, IHubContext<ChatHub> hub, ILogger<ChatsController> logger) : ControllerBase
 {
-    [Route("api/[controller]/[action]")]
-    [ApiController]
-    public class ChatsController(IChats chatsDb, IHubContext<ChatHub> hubContext, SieveProcessor sieveProcessor) : ControllerBase
+    private Guid CurrentUserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    [HttpGet]
+    public async Task<IActionResult> GetBlockStatus(Guid otherUserId, CancellationToken ct)
     {
-
-        private readonly SieveProcessor _sieveProcessor = sieveProcessor;
-
-        [HttpGet]
-        public async Task<IActionResult> GetChats(Guid userId, Guid toUserId, string ViviendaId, CancellationToken cancellationToken)
-        {
-            var chats = await chatsDb.GetChats(userId, toUserId, ViviendaId, cancellationToken);
-            return Ok(chats);
-        }
-
-        [HttpGet]
-        public IActionResult GetChatsFiltered([FromQuery] SieveModel sieveModel)
-        {
-            var result = _sieveProcessor.Apply(sieveModel, chatsDb.GetChatsQueryable().AsNoTracking().OrderBy(p => p.Date));
-            return Ok(result);
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> UpdateChat(Chat chat, CancellationToken cancellationToken)
-        {
-            if (chat == null)
-                return BadRequest("Invalid chat payload");
-
-            try
-            {
-                var updatedChat = await chatsDb.UpdateChat(chat, cancellationToken);
-                return Ok(updatedChat);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound("Chat no encontrado");
-            }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SendMessage(SendMessageDto request, CancellationToken cancellationToken)
-        {
-            if (request == null || request.UserId == null || request.ToUserId == null)
-            {
-                return BadRequest("Invalid message payload");
-            }
-
-            Chat chat = new()
-            {
-                UserId = request.UserId,
-                ToUserId = request.ToUserId,
-                Message = request.Message,
-                Date = DateTime.Now,
-                State = request.State,
-                ViviendaId = request.ViviendaId,
-            };
-
-            var createdChat = await chatsDb.CreateChat(chat, cancellationToken);
-
-            // Busca si el usuario está conectado
-            var connectionId = ChatHub.Users.FirstOrDefault(p => p.Value == createdChat.ToUserId).Key;
-
-            // Solo envía si está conectado
-            if (!string.IsNullOrEmpty(connectionId))
-            {
-                await hubContext.Clients.Client(connectionId).SendAsync("Messages", createdChat, cancellationToken: cancellationToken);
-            }
-
-            return Ok(createdChat);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteChat(string id, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(id))
-                return BadRequest("Invalid id");
-
-            var existing = await chatsDb.GetChatById(id, cancellationToken);
-            if (existing == null)
-                return NotFound("Chat not found");
-
-            await chatsDb.DeleteChat(existing, cancellationToken);
-
-            // Notificar a los participantes conectados
-            var participantIds = new[] { existing.UserId, existing.ToUserId }.OfType<Guid>().Where(pid => pid != Guid.Empty).Distinct();
-            if (participantIds != null)
-            {
-                foreach (var pid in participantIds)
-                {
-                    var conn = ChatHub.Users.FirstOrDefault(p => p.Value == pid).Key;
-                    if (!string.IsNullOrWhiteSpace(conn))
-                    {
-                        await hubContext.Clients.Client(conn).SendAsync("ChatDeleted", id, cancellationToken: cancellationToken);
-                    }
-                }
-            }
-
-            return Ok(new { deleted = id });
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> MarkConversationAsRead(
-      [FromBody] MarkConversationReadDto request,
-      CancellationToken cancellationToken)
-        {
-            var updatedIds = await chatsDb.MarkConversationAsRead(
-                request.CurrentUserId,
-                request.OtherUserId,
-                request.ViviendaId,
-                cancellationToken);
-
-            var connectionId =
-                ChatHub.Users
-                    .FirstOrDefault(x => x.Value == request.OtherUserId)
-                    .Key;
-                        Console.WriteLine(updatedIds);
-                            if (!string.IsNullOrEmpty(connectionId))
-                            {
-                                await hubContext.Clients
-                    .Client(connectionId)
-                    .SendAsync(
-                        "MessageRead",
-                        updatedIds,
-                        cancellationToken);
-                            }
-
-                            return Ok(updatedIds);
-        }
+        if (otherUserId == Guid.Empty || otherUserId == CurrentUserId) return BadRequest();
+        var state = await blocks.GetStatus(CurrentUserId, otherUserId, ct);
+        return Ok(new { state.BlockedByMe, state.BlockedMe });
     }
 
-}
+    [HttpPost]
+    public async Task<IActionResult> BlockUser(BlockUserRequest request, CancellationToken ct)
+    {
+        try { await blocks.Block(CurrentUserId, request.UserId, ct); }
+        catch (ArgumentException ex) { return BadRequest(ex.Message); }
+        catch (KeyNotFoundException) { return NotFound(); }
+        await Notify(request.UserId, "BlockStatusChanged", new { UserId = CurrentUserId });
+        await Notify(CurrentUserId, "BlockStatusChanged", new { request.UserId });
+        return NoContent();
+    }
 
-public class MarkConversationReadDto
-{
-    public Guid CurrentUserId { get; set; }
-    public Guid OtherUserId { get; set; }
-    public string ViviendaId { get; set; } = string.Empty;
+    [HttpPost]
+    public async Task<IActionResult> UnblockUser(BlockUserRequest request, CancellationToken ct)
+    {
+        if (request.UserId == Guid.Empty || request.UserId == CurrentUserId) return BadRequest();
+        await blocks.Unblock(CurrentUserId, request.UserId, ct);
+        await Notify(request.UserId, "BlockStatusChanged", new { UserId = CurrentUserId });
+        await Notify(CurrentUserId, "BlockStatusChanged", new { request.UserId });
+        return NoContent();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetConversations(CancellationToken ct) =>
+        Ok(await chats.GetConversations(CurrentUserId, ct));
+
+    [HttpGet]
+    public async Task<IActionResult> GetMessages(Guid conversationId, CancellationToken ct)
+    {
+        var result = await chats.GetMessages(conversationId, CurrentUserId, ct);
+        return result == null ? NotFound() : Ok(result);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SendMessage(SendChatRequest request, CancellationToken ct)
+    {
+        try
+        {
+            var message = await chats.SendMessage(CurrentUserId, request, ct);
+            await Notify(message.ToUserId, "ChatReappeared", new { message.ConversationId });
+            await Notify(message.ToUserId, "Messages", message);
+            return Ok(message);
+        }
+        catch (ArgumentException ex) { return BadRequest(ex.Message); }
+        catch (KeyNotFoundException) { return NotFound(); }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ClearConversation(ConversationRequest request, CancellationToken ct)
+    {
+        return await chats.ClearConversation(request.ConversationId, CurrentUserId, ct) ? Ok() : NotFound();
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateChat(UpdateChatRequest request, CancellationToken ct)
+    {
+        try
+        {
+            var message = await chats.UpdateMessage(request.Id, CurrentUserId, request.State, ct);
+            if (message != null)
+                await Notify(message.UserId, message.State == "Read" ? "MessageRead" : "MessageReceived",
+                    message.State == "Read" ? new[] { message.Id } : message.Id);
+            return message == null ? NotFound() : Ok(message);
+        }
+        catch (ArgumentException ex) { return BadRequest(ex.Message); }
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> MarkConversationAsRead(ConversationRequest request, CancellationToken ct)
+    {
+        var updated = await chats.MarkRead(request.ConversationId, CurrentUserId, ct);
+        if (updated == null) return NotFound();
+        if (updated.Count > 0)
+        {
+            var conversation = (await chats.GetConversations(CurrentUserId, ct))
+                .FirstOrDefault(c => c.ConversationId == request.ConversationId);
+            if (conversation != null) await Notify(conversation.OtherUserId, "MessageRead", updated);
+        }
+        return Ok(updated);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteChat(Guid id, CancellationToken ct)
+    {
+        var message = await chats.DeleteMessage(id, CurrentUserId, ct);
+        if (message == null) return NotFound();
+        await hub.Clients.User(message.ToUserId.ToString()).SendAsync("ChatDeleted", id, ct);
+        return Ok();
+    }
+
+    private async Task Notify(Guid userId, string method, object data)
+    {
+        try
+        {
+            await hub.Clients.User(userId.ToString()).SendAsync(method, data);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "No se pudo enviar el evento {Method} al usuario {UserId}", method, userId);
+        }
+    }
 }

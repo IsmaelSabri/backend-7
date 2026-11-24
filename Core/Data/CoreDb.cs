@@ -13,6 +13,7 @@ namespace Core.Data
         }
         public DbSet<User> Users { get; set; }//=> Set<Home>();
         public DbSet<Chat> Chats { get; set; }
+        public DbSet<Conversation> Conversations { get; set; }
         public DbSet<Extra> Extras { get; set; }
         public DbSet<ExtraContent> ExtraContents { get; set; }
         public DbSet<Cart> Carts { get; set; }
@@ -37,6 +38,8 @@ namespace Core.Data
         public DbSet<TrackEvent> TrackEvents { get; set; }
         public DbSet<AnalyticsIdentity> AnalyticsIdentities { get; set; }
         public DbSet<UserRefreshSession> UserRefreshSessions { get; set; }
+        public DbSet<ChatParticipant> ChatParticipants { get; set; }
+        public DbSet<UserBlock> UserBlocks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -203,6 +206,55 @@ namespace Core.Data
                 .WithOne()
                 .HasForeignKey(x => x.TransaccionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<UserBlock>(entity =>
+            {
+                entity.ToTable("UserBlocks");
+                entity.HasKey(x => new { x.BlockerUserId, x.BlockedUserId });
+                entity.Property(x => x.CreatedAt).HasColumnType("timestamp with time zone");
+                entity.HasOne(x => x.BlockerUser).WithMany().HasForeignKey(x => x.BlockerUserId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(x => x.BlockedUser).WithMany().HasForeignKey(x => x.BlockedUserId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(x => x.BlockedUserId);
+            });
+
+            builder.Entity<Conversation>(entity =>
+            {
+                entity.ToTable("Conversation");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.ViviendaId).IsRequired();
+                entity.Property(x => x.CreatedAt).HasConversion(
+                    value => DateTime.SpecifyKind(value, DateTimeKind.Unspecified),
+                    value => DateTime.SpecifyKind(value, DateTimeKind.Utc));
+                entity.HasIndex(x => x.ViviendaId);
+                entity.HasIndex(x => new { x.ViviendaId, x.UserAId, x.UserBId }).IsUnique();
+                entity.HasMany(x => x.Participants).WithOne(x => x.Conversation)
+                    .HasForeignKey(x => x.ConversationId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(x => x.Messages).WithOne(x => x.Conversation)
+                    .HasForeignKey(x => x.ConversationId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<ChatParticipant>(entity =>
+            {
+                entity.ToTable("ChatParticipant");
+                entity.HasKey(x => new { x.ConversationId, x.UserId });
+                entity.Property(x => x.ClearedAt).HasConversion(
+                    value => value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Unspecified) : (DateTime?)null,
+                    value => value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : (DateTime?)null);
+                entity.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(x => new { x.UserId, x.IsVisible });
+            });
+
+            builder.Entity<Chat>(entity =>
+            {
+                entity.ToTable("Chat");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Message).IsRequired();
+                entity.Property(x => x.Date).HasConversion(
+                    value => DateTime.SpecifyKind(value, DateTimeKind.Unspecified),
+                    value => DateTime.SpecifyKind(value, DateTimeKind.Utc));
+                entity.HasIndex(x => new { x.ConversationId, x.Date });
+            });
         }
     }
 }

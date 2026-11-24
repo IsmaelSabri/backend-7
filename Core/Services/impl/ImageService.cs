@@ -153,7 +153,7 @@ namespace Core.Services.impl
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 
                 var image = JsonSerializer.Deserialize<Image>(content, options);
-                return image?.ImageUrl;
+                return image?.FullUrl ?? image?.CropperUrl;
             }
             catch (HttpRequestException ex)
             {

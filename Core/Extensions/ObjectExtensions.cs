@@ -1,6 +1,4 @@
-using System;
 using System.Reflection;
-using Core.Models;
 
 namespace Core.Extensions
 {
@@ -10,7 +8,8 @@ namespace Core.Extensions
         /// Recorre las propiedades públicas de un objeto y reemplaza los valores string nulos por cadena vacía.
         /// También procesa recursivamente propiedades de clase no-sistema para cubrir objetos anidados.
         /// </summary>
-        public static void NormalizeNullStrings(this object obj)
+
+        public static void NormalizeNullValues(this object obj)
         {
             if (obj == null)
                 return;
@@ -21,8 +20,11 @@ namespace Core.Extensions
                 if (!prop.CanRead || !prop.CanWrite)
                     continue;
 
-                // Propiedades string
-                if (prop.PropertyType == typeof(string))
+                var propType = prop.PropertyType;
+                var underlyingType = Nullable.GetUnderlyingType(propType);
+
+                // 1. Propiedades string a string.Empty
+                if (propType == typeof(string))
                 {
                     var val = prop.GetValue(obj) as string;
                     if (val == null)
@@ -30,21 +32,43 @@ namespace Core.Extensions
                         prop.SetValue(obj, string.Empty);
                     }
                 }
-                else if (prop.PropertyType.IsClass && prop.PropertyType != typeof(string))
+                // 2. Propiedades numéricas anulables (int?, decimal?, double?, etc.) a 0
+                else if (underlyingType != null && IsNumericType(underlyingType))
                 {
-                    // Evitar procesar tipos del sistema (System.*) que no tienen sentido recorrer
-                    var ns = prop.PropertyType.Namespace ?? string.Empty;
+                    var val = prop.GetValue(obj);
+                    if (val == null)
+                    {
+                        // Creamos un valor '0' convertido dinámicamente al tipo subyacente correcto
+                        var zeroValue = Convert.ChangeType(0, underlyingType);
+                        prop.SetValue(obj, zeroValue);
+                    }
+                }
+                // 3. Objetos complejos anidados (recursión)
+                else if (propType.IsClass)
+                {
+                    var ns = propType.Namespace ?? string.Empty;
                     if (ns.StartsWith("System"))
                         continue;
 
                     var nested = prop.GetValue(obj);
                     if (nested != null)
                     {
-                        // Llamada recursiva para objetos anidados
-                        NormalizeNullStrings(nested);
+                        NormalizeNullValues(nested);
                     }
                 }
             }
         }
+
+        // Función auxiliar para identificar si un tipo es numérico nativo
+        private static bool IsNumericType(Type type)
+        {
+            return type == typeof(int) || type == typeof(double) ||
+                   type == typeof(decimal) || type == typeof(long) ||
+                   type == typeof(float) || type == typeof(short) ||
+                   type == typeof(byte) || type == typeof(sbyte) ||
+                   type == typeof(uint) || type == typeof(ulong) ||
+                   type == typeof(ushort);
+        }
     }
+
 }

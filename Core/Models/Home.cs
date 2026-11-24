@@ -136,6 +136,10 @@ namespace Core.Models
         public string[]? DiscardedByUsers { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string[]? LikeMeForever { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public bool Vendido { get; set; }
+        [Sieve(CanFilter = true, CanSort = true)]
+        public string? OrganizationId { get; set; }
         [NotMapped]
         public Image[]? Images { get; set; }
         [NotMapped]
@@ -143,5 +147,6 @@ namespace Core.Models
         [NotMapped]
         public Image? EnergyCert { get; set; }
         public ICollection<Garage>? Garages { get; set; } = [];
+        public ICollection<ExtraContent>? Extras { get; set; }
     }
 }

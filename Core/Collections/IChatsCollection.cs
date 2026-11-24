@@ -1,19 +1,14 @@
-using Core.Models;
+using Core.Dto;
 
-namespace Core.Collections
+namespace Core.Collections;
+
+public interface IChats
 {
-    public interface IChats
-    {
-        Task<List<Chat>> GetChats(Guid userId, Guid toUserId, string ViviendaId, CancellationToken cancellationToken);
-        IQueryable<Chat> GetChatsQueryable();
-        Task<Chat?> GetChatById(string id, CancellationToken cancellationToken);
-        Task<Chat> CreateChat(Chat chat, CancellationToken cancellationToken);
-        Task<Chat> UpdateChat(Chat chat, CancellationToken cancellationToken);
-        Task DeleteChat(Chat chat, CancellationToken cancellationToken);
-        Task<List<string>> MarkConversationAsRead(
-    Guid currentUserId,
-    Guid otherUserId,
-    string viviendaId,
-    CancellationToken ct);
-    }
+    Task<List<ConversationDto>> GetConversations(Guid userId, CancellationToken ct);
+    Task<List<ChatDto>?> GetMessages(Guid conversationId, Guid userId, CancellationToken ct);
+    Task<ChatDto> SendMessage(Guid senderId, SendChatRequest request, CancellationToken ct);
+    Task<bool> ClearConversation(Guid conversationId, Guid userId, CancellationToken ct);
+    Task<ChatDto?> UpdateMessage(Guid id, Guid userId, string state, CancellationToken ct);
+    Task<List<Guid>?> MarkRead(Guid conversationId, Guid userId, CancellationToken ct);
+    Task<ChatDto?> DeleteMessage(Guid id, Guid userId, CancellationToken ct);
 }

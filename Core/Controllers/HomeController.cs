@@ -3,6 +3,7 @@ using AutoMapper;
 using Core.Collections.Impl;
 using Core.Collections;
 using Core.Data;
+using Core.Dto;
 using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Core.Extensions;
@@ -78,32 +79,8 @@ namespace Core.Controllers
             };
         }
 
-        [HttpGet("imgbb-health")]
-        public async Task<IActionResult> CheckImgbb()
-        {
-            try
-            {
-                using var http = new HttpClient();
-                http.Timeout = TimeSpan.FromSeconds(3);
-
-                var res = await http.GetAsync("https://api.imgbb.com/");
-
-                return Ok(new { ok = res.IsSuccessStatusCode });
-            }
-            catch
-            {
-                return Ok(new { ok = false });
-            }
-        }
-
-        [HttpPost("dummy-upload")]
-        public IActionResult DummyUpload()
-        {
-            return Ok();
-        }
-
         [HttpPost("new")]
-        public async Task<IActionResult> CreateHome([FromBody] Home homeDto)
+        public async Task<IActionResult> CreateHome([FromBody] HomeDto homeDto)
         {
             if (homeDto == null)
                 return BadRequest();
@@ -131,7 +108,8 @@ namespace Core.Controllers
             home.Lng = Convert.ToDouble(homeDto.Lng, coordinateProvider);
             home.FechaCreacion = DateTime.UtcNow.ToLocalTime();
             home.FechaUltimaModificacion = DateTime.UtcNow.ToLocalTime();
-            home.NormalizeNullStrings();
+            home.NormalizeNullValues();
+            
             await db.NewHome(home);
 
             return Created("Created", home);

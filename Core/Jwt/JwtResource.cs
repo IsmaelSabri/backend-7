@@ -12,11 +12,22 @@ namespace Core.Jwt
         private readonly string secureKey = "gcuq@Q3rnc38BH7ARAv5tqZruUUuvFerCf+kzZ48^6s(AF9PyUNy^s";
         //private readonly IUserCollection db = new UserCollection();
 
+        public TokenValidationParameters ValidationParameters() => new()
+        {
+            ValidateAudience = false,
+            ValidateIssuer = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secureKey)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+
         public string Generate(User user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secureKey);
             ClaimsIdentity identity = new();
+            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
             if (!string.IsNullOrEmpty(user.Role) && !string.IsNullOrEmpty(user.Email))
             {
                 identity.AddClaim(new Claim(ClaimTypes.Role, user.Role));

@@ -237,16 +237,21 @@ namespace Email.Service.impl
                     "No se puede enviar el email porque no se ha especificado ningún destinatario.");
             }
 
+            var host = emailConfiguration.ServerAddress
+                ?? throw new InvalidOperationException("Falta la configuración ServerAddress del servidor SMTP.");
+            var userName = emailConfiguration.FromAddress
+                ?? throw new InvalidOperationException("Falta la configuración FromAddress del servidor SMTP.");
+            var password = emailConfiguration.Password
+                ?? throw new InvalidOperationException("Falta la configuración Password del servidor SMTP.");
+
             using var smtp = new SmtpClient();
 
             await smtp.ConnectAsync(
-                emailConfiguration.ServerAddress,
+                host,
                 emailConfiguration.ServerPort,
                 SecureSocketOptions.StartTls);
 
-            await smtp.AuthenticateAsync(
-                emailConfiguration.FromAddress,
-                emailConfiguration.Password);
+            await smtp.AuthenticateAsync(userName, password);
 
             await smtp.SendAsync(email);
 

@@ -12,12 +12,27 @@ using Sieve.Services;
 using Core.Configuration;
 using Core.Collections.Impl;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new JwtResource().ValidationParameters();
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Path.StartsWithSegments("/chat-hub"))
+                context.Token = context.Request.Query["access_token"];
+            return Task.CompletedTask;
+        }
+    };
+});
+builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient("Overpass", client =>
 {
@@ -64,6 +79,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IResetTokenService, ResetTokenService>();
 builder.Services.AddScoped<IHomeCollection, HomeCollection>();
 builder.Services.AddScoped<IChats, ChatsCollection>();
+builder.Services.AddScoped<IUserBlocks, UserBlocksCollection>();
 builder.Services.AddScoped<IExtraContentCollection, ExtraContentCollection>();
 builder.Services.AddScoped<IExtraCollection, ExtraCollection>();
 builder.Services.AddScoped<ICartCollection, CartCollection>();
@@ -105,11 +121,7 @@ app.Use(async (context, next) =>
     await next();
 });
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
 app.UseRouting();
-app.MapHub<ChatHub>("/chat-hub");
-app.MapControllers();
 app.UseCors(options => options
                 .WithOrigins(["http://localhost:3000", "http://localhost:8080", "http://localhost:4200", "https://localhost:4200"
                 , "https://host.docker.internal:4040", "https://localhost:4040"])// React, Vue, Angular
@@ -117,5 +129,9 @@ app.UseCors(options => options
                 .AllowAnyMethod()
                 .AllowCredentials()
             );
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapHub<ChatHub>("/chat-hub");
+app.MapControllers();
 
 app.Run();

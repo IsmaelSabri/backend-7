@@ -1,4 +1,5 @@
 using AutoMapper;
+using Core.Dto;
 using Core.Models;
 
 namespace Core.Profiles
@@ -7,13 +8,13 @@ namespace Core.Profiles
     {
         public HomeProfile()
         {
-            CreateMap<Home, Home>().ValidateMemberList(MemberList.None);
-            CreateMap<Home, Flat>().ValidateMemberList(MemberList.None);
-            CreateMap<Home, House>().ValidateMemberList(MemberList.None);
-            CreateMap<Home, Room>().ValidateMemberList(MemberList.None);
-            CreateMap<Home, HolidayRent>().ValidateMemberList(MemberList.None);
-            CreateMap<Home, NewProject>().ValidateMemberList(MemberList.None);
-            CreateMap<Home, Other>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, Home>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, Flat>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, House>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, Room>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, HolidayRent>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, NewProject>().ValidateMemberList(MemberList.None);
+            CreateMap<HomeDto, Other>().ValidateMemberList(MemberList.None);
         }
     }
 }

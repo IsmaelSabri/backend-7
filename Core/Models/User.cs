@@ -30,7 +30,6 @@ namespace Core.Models
         public bool Isactive { get; set; }
         public string? Status { get; set; }
         [Sieve(CanFilter = true)]
-        public string[]? BlockedUsers { get; set; }
 
         [NotMapped]
         public Image? ProfileImage { get; set; }

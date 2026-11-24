@@ -3,7 +3,11 @@ using Images.Collections.Impl;
 using Images.Data;
 using Microsoft.EntityFrameworkCore;
 using Sieve.Services;
-using Images.Profiles;
+using Images.Services;
+using Images.Services.Impl;
+using Images.Configuration;
+using Amazon.S3;
+using Microsoft.Extensions.Options;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ImageProfile()));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", builder => builder.WithOrigins("http://localhost:4200", "https://localhost:4200")
@@ -22,6 +26,13 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IImageCollection, ImageCollection>();
+builder.Services.Configure<CloudflareR2Options>(
+builder.Configuration.GetSection(CloudflareR2Options.SectionName));
+builder.Services.AddSingleton<IAmazonS3>(services =>
+    CloudflareR2ClientFactory.Create(services.GetRequiredService<IOptions<CloudflareR2Options>>().Value));
+builder.Services.AddSingleton<IImageStorageService, R2StorageService>();
+builder.Services.AddHostedService<ImageQueuePublisher>();
+builder.Services.AddScoped<IImageManager, ImageManager>();
 builder.Services.AddScoped<ISieveCustomFilterMethods, ImageCollection>();
 builder.Services.AddScoped<SieveProcessor>();
 var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
@@ -35,6 +46,10 @@ if (app.Environment.IsDevelopment())
 {
     // show details
     app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler();
 }
 
 app.UseHttpsRedirection();

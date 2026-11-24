@@ -14,6 +14,9 @@ Homes/appsettings.json
 Email/appsettings.json
 Core/appsettings.json
 Images/appsettings.json
+.env
+.env.*
+!.env.example
 
 # Weird folders
 Core/obj
